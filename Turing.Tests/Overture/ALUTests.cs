@@ -1,6 +1,4 @@
 ﻿using Turing.Core.Overture;
-using Turing.Core.Electricity;
-
 namespace Turing.Tests.Overture;
 
 [TestFixture]
