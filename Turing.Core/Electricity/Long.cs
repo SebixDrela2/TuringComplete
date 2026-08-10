@@ -40,7 +40,7 @@ public readonly record struct Long : IBitValue<Long>
         return new Long(0);
     }
     public Long FromBits(bool[] bits) => new Long(bits);
-    public bool GetBit(int index) => _bits[index];
+    public Bit GetBit(int index) => _bits[index];
     public Long SetBit(int index, bool value)
     {
         var newBits = (bool[])_bits.Clone();

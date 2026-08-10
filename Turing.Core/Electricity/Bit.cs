@@ -12,7 +12,7 @@ public readonly record struct Bit : IBitValue<Bit>
 
     public Bit FromValue(bool value) => new(value);
     public Bit FromBits(bool[] bits) => bits.Length > 0 ? new Bit(bits[0]) : new Bit(false);
-    public bool GetBit(int index) => index == 0 ? _value : throw new IndexOutOfRangeException();
+    public Bit GetBit(int index) => index == 0 ? _value : throw new IndexOutOfRangeException();
     public Bit SetBit(int index, bool value) => index == 0 ? new Bit(value) : throw new IndexOutOfRangeException();
 
     public static implicit operator Bit(bool value) => new(value);

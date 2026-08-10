@@ -17,8 +17,8 @@ public class NAND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IBitVal
 
         for (int i = 0; i < gate._inputA.BitWidth; i++)
         {
-            var aBit = new Bit(gate._inputA.GetBit(i));
-            var bBit = new Bit(gate._inputB.GetBit(i));
+            var aBit = new Bit((bool)gate._inputA.GetBit(i));
+            var bBit = new Bit((bool)gate._inputB.GetBit(i));
 
             var t1Out = gate._t1.Eval(aBit, bBit);
             var t2Out = gate._t2.Eval(bBit, t1Out);

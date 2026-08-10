@@ -10,7 +10,7 @@ public interface IBitValue<T> : IBitValue where T : struct, IBitValue<T>
 {
     T FromValue(bool value);
     T FromBits(bool[] bits);
-    bool GetBit(int index);
+    Bit GetBit(int index);
     T SetBit(int index, bool value);
 }
 

@@ -13,12 +13,12 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IBitValue<T>
     {
         int bitWidth = adder._inputA.BitWidth;
         var sumBits = new bool[bitWidth];
-        Bit carry = new Bit(adder._cin.GetBit(0));
+        Bit carry = new Bit((bool)adder._cin.GetBit(0));
 
         for (int i = 0; i < bitWidth; i++)
         {
-            var bitA = new Bit(adder._inputA.GetBit(i));
-            var bitB = new Bit(adder._inputB.GetBit(i));
+            var bitA = new Bit((bool)adder._inputA.GetBit(i));
+            var bitB = new Bit((bool)adder._inputB.GetBit(i));
 
             var (sum1, carryOut) = ((Bit, Bit))new HADDER<Bit>(bitA, bitB);
             var (finalSum, finalCarry) = ((Bit, Bit))new HADDER<Bit>(sum1, carry);

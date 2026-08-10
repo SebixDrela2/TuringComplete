@@ -331,7 +331,7 @@ internal class XORTests
 
         // Act
         Byte actualByte = new XOR<Byte>(a, b);
-        Bit actual = new Bit(actualByte.GetBit(0));
+        Bit actual = new Bit((bool)actualByte.GetBit(0));
 
         // Assert
         Assert.That(actual, Is.EqualTo(expected));

@@ -34,7 +34,7 @@ public readonly record struct Byte : IBitValue<Byte>
         return new Byte(0);
     }
     public Byte FromBits(bool[] bits) => new Byte(bits);
-    public bool GetBit(int index) => _bits[index];
+    public Bit GetBit(int index) => _bits[index];
     public Byte SetBit(int index, bool value)
     {
         var newBits = (bool[])_bits.Clone();

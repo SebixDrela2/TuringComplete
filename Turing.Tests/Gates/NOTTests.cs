@@ -236,7 +236,7 @@ internal class NOTTests
 
         // Act
         Byte actualByte = new NOT<Byte>(input);
-        Bit actual = new Bit(actualByte.GetBit(0));
+        Bit actual = new Bit((bool)actualByte.GetBit(0));
 
         // Assert
         Assert.That(actual, Is.EqualTo(expected));

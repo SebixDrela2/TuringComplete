@@ -35,7 +35,7 @@ public readonly record struct Short : IBitValue<Short>
 
     public Short FromBits(bool[] bits) => new Short(bits);
 
-    public bool GetBit(int index) => _bits[index];
+    public Bit GetBit(int index) => _bits[index];
     public Short SetBit(int index, bool value)
     {
         var newBits = (bool[])_bits.Clone();
