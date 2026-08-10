@@ -1,29 +1,10 @@
 ﻿using Turing.Core.Components.Memory;
-using Turing.Core.Electricity;
 
 namespace Turing.Tests.Components.Memory;
 
 [TestFixture]
 internal class REGISTERTests
 {
-    // Reference model for register: latch and delay states
-    private static (T latch, T delay) SimulateRegister<T>(T init, Bit save, T value, Bit tick) where T : struct, IBitValue<T>
-    {
-        // Initialize with load: save=1, tick=1 then tick=0 to latch
-        // But we can just start with latch=init, delay=init (after initialization)
-        T latch = init;
-        T delay = init;
-
-        if (save.Value) latch = value;
-        if (tick.Value) delay = latch;
-
-        return (latch, delay);
-    }
-
-    // ==========================================
-    // BIT TESTS - Specific Sequence from Old Tests (Now Dynamic)
-    // ==========================================
-
     [Test]
     public void REGISTER_Bit_Sequence_ReturnsCorrectOutput()
     {

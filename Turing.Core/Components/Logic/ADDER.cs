@@ -9,7 +9,7 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IBitValue<T>
     private readonly T _inputB = inputB;
     private readonly T _cin = cin;
 
-    public static implicit operator (T Sum, T Carry)(ADDER<T> adder)
+    public static implicit operator (T Sum, Bit Carry)(ADDER<T> adder)
     {
         int bitWidth = adder._inputA.BitWidth;
         var sumBits = new bool[bitWidth];
@@ -30,10 +30,6 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IBitValue<T>
 
         var sum = adder._inputA.FromBits(sumBits);
 
-        var carryBits = new bool[bitWidth];
-        carryBits[0] = carry.Value;
-        var carryResult = adder._inputA.FromBits(carryBits);
-
-        return (sum, carryResult);
+        return (sum, carry.Value);
     }
 }

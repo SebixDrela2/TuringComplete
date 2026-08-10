@@ -51,7 +51,7 @@ internal class ADDERTests
                     // Calculate expected: Sum = (a + b + cin) & 0xFF, Carry = (a + b + cin) >> 8
                     int total = a + b + cin;
                     var expectedSum = new Byte(total & 0xFF);
-                    var expectedCarry = new Byte((total >> 8) & 0xFF);
+                    var expectedCarry = new Bit((total >> 8) > 0);
 
                     // Arrange
                     var inputA = new Byte(a);
@@ -59,7 +59,7 @@ internal class ADDERTests
                     var inputCin = new Byte(cin);
 
                     // Act
-                    (Byte Sum, Byte Carry) actual = new ADDER<Byte>(inputA, inputB, inputCin);
+                    (Byte Sum, Bit Carry) actual = new ADDER<Byte>(inputA, inputB, inputCin);
 
                     // Assert
                     Assert.That(actual.Sum, Is.EqualTo(expectedSum),
@@ -75,34 +75,34 @@ internal class ADDERTests
     public void ADDER_ImplicitConversion_WithByteInputs_SpecificCases_ReturnsCorrectOutput()
     {
         // All zeros
-        (Byte Sum, Byte Carry) actual1 = new ADDER<Byte>(0x00, 0x00, 0x00);
+        (Byte Sum, Bit Carry) actual1 = new ADDER<Byte>(0x00, 0x00, 0x00);
         Assert.That(actual1.Sum, Is.EqualTo(new Byte(0x00)));
-        Assert.That(actual1.Carry, Is.EqualTo(new Byte(0x00)));
+        Assert.That(actual1.Carry, Is.EqualTo(new Bit(0x00)));
 
         // Max values with carry
-        (Byte Sum, Byte Carry) actual2 = new ADDER<Byte>(0xFF, 0xFF, 0x01);
+        (Byte Sum, Bit Carry) actual2 = new ADDER<Byte>(0xFF, 0xFF, 0x01);
         Assert.That(actual2.Sum, Is.EqualTo(new Byte(0xFF))); // 255 + 255 + 1 = 511, low byte = 255
-        Assert.That(actual2.Carry, Is.EqualTo(new Byte(0x01))); // carry = 1
+        Assert.That(actual2.Carry, Is.EqualTo(new Bit(0x01))); // carry = 1
 
         // Max values without carry
-        (Byte Sum, Byte Carry) actual3 = new ADDER<Byte>(0xFF, 0xFF, 0x00);
+        (Byte Sum, Bit Carry) actual3 = new ADDER<Byte>(0xFF, 0xFF, 0x00);
         Assert.That(actual3.Sum, Is.EqualTo(new Byte(0xFE))); // 255 + 255 = 510, low byte = 254
-        Assert.That(actual3.Carry, Is.EqualTo(new Byte(0x01))); // carry = 1
+        Assert.That(actual3.Carry, Is.EqualTo(new Bit(0x01))); // carry = 1
 
         // Half values
-        (Byte Sum, Byte Carry) actual4 = new ADDER<Byte>(0x80, 0x80, 0x00);
+        (Byte Sum, Bit Carry) actual4 = new ADDER<Byte>(0x80, 0x80, 0x00);
         Assert.That(actual4.Sum, Is.EqualTo(new Byte(0x00))); // 128 + 128 = 256, low byte = 0
-        Assert.That(actual4.Carry, Is.EqualTo(new Byte(0x01))); // carry = 1
+        Assert.That(actual4.Carry, Is.EqualTo(new Bit(0x01))); // carry = 1
 
         // Random values
-        (Byte Sum, Byte Carry) actual5 = new ADDER<Byte>(0xAA, 0x55, 0x01);
+        (Byte Sum, Bit Carry) actual5 = new ADDER<Byte>(0xAA, 0x55, 0x01);
         Assert.That(actual5.Sum, Is.EqualTo(new Byte(0x00))); // 170 + 85 + 1 = 256, low byte = 0
-        Assert.That(actual5.Carry, Is.EqualTo(new Byte(0x01))); // carry = 1
+        Assert.That(actual5.Carry, Is.EqualTo(new Bit(0x01))); // carry = 1
 
         // With cin = 1 adding 1
-        (Byte Sum, Byte Carry) actual6 = new ADDER<Byte>(0x00, 0x00, 0x01);
+        (Byte Sum, Bit Carry) actual6 = new ADDER<Byte>(0x00, 0x00, 0x01);
         Assert.That(actual6.Sum, Is.EqualTo(new Byte(0x01)));
-        Assert.That(actual6.Carry, Is.EqualTo(new Byte(0x00)));
+        Assert.That(actual6.Carry, Is.EqualTo(new Bit(0x00)));
     }
 
     // ==========================================
@@ -353,9 +353,9 @@ internal class ADDERTests
         var bitA = new Bit(true);
         var bitB = new Bit(false);
         var bitCin = new Bit(true);
-        (Byte Sum, Byte Carry) actual1 = new ADDER<Byte>(bitA, bitB, bitCin);
+        (Byte Sum, Bit Carry) actual1 = new ADDER<Byte>(bitA, bitB, bitCin);
         Assert.That(actual1.Sum, Is.EqualTo(new Byte(0x02))); // 1 + 0 + 1 = 2
-        Assert.That(actual1.Carry, Is.EqualTo(new Byte(0x00))); // no carry
+        Assert.That(actual1.Carry, Is.EqualTo(new Bit(0x00))); // no carry
 
         // Byte to Short promotion
         var byteA = new Byte(0xFF);
