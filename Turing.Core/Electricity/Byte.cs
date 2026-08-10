@@ -3,6 +3,7 @@
 public readonly record struct Byte : IBitValue<Byte>
 {
     private readonly bool[] _bits;
+    public readonly bool[] Bits => _bits;
 
     public Byte(bool[] bits)
     {
