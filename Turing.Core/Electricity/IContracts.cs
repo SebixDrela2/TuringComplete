@@ -1,0 +1,28 @@
+﻿namespace Turing.Core.Electricity;
+
+public interface IBitValue
+{
+    bool Value { get; }
+    int BitWidth { get; }
+}
+
+public interface IBitValue<T> : IBitValue where T : struct, IBitValue<T>
+{
+    T FromValue(bool value);
+    T FromBits(bool[] bits);
+    bool GetBit(int index);
+    T SetBit(int index, bool value);
+}
+
+public interface IGate<TInput, TOutput> where TInput : IBitValue where TOutput : IBitValue;
+
+public interface IUnaryGate<TInput, TOutput> where TInput : IBitValue where TOutput : IBitValue
+{
+    TOutput Evaluate(TInput a);
+}
+
+public interface IStateGate<T> where T : struct, IBitValue<T>
+{
+    T State { get; }
+    void Reset();
+}
