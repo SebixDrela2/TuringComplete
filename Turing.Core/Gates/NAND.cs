@@ -13,9 +13,9 @@ public class NAND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IBitVal
 
     public static implicit operator T(NAND<T> gate)
     {
-        var resultBits = new bool[gate._inputA.BitWidth];
+        var resultBits = new bool[T.BitWidth];
 
-        for (int i = 0; i < gate._inputA.BitWidth; i++)
+        for (int i = 0; i < T.BitWidth; i++)
         {
             var aBit = new Bit((bool)gate._inputA.GetBit(i));
             var bBit = new Bit((bool)gate._inputB.GetBit(i));

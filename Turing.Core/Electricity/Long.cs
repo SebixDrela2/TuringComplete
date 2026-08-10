@@ -25,7 +25,7 @@ public readonly record struct Long : IBitValue<Long>
     }
 
     public bool Value => _bits[0];
-    public int BitWidth => 64;
+    public static int BitWidth => 64;
 
     public Long FromValue(bool value)
     {

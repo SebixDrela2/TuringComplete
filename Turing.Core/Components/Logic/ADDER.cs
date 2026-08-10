@@ -11,7 +11,7 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IBitValue<T>
 
     public static implicit operator (T Sum, Bit Carry)(ADDER<T> adder)
     {
-        int bitWidth = adder._inputA.BitWidth;
+        int bitWidth = T.BitWidth;
         var sumBits = new bool[bitWidth];
         Bit carry = new Bit((bool)adder._cin.GetBit(0));
 

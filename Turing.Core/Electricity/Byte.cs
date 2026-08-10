@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-namespace Turing.Core.Electricity;
+﻿namespace Turing.Core.Electricity;
 
 public readonly record struct Byte : IBitValue<Byte>
 {
@@ -19,7 +18,7 @@ public readonly record struct Byte : IBitValue<Byte>
     }
 
     public bool Value => _bits[0];
-    public int BitWidth => 8;
+    public static int BitWidth => 8;
 
     public Byte FromValue(bool value)
     {

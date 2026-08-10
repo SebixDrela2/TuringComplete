@@ -3,11 +3,11 @@
 public interface IBitValue
 {
     bool Value { get; }
-    int BitWidth { get; }
 }
 
 public interface IBitValue<T> : IBitValue where T : struct, IBitValue<T>
 {
+    static abstract int BitWidth { get; }
     T FromValue(bool value);
     T FromBits(bool[] bits);
     Bit GetBit(int index);

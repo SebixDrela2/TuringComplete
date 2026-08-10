@@ -18,7 +18,7 @@ public readonly record struct Short : IBitValue<Short>
     }
 
     public bool Value => _bits[0];
-    public int BitWidth => 16;
+    public static int BitWidth => 16;
 
     public Short FromValue(bool value)
     {
