@@ -21,7 +21,6 @@ public class COUNTER<T> : IStateGate<T> where T : struct, IBitValue<T>
     {
         _register = new REGISTER<T>();
         _one = new CONST<T>(1);
-        // Load initial value
         Load(initialValue);
     }
 
@@ -29,6 +28,7 @@ public class COUNTER<T> : IStateGate<T> where T : struct, IBitValue<T>
     {
         T one = (T)_one;
         T incremented = Add(_state, one);
+        // MUX: if load=1, use loadValue; else use incremented
         T muxResult = new MUX<T>(incremented, loadValue, load);
 
         _register.EVal(new Bit(true), muxResult, tick);
