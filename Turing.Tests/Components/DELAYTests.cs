@@ -1,5 +1,6 @@
 ﻿using Turing.Core.Components.Memory;
 using Turing.Core.Electricity;
+using Turing.Core.Gates.Primitives;
 
 namespace Turing.Tests.Components.Memory;
 
@@ -45,11 +46,13 @@ internal class DELAYTests
     public void DELAY_Sequential_WithBitInputs_ReturnsCorrectOutput(
         int tick1, int tick2, int tick3, int tick4, int tick5)
     {
-        var delay = new DELAY<Bit>();
+        var clock = new CLOCK();
+        var delay = new DELAY<Bit>(new Bit(0), clock);
         Bit captured = new Bit(0); // Last value captured on rising edge
 
         // Step 1: Clock=0 (low), input=tick1
-        delay.EVal(new Bit(tick1), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Bit(tick1));
         Bit result1 = (Bit)delay;
         // On clock low, output holds the last captured value (initial 0)
         Assert.That(result1, Is.EqualTo(captured),
@@ -57,7 +60,8 @@ internal class DELAYTests
         // No rising edge, captured unchanged
 
         // Step 2: Clock=1 (rising edge), input=tick2
-        delay.EVal(new Bit(tick2), new Bit(1));
+        clock.Set(new Bit(1));
+        delay.EVal(new Bit(tick2));
         Bit result2 = (Bit)delay;
         // On rising edge, output becomes input
         captured = new Bit(tick2);
@@ -65,7 +69,8 @@ internal class DELAYTests
             $"Step2 failed: expected {captured.Value}, got {result2.Value}");
 
         // Step 3: Clock=0 (low), input=tick3
-        delay.EVal(new Bit(tick3), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Bit(tick3));
         Bit result3 = (Bit)delay;
         // On clock low, output holds the last captured value (tick2)
         Assert.That(result3, Is.EqualTo(captured),
@@ -73,7 +78,8 @@ internal class DELAYTests
         // No rising edge
 
         // Step 4: Clock=1 (rising edge), input=tick4
-        delay.EVal(new Bit(tick4), new Bit(1));
+        clock.Set(new Bit(1));
+        delay.EVal(new Bit(tick4));
         Bit result4 = (Bit)delay;
         // On rising edge, output becomes input
         captured = new Bit(tick4);
@@ -81,7 +87,8 @@ internal class DELAYTests
             $"Step4 failed: expected {captured.Value}, got {result4.Value}");
 
         // Step 5: Clock=0 (low), input=tick5
-        delay.EVal(new Bit(tick5), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Bit(tick5));
         Bit result5 = (Bit)delay;
         // On clock low, output holds the last captured value (tick4)
         Assert.That(result5, Is.EqualTo(captured),
@@ -101,14 +108,19 @@ internal class DELAYTests
             {
                 for (int tick = 0; tick <= 1; tick++)
                 {
-                    var delay = new DELAY<Bit>();
+                    var clock = new CLOCK();
+                    var delay = new DELAY<Bit>(new Bit(true), clock);
                     // Proper initialization
-                    delay.EVal(new Bit(initial), new Bit(true));
-                    delay.EVal(new Bit(initial), new Bit(false));
-                    delay.EVal(new Bit(input), new Bit(false));
+                    clock.Set(new Bit(true));
+                    delay.EVal(new Bit(initial));
+                    clock.Set(new Bit(false));
+                    delay.EVal(new Bit(initial));
+                    clock.Set(new Bit(false));
+                    delay.EVal(new Bit(input));
                     var expected = new Bit(tick == 1 ? input : initial);
 
-                    delay.EVal(new Bit(input), new Bit(tick));
+                    clock.Set(new Bit(tick));
+                    delay.EVal(new Bit(input));
                     Bit actual = (Bit)delay;
 
                     Assert.That(actual, Is.EqualTo(expected),
@@ -126,7 +138,9 @@ internal class DELAYTests
             for (int tick = 0; tick <= 1; tick++)
             {
                 var expected = new Bit(tick == 1 ? input : 0);
-                var delay = new DELAY<Bit>(new Bit(input), new Bit(tick));
+                var clock = new CLOCK();
+                clock.Set(new Bit(tick));
+                var delay = new DELAY<Bit>(new Bit(input), clock);
                 Bit actual = (Bit)delay;
 
                 Assert.That(actual, Is.EqualTo(expected),
@@ -138,9 +152,13 @@ internal class DELAYTests
     [Test]
     public void DELAY_Reset_WithBitInputs_ResetsToZero()
     {
-        var delay = new DELAY<Bit>();
-        delay.EVal(new Bit(1), new Bit(true));
-        delay.EVal(new Bit(1), new Bit(false));
+        var clock = new CLOCK();
+        var delay = new DELAY<Bit>(new Bit(true), clock);
+
+        clock.Set(new Bit(true));
+        delay.EVal(new Bit(1));
+        clock.Set(new Bit(false));
+        delay.EVal(new Bit(1));
         Assert.That((Bit)delay, Is.EqualTo(new Bit(1)));
 
         delay.Reset();
@@ -160,13 +178,19 @@ internal class DELAYTests
             {
                 for (int tick = 0; tick <= 1; tick++)
                 {
-                    var delay = new DELAY<Byte>();
-                    delay.EVal(new Byte(initial), new Bit(true));
-                    delay.EVal(new Byte(initial), new Bit(false));
-                    delay.EVal(new Byte(input), new Bit(false));
+                    var clock = new CLOCK();
+                    var delay = new DELAY<Byte>(new Bit(true), clock);
+
+                    clock.Set(new Bit(true));
+                    delay.EVal(new Byte(initial));
+                    clock.Set(new Bit(false));
+                    delay.EVal(new Byte(initial));
+                    clock.Set(new Bit(false));
+                    delay.EVal(new Byte(input));
                     var expected = new Byte(tick == 1 ? input : initial);
 
-                    delay.EVal(new Byte(input), new Bit(tick));
+                    clock.Set(new Bit(tick));
+                    delay.EVal(new Byte(input));
                     Byte actual = (Byte)delay;
 
                     Assert.That(actual, Is.EqualTo(expected),
@@ -183,8 +207,10 @@ internal class DELAYTests
         {
             for (int tick = 0; tick <= 1; tick++)
             {
+                var clock = new CLOCK();
                 var expected = new Byte(tick == 1 ? input : 0);
-                var delay = new DELAY<Byte>(new Byte(input), new Bit(tick));
+                clock.Set(new Bit(tick));
+                var delay = new DELAY<Byte>(new Byte(input), clock);
                 Byte actual = (Byte)delay;
 
                 Assert.That(actual, Is.EqualTo(expected),
@@ -196,30 +222,40 @@ internal class DELAYTests
     [Test]
     public void DELAY_WithByteInputs_SpecificCases_ReturnsCorrectOutput()
     {
-        var delay = new DELAY<Byte>();
+        var clock = new CLOCK();
+        var delay = new DELAY<Byte>(new Bit(0), clock);
 
-        delay.EVal(new Byte(0xAA), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Byte(0xAA));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0x00)));
 
-        delay.EVal(new Byte(0xAA), new Bit(1));
+        clock.Set(new Bit(1));
+        delay.EVal(new Byte(0xAA));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0xAA)));
 
-        delay.EVal(new Byte(0xCC), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Byte(0xCC));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0xAA)));
 
-        delay.EVal(new Byte(0xCC), new Bit(1));
+        clock.Set(new Bit(1));
+        delay.EVal(new Byte(0xCC));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0xCC)));
 
-        delay.EVal(new Byte(0xFF), new Bit(0));
+        clock.Set(new Bit(0));
+        delay.EVal(new Byte(0xFF));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0xCC)));
     }
 
     [Test]
     public void DELAY_Reset_WithByteInputs_ResetsToZero()
     {
-        var delay = new DELAY<Byte>();
-        delay.EVal(new Byte(0xAA), new Bit(1));
-        delay.EVal(new Byte(0xAA), new Bit(0));
+        var clock = new CLOCK();
+        var delay = new DELAY<Byte>(new Bit(1), clock);
+
+        clock.Set(new Bit(1));
+        delay.EVal(new Byte(0xAA));
+        clock.Set(new Bit(0));
+        delay.EVal(new Byte(0xAA));
         Assert.That((Byte)delay, Is.EqualTo(new Byte(0xAA)));
 
         delay.Reset();
@@ -240,13 +276,18 @@ internal class DELAYTests
             int input = random.Next(0x0000, 0xFFFF + 1);
             int tick = random.Next(0, 2);
 
-            var delay = new DELAY<Short>();
-            delay.EVal(new Short(initial), new Bit(true));
-            delay.EVal(new Short(initial), new Bit(false));
-            delay.EVal(new Short(input), new Bit(false));
+            var clock = new CLOCK();
+            var delay = new DELAY<Short>(new Bit(true), clock);
+            clock.Set(new Bit(true));
+            delay.EVal(new Short(initial));
+            clock.Set(new Bit(false));
+            delay.EVal(new Short(initial));
+            clock.Set(new Bit(false));
+            delay.EVal(new Short(input));
             var expected = new Short(tick == 1 ? input : initial);
 
-            delay.EVal(new Short(input), new Bit(tick));
+            clock.Set(new Bit(tick));
+            delay.EVal(new Short(input));
             Short actual = (Short)delay;
 
             Assert.That(actual, Is.EqualTo(expected),
@@ -268,12 +309,18 @@ internal class DELAYTests
             int input = random.Next();
             int tick = random.Next(0, 2);
 
-            var delay = new DELAY<Int>(new Int(initial), new Bit(true));
-            delay.EVal(new Int(initial), new Bit(false));
-            delay.EVal(new Int(input), new Bit(false));
+            var clock = new CLOCK();
+            clock.Set(new Bit(true));
+            var delay = new DELAY<Int>(new Int(initial), clock);
+
+            clock.Set(new Bit(false));
+            delay.EVal(new Int(initial));
+            clock.Set(new Bit(false));
+            delay.EVal(new Int(input));
             var expected = new Int(tick == 1 ? input : initial);
 
-            delay.EVal(new Int(input), new Bit(tick));
+            clock.Set(new Bit(tick));
+            delay.EVal(new Int(input));
             Int actual = (Int)delay;
 
             Assert.That(actual, Is.EqualTo(expected),
@@ -295,12 +342,17 @@ internal class DELAYTests
             long input = ((long)random.Next() << 32) | (uint)random.Next();
             int tick = random.Next(0, 2);
 
-            var delay = new DELAY<Long>(new Long(initial), new Bit(true));
-            delay.EVal(new Long(initial), new Bit(false));
-            delay.EVal(new Long(input), new Bit(false));
+            var clock = new CLOCK();
+            clock.Set(new Bit(true));
+            var delay = new DELAY<Long>(new Long(initial), clock);
+            clock.Set(new Bit(false));
+            delay.EVal(new Long(initial));
+            clock.Set(new Bit(false));
+            delay.EVal(new Long(input));
             var expected = new Long(tick == 1 ? input : initial);
 
-            delay.EVal(new Long(input), new Bit(tick));
+            clock.Set(new Bit(tick));
+            delay.EVal(new Long(input));
             Long actual = (Long)delay;
 
             Assert.That(actual, Is.EqualTo(expected),
@@ -315,27 +367,35 @@ internal class DELAYTests
     [Test]
     public void DELAY_WithMixedTypes_CompilesAndWorks()
     {
-        var delay1 = new DELAY<Byte>();
-        delay1.EVal(new Bit(true), new Bit(true));
+        var clock = new CLOCK();
+        var delay1 = new DELAY<Byte>(new Bit(true), clock);
+
+        clock.Set(new Bit(true));
+        delay1.EVal(new Bit(true));
         Byte actual1 = (Byte)delay1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
-        delay1.EVal(new Bit(false), new Bit(true));
+        clock.Set(new Bit(true));
+        delay1.EVal(new Bit(false));
         Byte actual2 = (Byte)delay1;
         Assert.That(actual2, Is.EqualTo(new Byte(0x00)));
 
-        var delay2 = new DELAY<Short>();
-        delay2.EVal(new Byte(0xAA), new Bit(true));
+        clock.Set(new Bit(true));
+        var delay2 = new DELAY<Short>(new Bit(true), clock);
+        clock.Set(new Bit(true));
+        delay2.EVal(new Byte(0xAA));
         Short actual3 = (Short)delay2;
         Assert.That(actual3, Is.EqualTo(new Short(0x00AA)));
 
-        var delay3 = new DELAY<Int>();
-        delay3.EVal(new Short(0xAAAA), new Bit(true));
+        var delay3 = new DELAY<Int>(new Bit(true), clock);
+        clock.Set(new Bit(true));
+        delay3.EVal(new Short(0xAAAA));
         Int actual4 = (Int)delay3;
         Assert.That(actual4, Is.EqualTo(new Int(0x0000AAAA)));
 
-        var delay4 = new DELAY<Long>();
-        delay4.EVal(new Int(0xAAAAAAAA), new Bit(true));
+        var delay4 = new DELAY<Long>(new Bit(true), clock);
+        clock.Set(new Bit(true));
+        delay4.EVal(new Int(0xAAAAAAAA));
         Long actual5 = (Long)delay4;
         Assert.That(actual5, Is.EqualTo(new Long(0x00000000AAAAAAAA)));
     }

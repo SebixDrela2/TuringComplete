@@ -1,4 +1,6 @@
 ﻿using Turing.Core.Overture;
+using Turing.Core.Electricity;
+
 namespace Turing.Tests.Overture;
 
 [TestFixture]
@@ -13,7 +15,7 @@ internal class ALUTests
     [TestCase(5, 0xAA, 0xCC, 0xDE)]  // SUB: 0xAA - 0xCC = -0x22 -> two's complement 0xDE
     public void ALU_ComputesCorrectOperation(int opcode, int a, int b, int expected)
     {
-        Byte op = CreateOpcodeByte(opcode);
+        Byte op = new Byte(opcode); // opcode placed in bits 0-2
         Byte operandA = new Byte(a);
         Byte operandB = new Byte(b);
         Byte expectedResult = new Byte(expected);
@@ -26,7 +28,7 @@ internal class ALUTests
     [Test]
     public void ALU_Addition_WrapsAround()
     {
-        ALU alu = new ALU(CreateOpcodeByte(4), new Byte(0xFF), new Byte(0x01));
+        ALU alu = new ALU(new Byte(4), new Byte(0xFF), new Byte(0x01));
         Byte result = (Byte)alu;
         Assert.That(result, Is.EqualTo(new Byte(0x00)),
             $"0xFF + 0x01 should wrap to 0x00, got 0x{result.ToHexString()}");
@@ -35,7 +37,7 @@ internal class ALUTests
     [Test]
     public void ALU_Subtraction_WithBorrow()
     {
-        ALU alu = new ALU(CreateOpcodeByte(5), new Byte(0x00), new Byte(0x01));
+        ALU alu = new ALU(new Byte(5), new Byte(0x00), new Byte(0x01));
         Byte result = (Byte)alu;
         Assert.That(result, Is.EqualTo(new Byte(0xFF)),
             $"0x00 - 0x01 should be 0xFF, got 0x{result.ToHexString()}");
@@ -46,7 +48,7 @@ internal class ALUTests
     {
         for (int opcode = 6; opcode <= 7; opcode++)
         {
-            Byte op = CreateOpcodeByte(opcode);
+            Byte op = new Byte(opcode);
             ALU alu = new ALU(op, new Byte(0xAA), new Byte(0xCC));
             Byte result = (Byte)alu;
             Assert.That(result, Is.EqualTo(new Byte(0x00)),
@@ -67,7 +69,7 @@ internal class ALUTests
             {
                 for (int b = 0; b < 256; b++)
                 {
-                    Byte op = CreateOpcodeByte(opcode);
+                    Byte op = new Byte(opcode);
                     Byte operandA = new Byte(a);
                     Byte operandB = new Byte(b);
                     ALU alu = new ALU(op, operandA, operandB);
@@ -84,14 +86,8 @@ internal class ALUTests
     // Helpers
     // ==========================================
 
-    private static Byte CreateOpcodeByte(int opcode)
-    {
-        // Map opcode to bits 5,6,7
-        int value = (opcode & 1) << 5 |
-                    ((opcode >> 1) & 1) << 6 |
-                    ((opcode >> 2) & 1) << 7;
-        return new Byte(value);
-    }
+    // No longer needed – opcode is used directly
+    // private static Byte CreateOpcodeByte(int opcode) { ... }
 
     private static byte ComputeExpected(int opcode, byte a, byte b)
     {

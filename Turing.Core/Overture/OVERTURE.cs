@@ -1,10 +1,6 @@
 ﻿using Turing.Core.Components.Memory;
-using Turing.Core.Components.Arithmetic;
 using Turing.Core.Components.Logic;
-using Turing.Core.Overture;
-using Turing.Core.Electricity;
 using Turing.Core.Gates;
-using System.Security.Cryptography;
 using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Overture;
@@ -14,23 +10,23 @@ public class OVERTURE
     private readonly REGISTER<Byte>[] _regs;
     private readonly COUNTER<Byte> _pc;
     private Byte _output;
-    private Bit _tick;
+    private CLOCK _clock;
 
     public Byte Output => _output;
-    public int ProgramCounter => (int)(Byte)_pc;
+    public int ProgramCounter => (int)_pc.State;
 
     public OVERTURE()
     {
         _regs = new REGISTER<Byte>[6];
+        _clock = new CLOCK();
 
         for (int i = 0; i < 6; i++)
         {
-            _regs[i] = new REGISTER<Byte>();
+            _regs[i] = new REGISTER<Byte>(_clock);
         }
 
-        _pc = new COUNTER<Byte>();
+        _pc = new COUNTER<Byte>(_clock);
         _output = new Byte(0);
-        _tick = new Bit(0);
     }
 
     public void EVal(Byte instruction, Byte inputData)
@@ -52,16 +48,18 @@ public class OVERTURE
         Byte dstDecoder = new BIT_DECODER_THREE(y5, y4, y3, new NOT<Bit>(move));
 
         Byte inputFlow = new MUX<Byte>(inputData, instruction, imm);
-        inputFlow = new SW<Byte>(new OR<Bit>(srcDecoder.GetBit(6), imm), inputFlow);
+        Bit src_in = srcDecoder.GetBit(6);
 
-        SetInputs(instruction, dstDecoder, inputFlow, imm, alu);
+        inputFlow = new SW<Byte>(new OR<Bit>(src_in, imm), inputFlow);
+
+        SetInputs(instruction, srcDecoder, dstDecoder, inputFlow, imm, alu);
         SetOutput(srcDecoder, dstDecoder, inputFlow);
-        SetCounter(srcDecoder, cond, _tick);
+        SetCounter(instruction, cond);
 
-        _tick = new NOT<Bit>(_tick);
+        _clock.Tick();
     }
 
-    private void SetInputs(Byte inByte, Byte outByte, Byte inputFlow, Bit imm, Bit alu)
+    private void SetInputs(Byte instruction, Byte inByte, Byte outByte, Byte inputFlow, Bit imm, Bit alu)
     {
         var r0_in = outByte.GetBit(0);
         var r1_in = outByte.GetBit(1);
@@ -70,27 +68,40 @@ public class OVERTURE
         var r4_in = outByte.GetBit(4);
         var r5_in = outByte.GetBit(5);
 
-        _regs[0].EVal(new OR<Bit>(r0_in, imm), inputFlow, _tick);
-        _regs[1].EVal(r1_in, inputFlow, _tick);
-        _regs[2].EVal(r2_in, inputFlow, _tick);
+        _regs[0].EVal(new OR<Bit>(r0_in, imm), inputFlow);
+        _regs[1].EVal(r1_in, inputFlow);
+        _regs[2].EVal(r2_in, inputFlow);
 
-        Byte aluResult = new ALU(inByte, _regs[1], _regs[2]);
+        Byte aluResult = new ALU(instruction, _regs[1], _regs[2]);
         var reg3Input = new OR<Byte>(inputFlow, new SW<Byte>(alu, aluResult));
 
-        _regs[3].EVal(new OR<Bit>(r3_in, alu), reg3Input, _tick);
-        _regs[4].EVal(r4_in, inputFlow, _tick);
-        _regs[5].EVal(r5_in, inputFlow, _tick);
+        _regs[3].EVal(new OR<Bit>(r3_in, alu), reg3Input);
+        _regs[4].EVal(r4_in, inputFlow);
+        _regs[5].EVal(r5_in, inputFlow);
+
+        for (int i = 0; i < _regs.Length; i++)
+        {
+            var r_out = inByte.GetBit(i);
+
+            for (int j = 0; j < _regs.Length; j++)
+            {
+                var r_in = outByte.GetBit(j);
+                var evalReg = new AND<Bit>(r_out, r_in);
+
+                _regs[j].EVal(evalReg, _regs[i]);
+            }
+        }
     }
 
-    private void SetOutput(Byte inByte, Byte outByte, Byte inputFlow)
+    private void SetOutput(Byte instruction, Byte outByte, Byte inputFlow)
     {
-        var r0_out = inByte.GetBit(0);
-        var r1_out = inByte.GetBit(1);
-        var r2_out = inByte.GetBit(2);
-        var r3_out = inByte.GetBit(3);
-        var r4_out = inByte.GetBit(4);
-        var r5_out = inByte.GetBit(5);
-        var in_out = inByte.GetBit(6);
+        var r0_out = instruction.GetBit(0);
+        var r1_out = instruction.GetBit(1);
+        var r2_out = instruction.GetBit(2);
+        var r3_out = instruction.GetBit(3);
+        var r4_out = instruction.GetBit(4);
+        var r5_out = instruction.GetBit(5);
+        var in_out = instruction.GetBit(6);
 
         var r0result = new SW<Byte>(r0_out, _regs[0]);
         var r1result = new SW<Byte>(r1_out, _regs[1]);
@@ -113,31 +124,27 @@ public class OVERTURE
         _output = new SW<Byte>(outputBit, outResult);
     }
 
-    private void SetCounter(Byte inByte, Bit cond, Bit tick)
+    private void SetCounter(Byte instruction, Bit cond)
     {
-        var r3_out = _regs[3];
-        var r0_out = _regs[0];
+        Byte r3_out = _regs[3];
+        Byte r0_out = _regs[0];
 
-        var opCode = inByte;
+        Bit condResult = new COND(r3_out, instruction);
 
-        Bit condResult = new COND(r3_out, opCode);
-
-        _pc.EVal(new OR<Bit>(cond, condResult), r0_out, tick);
+        _pc.EVal(new AND<Bit>(cond, condResult), r0_out);
     }
 
     public void Reset()
     {
         _pc.Reset();
         _output = new Byte(0);
-        _tick = new Bit(0);
+        _clock = new CLOCK();
+
         foreach (var reg in _regs)
         {
             reg.Reset();
         }
     }
 
-    public static implicit operator Byte(OVERTURE overture)
-    {
-        return overture._output;
-    }
+    public Byte GetOutput() => _output;
 }

@@ -1,47 +1,30 @@
-﻿using Turing.Core.Electricity;
-
-namespace Turing.Core.Components.Memory;
+﻿using Turing.Core.Components.Logic;
+using Turing.Core.Components.Memory;
+using Turing.Core.Electricity;
+using Turing.Core.Gates.Primitives;
 
 public class REGISTER<T> : IStateGate<T> where T : struct, IBitValue<T>
 {
-    private readonly SLATCH<T> _slatch;
     private readonly DELAY<T> _delay;
 
-    private T _state = default(T).FromValue(false);
+    public T State => _delay;                
 
-    public T State => _state;
-
-    public REGISTER()
+    public REGISTER(CLOCK clock)
     {
-        _slatch = new SLATCH<T>();
-        _delay = new DELAY<T>();
+        _delay = new DELAY<T>(clock);
     }
 
-    public REGISTER(T initialValue)
+    public void EVal(Bit set, T input)
     {
-        _state = initialValue;
-        _slatch = new SLATCH<T>();
-        _delay = new DELAY<T>();
+        T muxInput = new MUX<T>(_delay, input, set);
+
+        _delay.EVal(muxInput);              
     }
 
-    public void EVal(Bit set, T input, Bit Tick)
-    {
-        _slatch.EVal(input, set);
-        var latched = (T)_slatch;
-
-        _delay.EVal(latched, Tick);
-        _state = (T)_delay;
-    }
-
-    public static implicit operator T(REGISTER<T> register)
-    {
-        return register._state;
-    }
+    public static implicit operator T(REGISTER<T> register) => register.State;
 
     public void Reset()
     {
-        _state = default(T).FromValue(false);
-        _slatch.Reset();
         _delay.Reset();
     }
 }

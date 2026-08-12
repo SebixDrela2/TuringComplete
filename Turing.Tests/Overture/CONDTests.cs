@@ -16,7 +16,7 @@ internal class CONDTests
     [TestCase(7, 0, false)]
     public void COND_WithZero_ReturnsCorrectResult(int condCode, int value, bool expectedResult)
     {
-        Byte condition = CreateConditionByte(condCode);
+        Byte condition = new Byte(condCode); // code packed in bits 0..2
         Byte inputValue = new Byte(value);
         var cond = new COND(inputValue, condition);
         Bit result = (Bit)cond;
@@ -34,7 +34,7 @@ internal class CONDTests
     [TestCase(7, 42, true)]
     public void COND_WithPositiveValue_ReturnsCorrectResult(int condCode, int value, bool expectedResult)
     {
-        Byte condition = CreateConditionByte(condCode);
+        Byte condition = new Byte(condCode);
         Byte inputValue = new Byte(value);
         var cond = new COND(inputValue, condition);
         Bit result = (Bit)cond;
@@ -52,7 +52,7 @@ internal class CONDTests
     [TestCase(7, -42, false)]
     public void COND_WithNegativeValue_ReturnsCorrectResult(int condCode, int value, bool expectedResult)
     {
-        Byte condition = CreateConditionByte(condCode);
+        Byte condition = new Byte(condCode);
         Byte inputValue = new Byte((byte)value);
         var cond = new COND(inputValue, condition);
         Bit result = (Bit)cond;
@@ -67,7 +67,7 @@ internal class CONDTests
         {
             for (int condCode = 0; condCode <= 7; condCode++)
             {
-                Byte condition = CreateConditionByte(condCode);
+                Byte condition = new Byte(condCode);
                 Byte inputValue = new Byte((byte)value);
                 bool expected = GetExpectedResult(condCode, value);
                 var cond = new COND(inputValue, condition);
@@ -79,12 +79,12 @@ internal class CONDTests
     }
 
     [Test]
-    public void COND_ConditionByte_UsesOnlyBits5_6_7()
+    public void COND_ConditionByte_UsesOnlyBits0_1_2()
     {
-        for (int bitMask = 0; bitMask < 32; bitMask++)
+        for (int bitMask = 0; bitMask < 0b11111000; bitMask += 8) // vary higher bits
         {
-            // Condition code 1 (Always) at bits 5,6,7 (c0=1, c1=0, c2=0)
-            int condByte = (1 << 5) | bitMask;
+            // Condition code 1 (Always) at bits 0,1,2 (c0=1, c1=0, c2=0)
+            int condByte = 0b001 | bitMask; // code 1
             Byte condition = new Byte(condByte);
 
             var cond1 = new COND(new Byte(0), condition);
@@ -113,7 +113,7 @@ internal class CONDTests
             if ((value & 0x80) != 0)
                 value = -((value ^ 0xFF) + 1);
 
-            Byte condition = CreateConditionByte(condCode);
+            Byte condition = new Byte(condCode);
             Byte inputValue = new Byte((byte)value);
             bool expected = GetExpectedResult(condCode, value);
             var cond = new COND(inputValue, condition);
@@ -121,15 +121,6 @@ internal class CONDTests
             Assert.That(result, Is.EqualTo(new Bit(expected)),
                 $"Cycle={cycle}, CondCode={condCode}, Value={value}");
         }
-    }
-
-    private static Byte CreateConditionByte(int condCode)
-    {
-        // Map 3-bit code to bits 5,6,7 (LSB -> bit5, MSB -> bit7)
-        int value = (condCode & 1) << 5 |
-                    ((condCode >> 1) & 1) << 6 |
-                    ((condCode >> 2) & 1) << 7;
-        return new Byte(value);
     }
 
     private static bool GetExpectedResult(int condCode, int value)

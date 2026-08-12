@@ -1,5 +1,6 @@
 ﻿using Turing.Core.Electricity;
 using Turing.Core.Gates;
+using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Overture;
 
@@ -26,9 +27,9 @@ public class COND
     public COND(Byte value, Byte condition)
     {
         // Extract the three condition bits
-        Bit c0 = condition.GetBit(5); // LSB of the condition code
-        Bit c1 = condition.GetBit(6);
-        Bit c2 = condition.GetBit(7); // MSB
+        Bit c0 = condition.GetBit(0); // LSB of the condition code
+        Bit c1 = condition.GetBit(1);
+        Bit c2 = condition.GetBit(2); // MSB
 
         // NOT versions
         Bit n0 = new NOT<Bit>(c0);
@@ -72,14 +73,14 @@ public class COND
         Bit resGtZero = isPositive;
 
         // Select the correct result using AND with the one‑hot selects
-        Bit r0 = new AND<Bit>(selNever, resNever);
-        Bit r1 = new AND<Bit>(selAlways, resAlways);
-        Bit r2 = new AND<Bit>(selEqZero, resEqZero);
-        Bit r3 = new AND<Bit>(selNeZero, resNeZero);
-        Bit r4 = new AND<Bit>(selLtZero, resLtZero);
-        Bit r5 = new AND<Bit>(selGeZero, resGeZero);
-        Bit r6 = new AND<Bit>(selLeZero, resLeZero);
-        Bit r7 = new AND<Bit>(selGtZero, resGtZero);
+        Bit r0 = new SW<Bit>(selNever, resNever);
+        Bit r1 = new SW<Bit>(selAlways, resAlways);
+        Bit r2 = new SW<Bit>(selEqZero, resEqZero);
+        Bit r3 = new SW<Bit>(selNeZero, resNeZero);
+        Bit r4 = new SW<Bit>(selLtZero, resLtZero);
+        Bit r5 = new SW<Bit>(selGeZero, resGeZero);
+        Bit r6 = new SW<Bit>(selLeZero, resLeZero);
+        Bit r7 = new SW<Bit>(selGtZero, resGtZero);
 
         // OR all selected results together
         Bit or12 = new OR<Bit>(r0, r1);
@@ -88,6 +89,7 @@ public class COND
         Bit or78 = new OR<Bit>(r6, r7);
         Bit or1234 = new OR<Bit>(or12, or34);
         Bit or5678 = new OR<Bit>(or56, or78);
+
         _result = new OR<Bit>(or1234, or5678);
     }
 
