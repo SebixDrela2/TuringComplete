@@ -2,15 +2,15 @@
 
 namespace Turing.Core.Gates.Primitives;
 
-public interface ISW<T> where T : struct, IBitValue<T>
-{
-    T Eval(T gate, T source);
-}
+public interface ISW<T> where T : struct, IBitValue<T>;
 
-public class SW<T> : ISW<T> where T : struct, IBitValue<T>
+public class SW<T>(Bit gate, T source) : ISW<T> where T : struct, IBitValue<T>
 {
-    public T Eval(T gate, T source)
+    private readonly Bit _gate = gate;
+    private readonly T _source = source;
+
+    public static implicit operator T(SW<T> sw)
     {
-        return gate.Value ? source : source.FromValue(false);
+        return sw._gate.Value ? sw._source : sw._source.FromValue(false);
     }
 }

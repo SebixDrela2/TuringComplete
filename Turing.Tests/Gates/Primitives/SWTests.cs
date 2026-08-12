@@ -13,13 +13,12 @@ internal class SWTests
     public void SW_Evaluate_When_Input_Provided_Returns_Transistor_Behaviour(int input, int condition, int expectedOutputInt)
     {
         // Arrange
-        var sw = new SW<Bit>();
         var source = new Bit(input);
         var gate = new Bit(condition);
         var expectedOutput = new Bit(expectedOutputInt);
 
         // Act
-        var actualOutput = sw.Eval(gate, source);
+        Bit actualOutput = new SW<Bit>(gate, source);
 
         // Assert
         Assert.That(actualOutput, Is.EqualTo(expectedOutput));
@@ -32,13 +31,12 @@ internal class SWTests
     public void SW_Evaluate_When_Input_Provided_With_Byte_Returns_Transistor_Behaviour(int input, int condition, int expectedOutputInt)
     {
         // Arrange
-        var sw = new SW<Byte>();
         var source = new Byte(input);
-        var gate = new Byte(condition);
+        var gate = new Bit(condition);
         var expectedOutput = new Byte(expectedOutputInt);
 
         // Act
-        var actualOutput = sw.Eval(gate, source);
+        Byte actualOutput = new SW<Byte>(gate, source);
 
         // Assert
         Assert.That(actualOutput, Is.EqualTo(expectedOutput));

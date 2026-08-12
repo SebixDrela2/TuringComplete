@@ -24,9 +24,9 @@ public class REGISTER<T> : IStateGate<T> where T : struct, IBitValue<T>
         _delay = new DELAY<T>();
     }
 
-    public void EVal(Bit A, T B, Bit Tick)
+    public void EVal(Bit set, T input, Bit Tick)
     {
-        _slatch.EVal(B, A);
+        _slatch.EVal(input, set);
         var latched = (T)_slatch;
 
         _delay.EVal(latched, Tick);

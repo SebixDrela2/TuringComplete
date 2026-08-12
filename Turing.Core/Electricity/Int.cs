@@ -27,7 +27,7 @@ public readonly record struct Int : IBitValue<Int>
             _bits[i] = ((value >> i) & 1) == 1;
     }
 
-    public bool Value => _bits[0];
+    public Int Value => FromBits(_bits);
 	public static int BitWidth => 32;
 
     public Int FromValue(bool value)

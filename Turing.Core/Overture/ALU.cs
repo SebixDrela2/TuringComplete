@@ -32,9 +32,9 @@ public class ALU
         Byte subResult = Subtract(a, b);
 
         // Extract opcode bits (LSB = bit5)
-        Bit c0 = op.GetBit(5);
-        Bit c1 = op.GetBit(6);
-        Bit c2 = op.GetBit(7);
+        Bit c0 = op.GetBit(0);
+        Bit c1 = op.GetBit(1);
+        Bit c2 = op.GetBit(2);
 
         Bit n0 = new NOT<Bit>(c0);
         Bit n1 = new NOT<Bit>(c1);

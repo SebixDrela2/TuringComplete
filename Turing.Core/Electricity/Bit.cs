@@ -7,7 +7,7 @@ public readonly record struct Bit : IBitValue<Bit>
     public Bit(bool value) => _value = value;
     public Bit(int value) => _value = value == 1;
 
-    public bool Value => _value;
+    public Bit Value => _value;
     public static int BitWidth => 1;
 
     public Bit FromValue(bool value) => new(value);

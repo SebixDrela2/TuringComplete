@@ -1,12 +1,10 @@
 ﻿namespace Turing.Core.Electricity;
 
-public interface IBitValue
-{
-    bool Value { get; }
-}
+public interface IBitValue;
 
 public interface IBitValue<T> : IBitValue where T : struct, IBitValue<T>
 {
+    T Value { get; }
     static abstract int BitWidth { get; }
     T FromValue(bool value);
     T FromBits(bool[] bits);
