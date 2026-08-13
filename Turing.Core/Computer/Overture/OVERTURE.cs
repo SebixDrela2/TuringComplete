@@ -2,36 +2,34 @@
 using Turing.Core.Components.Logic;
 using Turing.Core.Gates;
 using Turing.Core.Gates.Primitives;
+using Turing.Core.Computers;
 
 namespace Turing.Core.Overture;
 
-public class OVERTURE
+public class OVERTURE : Processor<Byte>
 {
     private readonly REGISTER<Byte>[] _regs;
     private readonly COUNTER<Byte> _pc;
     private Byte _output;
-    private CLOCK _clock;
-
     public Byte Output => _output;
     public int ProgramCounter => (int)_pc.State;
 
     public OVERTURE()
     {
         _regs = new REGISTER<Byte>[6];
-        _clock = new CLOCK();
 
         for (int i = 0; i < 6; i++)
         {
-            _regs[i] = new REGISTER<Byte>(_clock);
+            _regs[i] = new REGISTER<Byte>(Clock);
         }
 
-        _pc = new COUNTER<Byte>(_clock);
+        _pc = new COUNTER<Byte>(Clock);
         _output = new Byte(0);
     }
 
-    public void EVal(Byte instruction, Byte inputData)
+    protected override void Step(Byte instruction, Byte inputData)
     {
-        (Bit imm, Bit alu, Bit move, Bit cond) = ((Bit, Bit, Bit, Bit)) new INSTRUCTION_DECODER(instruction);
+        (Bit imm, Bit alu, Bit move, Bit cond) = ((Bit, Bit, Bit, Bit))new INSTRUCTION_DECODER(instruction);
 
         Bit y0 = instruction.GetBit(0);
         Bit y1 = instruction.GetBit(1);
@@ -55,8 +53,6 @@ public class OVERTURE
         SetInputs(instruction, srcDecoder, dstDecoder, inputFlow, imm, alu);
         SetOutput(srcDecoder, dstDecoder, inputFlow);
         SetCounter(instruction, cond);
-
-        _clock.Tick();
     }
 
     private void SetInputs(Byte instruction, Byte inByte, Byte outByte, Byte inputFlow, Bit imm, Bit alu)
@@ -138,7 +134,6 @@ public class OVERTURE
     {
         _pc.Reset();
         _output = new Byte(0);
-        _clock = new CLOCK();
 
         foreach (var reg in _regs)
         {

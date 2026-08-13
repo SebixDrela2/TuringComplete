@@ -2,8 +2,7 @@
 
 public class CLOCK
 {
-
-    private Bit _tick;
+    private Bit _tick = new Bit(1);
     public Bit TickVal => _tick;
 
     public void Tick()

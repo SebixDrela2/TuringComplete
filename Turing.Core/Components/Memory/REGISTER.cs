@@ -5,20 +5,23 @@ using Turing.Core.Gates.Primitives;
 
 public class REGISTER<T> : IStateGate<T> where T : struct, IBitValue<T>
 {
+    private readonly SLATCH<T> _slatch;
     private readonly DELAY<T> _delay;
 
     public T State => _delay;                
 
     public REGISTER(CLOCK clock)
     {
+        _slatch = new SLATCH<T>();
         _delay = new DELAY<T>(clock);
     }
 
     public void EVal(Bit set, T input)
     {
-        T muxInput = new MUX<T>(_delay, input, set);
+        _slatch.EVal(input, set);
+        var latched = (T)_slatch;
 
-        _delay.EVal(muxInput);              
+        _delay.EVal(latched);
     }
 
     public static implicit operator T(REGISTER<T> register) => register.State;
