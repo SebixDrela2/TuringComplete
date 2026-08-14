@@ -38,11 +38,9 @@ public record struct Byte : IByteValue<Byte>
     }
     public Byte FromBits(bool[] bits) => new Byte(bits);
     public Bit GetBit(int index) => Bits[index];
-    public Byte SetBit(int index, bool value)
+    public void SetBit(int index, bool value)
     {
-        var newBits = (bool[])Bits.Clone();
-        newBits[index] = value;
-        return new Byte(newBits);
+        _bits[index] = value;
     }
 
     public static implicit operator Byte(Bit bit) => new Byte(bit);

@@ -1,8 +1,8 @@
 ﻿namespace Turing.Core.Electricity;
 
-public readonly record struct Bit : IBitValue<Bit>
+public record struct Bit : IBitValue<Bit>
 {
-    private readonly bool _value;
+    private bool _value;
 
     public Bit(bool value) => _value = value;
     public Bit(int value) => _value = value == 1;
@@ -16,7 +16,10 @@ public readonly record struct Bit : IBitValue<Bit>
     public Bit FromValue(bool value) => new(value);
     public Bit FromBits(bool[] bits) => bits.Length > 0 ? new Bit(bits[0]) : new Bit(false);
     public Bit GetBit(int index) => index == 0 ? _value : throw new IndexOutOfRangeException();
-    public Bit SetBit(int index, bool value) => index == 0 ? new Bit(value) : throw new IndexOutOfRangeException();
+    public void SetBit(int index, bool value)
+    {
+        _value = value ? true : false;
+    }
 
     public static implicit operator Bit(bool value) => new(value);
     public static implicit operator bool(Bit bit) => bit._value;

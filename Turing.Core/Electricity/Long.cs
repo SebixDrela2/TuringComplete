@@ -42,11 +42,9 @@ public readonly record struct Long : IByteValue<Long>
     }
     public Long FromBits(bool[] bits) => new Long(bits);
     public Bit GetBit(int index) => _bits[index];
-    public Long SetBit(int index, bool value)
+    public void SetBit(int index, bool value)
     {
-        var newBits = (bool[])_bits.Clone();
-        newBits[index] = value;
-        return new Long(newBits);
+        _bits[index] = value;
     }
 
     public Bit LastBit() => _bits[BitWidth - 1];

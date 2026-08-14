@@ -6,9 +6,9 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        var shift = 3;
-        var val = 1;
+        var shift = 1;
+        var val = 16;
 
-        Byte value = new LSR<Byte>(shift, val);
+        Byte value = new LSR<Byte>(val, shift);
     }
 }

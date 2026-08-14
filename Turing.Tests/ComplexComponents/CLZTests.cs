@@ -12,14 +12,7 @@ internal class CLZTests
         for (var i = 0; i < 256; i++)
         {
             Byte expected = (int)uint.LeadingZeroCount((uint)i);
-
-            if (expected == 31)
-            {
-
-            }
-
-            int actualTmp = (Int)new CLZ<Int>(i);
-            Byte actual = actualTmp;
+            Byte actual = (int)(Int)new CLZ<Int>(i);
 
             Assert.That(actual, Is.EqualTo(expected));
         }

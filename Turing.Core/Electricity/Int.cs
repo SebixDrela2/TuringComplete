@@ -43,12 +43,10 @@ public readonly record struct Int : IByteValue<Int>
     }
     public Int FromBits(bool[] bits) => new Int(bits);
     public Bit GetBit(int index) => _bits[index];
-	public Int SetBit(int index, bool value)
-	{
-		var newBits = (bool[])_bits.Clone();
-		newBits[index] = value;
-		return new Int(newBits);
-	}
+    public void SetBit(int index, bool value)
+    {
+        _bits[index] = value;
+    }
     public static implicit operator Int(Bit bit) => new Byte(bit);
 
     public static implicit operator Int(bool value)

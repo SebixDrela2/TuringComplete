@@ -23,20 +23,19 @@ public class LSR<T>(T input, Byte bitShift) where T : struct, IByteValue<T>, IVa
 
             Bit disableBit = notInput.GetBit(i);
             Bit enableBit = (T)new NOT<T>(disableBit);
-            Byte decoded = new BIT_DECODER_THREE(bit0, bit1, bit2, disableBit);
+            Byte decoded = new BIT_DECODER_THREE(bit2, bit1, bit0, disableBit);
 
-            var bits = decoded.Bits;
+            Byte swapped = new Byte(0);
+
             int loopAmount = (int)(T)new SW<T>(enableBit, i + 1);
 
-            for (var j = 0; j < loopAmount; j++)
+            for (var j = loopAmount - 1; j >= 0; j--)
             {
-                var first = j;
-                var last = j - i;
+                var first = i - j;
+                var last = j;
 
-                bits[first] = bits[last];
+                swapped.SetBit(first, decoded.GetBit(last));
             }
-
-            Byte swapped = new(bits);
 
             result = new OR<T>((int)swapped, (int)result);
         }

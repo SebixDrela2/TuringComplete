@@ -9,7 +9,7 @@ public interface IValue<T> where T : struct, IValue<T>
     T FromValue(bool value);
     T FromBits(bool[] bits);
     Bit GetBit(int index);
-    T SetBit(int index, bool value);
+    void SetBit(int index, bool value);
 
     abstract static implicit operator T(bool value);
     abstract static implicit operator T(int value);

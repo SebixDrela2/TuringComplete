@@ -39,11 +39,9 @@ public readonly record struct Short : IByteValue<Short>
     public Short FromBits(bool[] bits) => new Short(bits);
 
     public Bit GetBit(int index) => _bits[index];
-    public Short SetBit(int index, bool value)
+    public void SetBit(int index, bool value)
     {
-        var newBits = (bool[])_bits.Clone();
-        newBits[index] = value;
-        return new Short(newBits);
+        _bits[index] = value;
     }
 
     public Bit LastBit() => _bits[BitWidth - 1];
