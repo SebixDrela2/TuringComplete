@@ -3,19 +3,22 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Computers;
 
-public abstract class Processor<T>
-    where T : struct, IBitValue<T>
+public abstract class Processor
 {
-    protected CLOCK Clock { get; } = new CLOCK();
-
-    public void EVal(T instruction, T inputData)
+    protected CLOCK Clock { get; }
+    public Processor()
     {
-        Step(instruction, inputData);
+        Clock = new CLOCK();
+    }
+    
+    public void EVal()
+    {
+        Step();
         Clock.Tick();
 
-        Step(instruction, inputData);
+        Step();
         Clock.Tick();
     }
 
-    protected abstract void Step(T instruction, T inputData);
+    protected abstract void Step();
 }

@@ -2,19 +2,27 @@
 using Turing.Core.Components.Logic;
 using Turing.Core.Gates;
 using Turing.Core.Gates.Primitives;
+using System.Text;
 using Turing.Core.Computers;
 
 namespace Turing.Core.Overture;
 
-public class OVERTURE : Processor<Byte>
+public class OVERTURE : Processor
 {
     private readonly REGISTER<Byte>[] _regs;
     private readonly COUNTER<Byte> _pc;
-    private Byte _output;
-    public Byte Output => _output;
-    public int ProgramCounter => (int)_pc.State;
+    private readonly RAM _ram;
 
-    public OVERTURE()
+    private Byte _output;
+    public int ProgramCounter => (int)_pc.State - 1;
+
+    public Bit InputPin { get; private set; }
+    public Bit OutputPin { get; private set; }
+    public Bit OffPin { get; private set; }
+    public Byte Input { get; set; }
+    public Byte Output => _output;
+
+    public OVERTURE(params Byte[] instructions)
     {
         _regs = new REGISTER<Byte>[6];
 
@@ -25,10 +33,13 @@ public class OVERTURE : Processor<Byte>
 
         _pc = new COUNTER<Byte>(Clock);
         _output = new Byte(0);
+        _ram = new RAM(instructions);
     }
 
-    protected override void Step(Byte instruction, Byte inputData)
+    protected override void Step()
     {
+        Byte instruction = _ram.EVal(_pc);
+
         (Bit imm, Bit alu, Bit move, Bit cond) = ((Bit, Bit, Bit, Bit))new INSTRUCTION_DECODER(instruction);
 
         Bit y0 = instruction.GetBit(0);
@@ -45,14 +56,20 @@ public class OVERTURE : Processor<Byte>
         Byte srcDecoder = new BIT_DECODER_THREE(y2, y1, y0, new NOT<Bit>(move));
         Byte dstDecoder = new BIT_DECODER_THREE(y5, y4, y3, new NOT<Bit>(move));
 
-        Byte inputFlow = new MUX<Byte>(inputData, instruction, imm);
-        Bit src_in = srcDecoder.GetBit(6);
+        Byte inputFlow = new MUX<Byte>(Input, instruction, imm);
+        InputPin = srcDecoder.GetBit(6);
 
-        inputFlow = new SW<Byte>(new OR<Bit>(src_in, imm), inputFlow);
+        inputFlow = new SW<Byte>(new OR<Bit>(InputPin, imm), inputFlow);
 
         SetInputs(instruction, srcDecoder, dstDecoder, inputFlow, imm, alu);
         SetOutput(srcDecoder, dstDecoder, inputFlow);
         SetCounter(instruction, cond);
+        DebugView();
+
+        var src7Pin = srcDecoder.GetBit(7);
+        var dst7Pin = dstDecoder.GetBit(7);
+
+        OffPin = new AND<Bit>(move, new AND<Bit>(src7Pin, dst7Pin));
     }
 
     private void SetInputs(Byte instruction, Byte inByte, Byte outByte, Byte inputFlow, Bit imm, Bit alu)
@@ -114,10 +131,8 @@ public class OVERTURE : Processor<Byte>
         var result1 = new OR<Byte>(pair1, pair2);
         var result2 = new OR<Byte>(pair3, in_result);
 
-        var outResult = new OR<Byte>(result1, result2);
-        var outputBit = outByte.GetBit(6);
-
-        _output = new SW<Byte>(outputBit, outResult);
+        _output = new OR<Byte>(result1, result2);
+        OutputPin = outByte.GetBit(6);
     }
 
     private void SetCounter(Byte instruction, Bit cond)
@@ -130,6 +145,24 @@ public class OVERTURE : Processor<Byte>
         _pc.EVal(new AND<Bit>(cond, condResult), r0_out);
     }
 
+    private void DebugView()
+    {
+        var builder = new StringBuilder();
+        var regValues = Enumerable
+            .Range(0, _regs.Length)
+            .Select(x => (Byte)_regs[x])
+            .ToArray();
+
+        for (int index = 0; index < regValues.Length; index++)
+        {
+            builder.AppendLine($"REG_{index}: {regValues[index]}");
+        }
+
+        builder.AppendLine($"PC: {ProgramCounter}");
+
+        File.WriteAllText($"debugview.txt", builder.ToString());
+    }
+
     public void Reset()
     {
         _pc.Reset();
@@ -140,6 +173,4 @@ public class OVERTURE : Processor<Byte>
             reg.Reset();
         }
     }
-
-    public Byte GetOutput() => _output;
 }

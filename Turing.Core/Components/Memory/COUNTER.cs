@@ -1,5 +1,4 @@
 ﻿using Turing.Core.Components.Logic;
-using Turing.Core.Components.Memory;
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
 

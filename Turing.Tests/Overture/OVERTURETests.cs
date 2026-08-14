@@ -4,361 +4,443 @@ namespace Turing.Tests.Overture;
 
 internal partial class OVERTURETests
 {
-    private OVERTURE _cpu;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _cpu = new OVERTURE();
-    }
-
     [Test]
     public void Move_RegisterToRegister_Works()
     {
-        // Load 0xAA into Reg0: MOVE Input -> Reg0
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0xAA));
-        // Move Reg0 -> Reg1
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Reg0), new Byte(0x00));
-        // Move Reg1 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg1), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg0, Reg.Input),
+            Instruction.Move(Reg.Reg1, Reg.Reg0),
+            Instruction.Move(Reg.Output, Reg.Reg1)
+        ], new Byte(0xAA));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0xAA)));
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(3));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0xAA)));
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(3));
     }
 
     [Test]
     public void Move_InputToRegister_Works()
     {
-        // Load input to Reg2
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Input), new Byte(0x55));
-        // Move Reg2 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg2), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg2, Reg.Input),
+            Instruction.Move(Reg.Output, Reg.Reg2)
+        ], new Byte(0x55));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x55)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x55)));
     }
 
     [Test]
     public void Move_RegisterToOutput_Works()
     {
-        // Load input to Reg3
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0xCC));
-        // Move Reg3 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg3), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg3, Reg.Input),
+            Instruction.Move(Reg.Output, Reg.Reg3)
+        ], new Byte(0xCC));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0xCC)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0xCC)));
     }
 
     [Test]
     public void Move_InputToOutput_Works()
     {
-        // Move input directly to Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Input), new Byte(0x77));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Output, Reg.Input)
+        ], new Byte(0x77));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x77)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x77)));
     }
 
     [Test]
     public void WriteOnlyOnTick_Works()
     {
-        // Load Reg0
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0xAA));
-        // Move Reg0 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg0), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg0, Reg.Input),
+            Instruction.Move(Reg.Output, Reg.Reg0)
+        ], new Byte(0xAA));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0xAA)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0xAA)));
     }
 
     [Test]
     public void MultipleMoves_Work()
     {
-        // Load 0x01 into Reg0
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x01));
-        // Move Reg0 -> Reg1
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Reg0), new Byte(0x00));
-        // Move Reg1 -> Reg2
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Reg1), new Byte(0x00));
-        // Move Reg2 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg2), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg0, Reg.Input),
+            Instruction.Move(Reg.Reg1, Reg.Reg0),
+            Instruction.Move(Reg.Reg2, Reg.Reg1),
+            Instruction.Move(Reg.Output, Reg.Reg2)
+        ], new Byte(0x01));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x01)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x01)));
     }
 
     // ==========================================
-    // ALU PHASE TESTS (ALU mode: bit6=1, bit7=0 -> ..., 1, 0)
+    // ALU PHASE TESTS
     // ==========================================
 
     [Test]
     public void ALU_AddsReg1AndReg2_StoresInReg3()
     {
-        // Load 0x0A into Reg1
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Input), new Byte(0x0A));
-        // Load 0x05 into Reg2
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Input), new Byte(0x05));
-        // ALU ADD (stores result in Reg3 by default)
-        _cpu.EVal(Instruction.Alu(AluOp.ADD), new Byte(0x00));
-        // Move Reg3 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg3), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg1, Reg.Input),
+            Instruction.Move(Reg.Reg2, Reg.Input),
+            Instruction.Alu(AluOp.ADD),
+            Instruction.Move(Reg.Output, Reg.Reg3)
+        ], new Byte(0x0A), new Byte(0x05));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x0F)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x0F)));
     }
 
     [Test]
     public void ALU_SubReg1MinusReg2_StoresInReg3()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Input), new Byte(0x0A));
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Input), new Byte(0x03));
-        // ALU SUB
-        _cpu.EVal(Instruction.Alu(AluOp.SUB), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg3), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg1, Reg.Input),
+            Instruction.Move(Reg.Reg2, Reg.Input),
+            Instruction.Alu(AluOp.SUB),
+            Instruction.Move(Reg.Output, Reg.Reg3)
+        ], new Byte(0x0A), new Byte(0x03));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x07)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x07)));
     }
 
     [Test]
     public void ALU_AndReg1AndReg2_StoresInReg3()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Input), new Byte(0x0F));
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Input), new Byte(0x33));
-        // ALU AND
-        _cpu.EVal(Instruction.Alu(AluOp.AND), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg3), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg1, Reg.Input),
+            Instruction.Move(Reg.Reg2, Reg.Input),
+            Instruction.Alu(AluOp.AND),
+            Instruction.Move(Reg.Output, Reg.Reg3)
+        ], new Byte(0x0F), new Byte(0x33));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x03)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x03)));
     }
 
     [Test]
     public void ALU_DoesNotAffectOtherRegisters()
     {
-        // Load Reg0 with 0x55
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x55));
-        // ALU ADD
-        _cpu.EVal(Instruction.Alu(AluOp.ADD), new Byte(0x00));
-        // Move Reg0 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg0), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg0, Reg.Input),
+            Instruction.Alu(AluOp.ADD),
+            Instruction.Move(Reg.Output, Reg.Reg0)
+        ], new Byte(0x55));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x55)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x55)));
     }
 
     [Test]
     public void ALU_DoesNotOutput_WhenInALU()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg2, Reg.Input), new Byte(0x03));
-        _cpu.EVal(Instruction.Alu(AluOp.ADD), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg1, Reg.Input),
+            Instruction.Move(Reg.Reg2, Reg.Input),
+            Instruction.Alu(AluOp.ADD)
+        ], new Byte(0x05), new Byte(0x03));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x00)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x00)));
     }
 
     // ==========================================
-    // IMMEDIATE PHASE TESTS (IMM mode: bit6=0, bit7=0 -> ..., 0, 0)
+    // IMMEDIATE PHASE TESTS
     // ==========================================
 
     [Test]
     public void Immediate_StoresLower6BitsIntoReg0()
     {
-        // IMM mode with value 0x2A
-        _cpu.EVal(Instruction.Imm(0x2A), new Byte(0x00));
-        // Move Reg0 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg0), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Imm(0x2A),
+            Instruction.Move(Reg.Output, Reg.Reg0)
+        ]);
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x2A)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x2A)));
     }
 
     [Test]
     public void Immediate_IgnoresUpperBits()
     {
-        _cpu.EVal(Instruction.Imm(0x3F), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg0), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Imm(0x3F),
+            Instruction.Move(Reg.Output, Reg.Reg0)
+        ]);
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x3F)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x3F)));
     }
 
     [Test]
     public void Immediate_DoesNotAffectOtherRegisters()
     {
-        // Load Reg1 with 0xAA
-        _cpu.EVal(Instruction.Move(Reg.Reg1, Reg.Input), new Byte(0xAA));
-        // Immediate 0x12 to Reg0
-        _cpu.EVal(Instruction.Imm(0x12), new Byte(0x00));
-        // Move Reg1 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg1), new Byte(0x00));
+        var cpu = RunOverture([
+            Instruction.Move(Reg.Reg1, Reg.Input),
+            Instruction.Imm(0x12),
+            Instruction.Move(Reg.Output, Reg.Reg1)
+        ], new Byte(0xAA));
 
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0xAA)));
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0xAA)));
     }
 
     // ==========================================
-    // CONDITION PHASE TESTS (COND mode: bit6=1, bit7=1 -> ..., 1, 1)
+    // CONDITION PHASE TESTS
     // ==========================================
 
     [Test]
     public void Condition_EqualsZero_True()
     {
-        // Reg3 = 0
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x00));
-        // Reg0 = 0x42
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        // COND == 0
-        _cpu.EVal(Instruction.Cnd(CndOp.Equal), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg3, Reg.Input)
+            .Move(Reg.Reg0, Reg.Input)
+            .Cnd(CndOp.Equal)
+            .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x0), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_EqualsZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.Equal), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg3, Reg.Input)
+            .Move(Reg.Reg0, Reg.Input)
+            .Cnd(CndOp.Equal)
+            .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_Never_DoesNotJump()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.Never), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg3, Reg.Input)
+            .Move(Reg.Reg0, Reg.Input)
+            .Cnd(CndOp.Never)
+            .Build();
+        var cpu = RunOverture(instructions, new Byte(0x00), new Byte(0x42));
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_Always_Jumps()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.Always), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg0, Reg.Input)
+            .Cnd(CndOp.Always)
+            .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_NotEqualsZero_True()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.NotEqual), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg3, Reg.Input)
+            .Move(Reg.Reg0, Reg.Input)
+            .Cnd(CndOp.NotEqual)
+            .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_NotEqualsZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.NotEqual), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.NotEqual)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0x00), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_LessThanZero_True()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0xFB));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.Less), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.Less)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0xFB), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_LessThanZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.Less), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.Less)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_GreaterThanZero_True()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.Greater), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.Greater)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_GreaterThanZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0xFB));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.Greater), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.Greater)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0xFB), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_GeZero_True()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.GreaterOrEqual), new Byte(0x00));
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.GreaterOrEqual)
+           .Build();
 
-        _cpu.Reset();
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.GreaterOrEqual), new Byte(0x00));
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x00), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
+
+        cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_GeZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0xFB));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.GreaterOrEqual), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+           .Move(Reg.Reg3, Reg.Input)
+           .Move(Reg.Reg0, Reg.Input)
+           .Cnd(CndOp.GreaterOrEqual)
+           .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0xFB), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_LeZero_True()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x00));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.LessOrEqual), new Byte(0x00));
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var instructions = new InstructionBuilder()
+          .Move(Reg.Reg3, Reg.Input)
+          .Move(Reg.Reg0, Reg.Input)
+          .Cnd(CndOp.LessOrEqual)
+          .Build();
 
-        _cpu.Reset();
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0xFB));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.LessOrEqual), new Byte(0x00));
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(0x42));
+        var cpu = RunOverture(instructions, new Byte(0x00), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
+
+        cpu = RunOverture(instructions, new Byte(0xFB), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(0x42));
     }
 
     [Test]
     public void Condition_LeZero_False()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        int before = _cpu.ProgramCounter;
-        _cpu.EVal(Instruction.Cnd(CndOp.LessOrEqual), new Byte(0x00));
+        var instructions = new InstructionBuilder()
+          .Move(Reg.Reg3, Reg.Input)
+          .Move(Reg.Reg0, Reg.Input)
+          .Cnd(CndOp.LessOrEqual)
+          .Build();
 
-        Assert.That(_cpu.ProgramCounter, Is.EqualTo(before + 1));
+        var cpu = RunOverture(instructions, new Byte(0x05), new Byte(0x42));
+
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(instructions.Length));
     }
 
     [Test]
     public void Condition_DoesNotAffectRegisters()
     {
-        _cpu.EVal(Instruction.Move(Reg.Reg3, Reg.Input), new Byte(0x05));
-        _cpu.EVal(Instruction.Move(Reg.Reg0, Reg.Input), new Byte(0x42));
-        _cpu.EVal(Instruction.Cnd(CndOp.Greater), new Byte(0x00)); // >0, jumps
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x00)));
+        var instructions = new InstructionBuilder()
+          .Move(Reg.Reg3, Reg.Input)
+          .Move(Reg.Reg0, Reg.Input)
+          .Cnd(CndOp.Greater)
+          .Move(Reg.Output, Reg.Reg0)
+          .Build();
 
-        // Move Reg0 -> Output
-        _cpu.EVal(Instruction.Move(Reg.Output, Reg.Reg0), new Byte(0x00));
-        Assert.That(_cpu.GetOutput(), Is.EqualTo(new Byte(0x42)));
+        var cpu = RunOverture(instructions, new Byte(0x00), new Byte(0x42));
+
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(0x42)));
+    }
+
+    [Test]
+    [TestCase(0x00, 0x00)]  // Radius 0 -> Circumference 0
+    [TestCase(0x01, 0x06)]  // Radius 1 -> Circumference 6 (6 * 1)
+    [TestCase(0x02, 0x0C)]  // Radius 2 -> Circumference 12 (6 * 2)
+    [TestCase(0x03, 0x12)]  // Radius 3 -> Circumference 18 (6 * 3)
+    [TestCase(0x04, 0x18)]  // Radius 4 -> Circumference 24 (6 * 4)
+    [TestCase(0x05, 0x1E)]  // Radius 5 -> Circumference 30 (6 * 5)
+    [TestCase(0x06, 0x24)]  // Radius 6 -> Circumference 36 (6 * 6)
+    [TestCase(0x07, 0x2A)]  // Radius 7 -> Circumference 42 (6 * 7)
+    [TestCase(0x08, 0x30)]  // Radius 8 -> Circumference 48 (6 * 8)
+    [TestCase(0x09, 0x36)]  // Radius 9 -> Circumference 54 (6 * 9)
+    [TestCase(0x0A, 0x3C)]  // Radius 10 -> Circumference 60 (6 * 10)
+    public void CircumferenceCalculator_WithPiEquals3_Works(byte radius, int expectedCircumference)
+    {
+        var instructions = new InstructionBuilder()
+            .Move(Reg.Reg1, Reg.Input)
+            .Imm(1)
+            .Move(Reg.Reg2, Reg.Reg0)
+            .Move(Reg.Reg3, Reg.Reg1)
+            .Imm(23)
+            .Cnd(CndOp.Equal)
+            .Imm(1)
+            .Move(Reg.Reg2, Reg.Reg0)
+            .Alu(AluOp.SUB)
+            .Move(Reg.Reg4, Reg.Reg3)
+            .Move(Reg.Reg2, Reg.Reg0)
+            .Imm(6)
+            .Move(Reg.Reg2, Reg.Reg0)
+            .Move(Reg.Reg1, Reg.Reg5)
+            .Alu(AluOp.ADD)
+            .Move(Reg.Reg5, Reg.Reg3)
+            .Imm(1)
+            .Move(Reg.Reg2, Reg.Reg0)
+            .Move(Reg.Reg3, Reg.Reg4)
+            .Move(Reg.Reg1, Reg.Reg3)
+            .Imm(6)
+            .Cnd(CndOp.NotEqual)
+            .Move(Reg.Output, Reg.Reg5)
+            .Build();
+
+        var cpu = RunOverture(instructions, new Byte(radius));
+
+        Assert.That(cpu.Output, Is.EqualTo(new Byte(expectedCircumference)));
     }
 }

@@ -1,7 +1,32 @@
-﻿namespace Turing.Tests.Overture;
+﻿using Turing.Core.Overture;
+
+namespace Turing.Tests.Overture;
 
 internal partial class OVERTURETests
 {
+    private OVERTURE RunOverture(Byte[] instructions, params IEnumerable<Byte> inputs)
+    {
+        var cpu = new OVERTURE(instructions);
+
+        var en = inputs.GetEnumerator();
+        cpu.Input = en.MoveNext() ? en.Current : default;
+
+        while(true)
+        {
+            cpu.EVal();
+
+            if (cpu.InputPin)
+            {
+                cpu.Input = en.MoveNext() ? en.Current : default;
+            }
+
+            if (cpu.OffPin || cpu.OutputPin)
+            {
+                return cpu;
+            }
+        }
+    }
+
     enum Mode
     {
         IMM = 0b00_000000,
@@ -46,6 +71,52 @@ internal partial class OVERTURETests
         public static Byte Imm(int value) => Make(value & 0b00111111);
         public static Byte Alu(AluOp value) => Make((int)Mode.ALU | (int)value);
         public static Byte Move(Reg output, Reg input) => Make((int)Mode.MOVE | ((int)output << 3) | (int)input);
+        public static Byte Off() => Make((int)Mode.MOVE | (0b111 << 3) | 0b111);
         public static Byte Cnd(CndOp value) => Make((int)Mode.CND | (int)value);
+    }
+
+    private class InstructionBuilder
+    {
+        private readonly List<Byte> _instructions = [];
+        private int Offset => _instructions.Count;
+
+        private InstructionBuilder Make(int bits)
+        {
+            _instructions.Add((Byte)(byte)bits);
+
+            return this;
+        }
+        public InstructionBuilder Imm(int value) => Make(value & 0b00111111);
+        public InstructionBuilder Imm(Label label)
+        {
+            var offset = Offset;
+
+            label.Complete += (address) => _instructions[offset] = address;
+
+            return this;
+        }
+        public InstructionBuilder Alu(AluOp value) => Make((int)Mode.ALU | (int)value);
+        public InstructionBuilder Move(Reg output, Reg input) => Make((int)Mode.MOVE | ((int)output << 3) | (int)input);
+        public InstructionBuilder Off() => Make((int)Mode.MOVE | (0b111 << 3) | 0b111);
+        public InstructionBuilder Cnd(CndOp value) => Make((int)Mode.CND | (int)value);
+        public InstructionBuilder Label(Label label)
+        {
+            label.Complete?.Invoke(Offset);
+
+            return this;
+        }
+        public InstructionBuilder Scope(out Label label)
+        {
+            label = new Label();
+
+            return this;
+        }
+        public Byte[] Build() => [.._instructions];
+    }
+
+    internal class Label
+    {
+        public Action<Byte>? Complete;
+
     }
 }
