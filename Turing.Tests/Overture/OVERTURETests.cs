@@ -1,6 +1,4 @@
-﻿using Turing.Core.Overture;
-
-namespace Turing.Tests.Overture;
+﻿namespace Turing.Tests.Overture;
 
 internal partial class OVERTURETests
 {
