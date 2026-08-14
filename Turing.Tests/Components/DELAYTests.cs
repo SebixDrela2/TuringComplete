@@ -368,13 +368,13 @@ internal class DELAYTests
         var delay1 = new DELAY<Byte>(clock);
 
         
-        delay1.EVal(new Bit(true));
+        delay1.EVal(Byte.One);
         clock.Tick();
         Byte actual1 = (Byte)delay1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
         
-        delay1.EVal(new Bit(false));
+        delay1.EVal(Byte.Zero);
         clock.Tick();
         Byte actual2 = (Byte)delay1;
         Assert.That(actual2, Is.EqualTo(new Byte(0x00)));

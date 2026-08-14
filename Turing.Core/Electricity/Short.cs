@@ -48,6 +48,8 @@ public readonly record struct Short : IByteValue<Short>
 
     public Bit LastBit() => _bits[BitWidth - 1];
 
+    public static implicit operator Short(Bit bit) => new Short(bit);
+
     public static implicit operator Short(int value)
     {
         var bits = new bool[16];

@@ -13,7 +13,7 @@ internal class COUNTERTests
     {
         counter._clock.Set(new Bit(false));
         counter.EVal(load, loadValue);
-        counter._clock.Set(new Bit(true));
+        counter._clock.Set(Bit.One);
         counter.EVal(load, loadValue);
         counter._clock.Set(new Bit(false));
         counter.EVal(load, loadValue);
@@ -46,13 +46,13 @@ internal class COUNTERTests
         var clock = new CLOCK();
         var counter = new COUNTER<Bit>(clock);
 
-        CycleCounter(counter, new Bit(true), new Bit(1));
+        CycleCounter(counter, Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
 
         CycleCounter(counter, new Bit(false), new Bit(0));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(0)));
 
-        CycleCounter(counter, new Bit(true), new Bit(1));
+        CycleCounter(counter, Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
     }
 
@@ -63,24 +63,24 @@ internal class COUNTERTests
         var counter = new COUNTER<Bit>(clock);
 
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Bit(1));
+        counter.EVal(Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(0)));
 
         // Create a full cycle to update
-        clock.Set(new Bit(true));
-        counter.EVal(new Bit(true), new Bit(1));
+        clock.Set(Bit.One);
+        counter.EVal(Bit.One, new Bit(1));
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Bit(1));
+        counter.EVal(Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
 
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Bit(0));
+        counter.EVal(Bit.One, new Bit(0));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
 
-        clock.Set(new Bit(true));
-        counter.EVal(new Bit(true), new Bit(0));
+        clock.Set(Bit.One);
+        counter.EVal(Bit.One, new Bit(0));
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Bit(0));
+        counter.EVal(Bit.One, new Bit(0));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(0)));
     }
 
@@ -89,12 +89,12 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Bit>(clock);
-        CycleCounter(counter, new Bit(true), new Bit(1));
+        CycleCounter(counter, Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
 
         counter.Reset();
         // Force a cycle to latch the reset value (0)
-        CycleCounter(counter, new Bit(true), new Bit(0));
+        CycleCounter(counter, Bit.One, new Bit(0));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(0)));
     }
 
@@ -113,7 +113,7 @@ internal class COUNTERTests
                         var counter = new COUNTER<Bit>(clock); // start at 0
 
                         // Load the initial value using a full cycle
-                        CycleCounter(counter, new Bit(true), new Bit(init));
+                        CycleCounter(counter, Bit.One, new Bit(init));
                         // Now counter.State == init
 
                         Bit expected;
@@ -171,13 +171,13 @@ internal class COUNTERTests
             CycleCounter(counter, new Bit(false), new Byte(0));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(5)));
 
-        CycleCounter(counter, new Bit(true), new Byte(0xAA));
+        CycleCounter(counter, Bit.One, new Byte(0xAA));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
         CycleCounter(counter, new Bit(false), new Byte(0));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAB)));
 
-        CycleCounter(counter, new Bit(true), new Byte(0x00));
+        CycleCounter(counter, Bit.One, new Byte(0x00));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0x00)));
 
         CycleCounter(counter, new Bit(false), new Byte(0));
@@ -191,23 +191,23 @@ internal class COUNTERTests
         var counter = new COUNTER<Byte>(clock);
 
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0xAA));
+        counter.EVal(Bit.One, new Byte(0xAA));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0)));
 
-        clock.Set(new Bit(true));
-        counter.EVal(new Bit(true), new Byte(0xAA));
+        clock.Set(Bit.One);
+        counter.EVal(Bit.One, new Byte(0xAA));
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0xAA));
+        counter.EVal(Bit.One, new Byte(0xAA));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0xBB));
+        counter.EVal(Bit.One, new Byte(0xBB));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
-        clock.Set(new Bit(true));
-        counter.EVal(new Bit(true), new Byte(0xBB));
+        clock.Set(Bit.One);
+        counter.EVal(Bit.One, new Byte(0xBB));
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0xBB));
+        counter.EVal(Bit.One, new Byte(0xBB));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xBB)));
     }
 
@@ -223,7 +223,7 @@ internal class COUNTERTests
 
         counter.Reset();
         // Force a cycle to latch the reset value (0)
-        CycleCounter(counter, new Bit(true), new Byte(0));
+        CycleCounter(counter, Bit.One, new Byte(0));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0)));
 
         CycleCounter(counter, new Bit(false), new Byte(0));
@@ -235,7 +235,7 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Byte>(clock);
-        CycleCounter(counter, new Bit(true), new Byte(0xFF));
+        CycleCounter(counter, Bit.One, new Byte(0xFF));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xFF)));
 
         CycleCounter(counter, new Bit(false), new Byte(0));
@@ -250,11 +250,11 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Byte>(clock);
-        CycleCounter(counter, new Bit(true), new Byte(0xAA));
+        CycleCounter(counter, Bit.One, new Byte(0xAA));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0x55));
+        counter.EVal(Bit.One, new Byte(0x55));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
         clock.Set(new Bit(false));
@@ -262,10 +262,10 @@ internal class COUNTERTests
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
         // Full cycle to update
-        clock.Set(new Bit(true));
-        counter.EVal(new Bit(true), new Byte(0x55));
+        clock.Set(Bit.One);
+        counter.EVal(Bit.One, new Byte(0x55));
         clock.Set(new Bit(false));
-        counter.EVal(new Bit(true), new Byte(0x55));
+        counter.EVal(Bit.One, new Byte(0x55));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0x55)));
 
         clock.Set(new Bit(false));
@@ -287,7 +287,7 @@ internal class COUNTERTests
             var clock = new CLOCK();
             var counter = new COUNTER<Byte>(clock);
             // Load initial value via a cycle
-            CycleCounter(counter, new Bit(true), new Byte(init));
+            CycleCounter(counter, Bit.One, new Byte(init));
             Assert.That((Byte)counter, Is.EqualTo(new Byte(init))); // sanity
 
             Byte expected;
@@ -351,13 +351,13 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Short>(clock);
-        CycleCounter(counter, new Bit(true), new Short(0xAAAA));
+        CycleCounter(counter, Bit.One, new Short(0xAAAA));
         Assert.That((Short)counter, Is.EqualTo(new Short(0xAAAA)));
 
         CycleCounter(counter, new Bit(false), new Short(0));
         Assert.That((Short)counter, Is.EqualTo(new Short(0xAAAB)));
 
-        CycleCounter(counter, new Bit(true), new Short(0x5555));
+        CycleCounter(counter, Bit.One, new Short(0x5555));
         Assert.That((Short)counter, Is.EqualTo(new Short(0x5555)));
     }
 
@@ -366,7 +366,7 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Short>(clock);
-        CycleCounter(counter, new Bit(true), new Short(0xFFFF));
+        CycleCounter(counter, Bit.One, new Short(0xFFFF));
         Assert.That((Short)counter, Is.EqualTo(new Short(0xFFFF)));
 
         CycleCounter(counter, new Bit(false), new Short(0));
@@ -414,13 +414,13 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Int>(clock);
-        CycleCounter(counter, new Bit(true), new Int(0xAAAAAAAA));
+        CycleCounter(counter, Bit.One, new Int(0xAAAAAAAA));
         Assert.That((Int)counter, Is.EqualTo(new Int(0xAAAAAAAA)));
 
         CycleCounter(counter, new Bit(false), new Int(0));
         Assert.That((Int)counter, Is.EqualTo(new Int(0xAAAAAAAB)));
 
-        CycleCounter(counter, new Bit(true), new Int(0x55555555));
+        CycleCounter(counter, Bit.One, new Int(0x55555555));
         Assert.That((Int)counter, Is.EqualTo(new Int(0x55555555)));
     }
 
@@ -429,7 +429,7 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Int>(clock);
-        CycleCounter(counter, new Bit(true), new Int(0xFFFFFFFF));
+        CycleCounter(counter, Bit.One, new Int(0xFFFFFFFF));
         Assert.That((Int)counter, Is.EqualTo(new Int(0xFFFFFFFF)));
 
         CycleCounter(counter, new Bit(false), new Int(0));
@@ -477,13 +477,13 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Long>(clock);
-        CycleCounter(counter, new Bit(true), new Long(0xAAAAAAAAAAAAAAAAL));
+        CycleCounter(counter, Bit.One, new Long(0xAAAAAAAAAAAAAAAAL));
         Assert.That((Long)counter, Is.EqualTo(new Long(0xAAAAAAAAAAAAAAAAL)));
 
         CycleCounter(counter, new Bit(false), new Long(0));
         Assert.That((Long)counter, Is.EqualTo(new Long(0xAAAAAAAAAAAAAAABL)));
 
-        CycleCounter(counter, new Bit(true), new Long(0x5555555555555555L));
+        CycleCounter(counter, Bit.One, new Long(0x5555555555555555L));
         Assert.That((Long)counter, Is.EqualTo(new Long(0x5555555555555555L)));
     }
 
@@ -492,7 +492,7 @@ internal class COUNTERTests
     {
         var clock = new CLOCK();
         var counter = new COUNTER<Long>(clock);
-        CycleCounter(counter, new Bit(true), new Long(0xFFFFFFFFFFFFFFFFL));
+        CycleCounter(counter, Bit.One, new Long(0xFFFFFFFFFFFFFFFFL));
         Assert.That((Long)counter, Is.EqualTo(new Long(0xFFFFFFFFFFFFFFFFL)));
 
         CycleCounter(counter, new Bit(false), new Long(0));
@@ -518,7 +518,7 @@ internal class COUNTERTests
 
         counter.Reset();
         // Force a cycle to latch the reset value (0)
-        CycleCounter(counter, new Bit(true), new Byte(0));
+        CycleCounter(counter, Bit.One, new Byte(0));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0)));
 
         CycleCounter(counter, new Bit(false), new Byte(0));
@@ -535,22 +535,22 @@ internal class COUNTERTests
         var clock = new CLOCK();
         var counter1 = new COUNTER<Byte>(clock);
 
-        CycleCounter(counter1, new Bit(true), new Bit(true));
+        CycleCounter(counter1, Bit.One, Byte.One);
         Byte actual1 = (Byte)counter1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
         var counter2 = new COUNTER<Short>(clock);
-        CycleCounter(counter2, new Bit(true), new Byte(0xAA));
+        CycleCounter(counter2, Bit.One, new Byte(0xAA));
         Short actual2 = (Short)counter2;
         Assert.That(actual2, Is.EqualTo(new Short(0x00AA)));
 
         var counter3 = new COUNTER<Int>(clock);
-        CycleCounter(counter3, new Bit(true), new Short(0xAAAA));
+        CycleCounter(counter3, Bit.One, new Short(0xAAAA));
         Int actual3 = (Int)counter3;
         Assert.That(actual3, Is.EqualTo(new Int(0x0000AAAA)));
 
         var counter4 = new COUNTER<Long>(clock);
-        CycleCounter(counter4, new Bit(true), new Int(0xAAAAAAAA));
+        CycleCounter(counter4, Bit.One, new Int(0xAAAAAAAA));
         Long actual4 = (Long)counter4;
         Assert.That(actual4, Is.EqualTo(new Long(0x00000000AAAAAAAA)));
     }

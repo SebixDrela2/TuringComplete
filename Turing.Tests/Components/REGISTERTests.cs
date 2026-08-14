@@ -293,27 +293,27 @@ internal class REGISTERTests
     public void REGISTER_MixedTypes_CompilesAndWorks()
     {
         var clock = new CLOCK();
-        clock.Set(new Bit(true));
+        clock.Set(Bit.One);
         var reg1 = new REGISTER<Byte>(clock);
-        reg1.EVal(new Bit(true), new Bit(true));
+        reg1.EVal(Bit.One, Byte.One);
         Byte actual1 = (Byte)reg1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
-        clock.Set(new Bit(true));
+        clock.Set(Bit.One);
         var reg2 = new REGISTER<Short>(clock);
-        reg2.EVal(new Bit(true), new Byte(0xAA));
+        reg2.EVal(Bit.One, new Byte(0xAA));
         Short actual2 = (Short)reg2;
         Assert.That(actual2, Is.EqualTo(new Short(0x00AA)));
 
-        clock.Set(new Bit(true));
+        clock.Set(Bit.One);
         var reg3 = new REGISTER<Int>(clock);
-        reg3.EVal(new Bit(true), new Short(0xAAAA));
+        reg3.EVal(Bit.One, new Short(0xAAAA));
         Int actual3 = (Int)reg3;
         Assert.That(actual3, Is.EqualTo(new Int(0x0000AAAA)));
 
-        clock.Set(new Bit(true));
+        clock.Set(Bit.One);
         var reg4 = new REGISTER<Long>(clock);
-        reg4.EVal(new Bit(true), new Int(0xAAAAAAAA));
+        reg4.EVal(Bit.One, new Int(0xAAAAAAAA));
         Long actual4 = (Long)reg4;
         Assert.That(actual4, Is.EqualTo(new Long(0x00000000AAAAAAAA)));
     }

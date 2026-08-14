@@ -345,7 +345,7 @@ internal class BUSTests
         // Bit to Byte promotion
         var bitA = new Bit(true);
         var bitB = new Bit(false);
-        (Byte OutputA, Byte OutputB) actual1 = new BUS<Byte>(bitA, bitB, new Bit(false), new Bit(true));
+        (Byte OutputA, Byte OutputB) actual1 = new BUS<Byte>((int)bitA, (int)bitB, new Bit(false), new Bit(true));
         Assert.That(actual1.OutputA, Is.EqualTo(new Byte(0x01)));
         Assert.That(actual1.OutputB, Is.EqualTo(new Byte(0x00)));
 

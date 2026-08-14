@@ -23,7 +23,7 @@ internal class SLATCHTests
                 for (int set = 0; set <= 1; set++)
                 {
                     // Arrange - set initial state using constructor with Set=1
-                    var slatch = new SLATCH<Bit>(new Bit(initial), new Bit(true));
+                    var slatch = new SLATCH<Bit>(new Bit(initial), Bit.One);
 
 
 
@@ -73,33 +73,33 @@ internal class SLATCHTests
     public void SLATCH_Reset_WithBitInputs_ResetsToZero()
     {
         // Arrange
-        var slatch = new SLATCH<Bit>(new Bit(true), new Bit(true)); // Set to 1
+        var slatch = new SLATCH<Bit>(Bit.One, Bit.One); // Set to 1
 
 
-        Assert.That((Bit)slatch, Is.EqualTo(new Bit(true)));
+        Assert.That((Bit)slatch, Is.EqualTo(Bit.One));
 
         // Act
         slatch.Reset();
 
         // Assert
-        Assert.That((Bit)slatch, Is.EqualTo(new Bit(false)));
+        Assert.That((Bit)slatch, Is.EqualTo(Bit.Zero));
     }
 
     [Test]
     public void SLATCH_HoldsState_WhenSetIsFalse_WithBitInputs()
     {
         // Arrange
-        var slatch = new SLATCH<Bit>(new Bit(true), new Bit(true)); // Set to 1
+        var slatch = new SLATCH<Bit>(Bit.One, Bit.One); // Set to 1
 
 
-        Assert.That((Bit)slatch, Is.EqualTo(new Bit(true)));
+        Assert.That((Bit)slatch, Is.EqualTo(Bit.One));
 
         // Act - try to change input while set is false
-        slatch.EVal(new Bit(false), new Bit(false));
+        slatch.EVal(Bit.Zero, Bit.Zero);
 
 
         // Assert - state should remain 1
-        Assert.That((Bit)slatch, Is.EqualTo(new Bit(true)));
+        Assert.That((Bit)slatch, Is.EqualTo(Bit.One));
     }
 
     // ==========================================
@@ -116,7 +116,7 @@ internal class SLATCHTests
                 for (int set = 0; set <= 1; set++)
                 {
                     // Arrange - set initial state using constructor with Set=1
-                    var slatch = new SLATCH<Byte>(new Byte(initial), new Bit(true));
+                    var slatch = new SLATCH<Byte>(new Byte(initial), Bit.One);
 
 
                     var expected = new Byte(set == 1 ? input : initial);
@@ -161,23 +161,23 @@ internal class SLATCHTests
     public void SLATCH_WithByteInputs_SpecificCases_ReturnsCorrectOutput()
     {
         // Set = 1, load input
-        var slatch1 = new SLATCH<Byte>(new Byte(0xAA), new Bit(true));
+        var slatch1 = new SLATCH<Byte>(new Byte(0xAA), Bit.One);
 
 
         Assert.That((Byte)slatch1, Is.EqualTo(new Byte(0xAA)));
 
         // Set = 0, hold state
-        slatch1.EVal(new Byte(0xCC), new Bit(false));
+        slatch1.EVal(new Byte(0xCC), Bit.Zero);
 
         Assert.That((Byte)slatch1, Is.EqualTo(new Byte(0xAA)));
 
         // Set = 1, load new input
-        slatch1.EVal(new Byte(0xCC), new Bit(true));
+        slatch1.EVal(new Byte(0xCC), Bit.One);
 
         Assert.That((Byte)slatch1, Is.EqualTo(new Byte(0xCC)));
 
         // Set = 0, hold state again
-        slatch1.EVal(new Byte(0xFF), new Bit(false));
+        slatch1.EVal(new Byte(0xFF), Bit.Zero);
 
         Assert.That((Byte)slatch1, Is.EqualTo(new Byte(0xCC)));
     }
@@ -186,7 +186,7 @@ internal class SLATCHTests
     public void SLATCH_Reset_WithByteInputs_ResetsToZero()
     {
         // Arrange
-        var slatch = new SLATCH<Byte>(new Byte(0xAA), new Bit(true));
+        var slatch = new SLATCH<Byte>(new Byte(0xAA), Bit.One);
 
 
         Assert.That((Byte)slatch, Is.EqualTo(new Byte(0xAA)));
@@ -202,13 +202,13 @@ internal class SLATCHTests
     public void SLATCH_HoldsState_WhenSetIsFalse_WithByteInputs()
     {
         // Arrange
-        var slatch = new SLATCH<Byte>(new Byte(0xAA), new Bit(true));
+        var slatch = new SLATCH<Byte>(new Byte(0xAA), Bit.One);
 
 
         Assert.That((Byte)slatch, Is.EqualTo(new Byte(0xAA)));
 
         // Act - try to change input while set is false
-        slatch.EVal(new Byte(0xCC), new Bit(false));
+        slatch.EVal(new Byte(0xCC), Bit.Zero);
 
 
         // Assert - state should remain 0xAA
@@ -238,7 +238,7 @@ internal class SLATCHTests
         foreach (var (initial, input, set, expected) in testCases)
         {
             // Arrange
-            var slatch = new SLATCH<Short>(new Short(initial), new Bit(true));
+            var slatch = new SLATCH<Short>(new Short(initial), Bit.One);
 
 
             var expectedOutput = new Short(expected);
@@ -265,7 +265,7 @@ internal class SLATCHTests
             int set = random.Next(0, 2);
 
             // Arrange
-            var slatch = new SLATCH<Short>(new Short(initial), new Bit(true));
+            var slatch = new SLATCH<Short>(new Short(initial), Bit.One);
 
 
             var expected = new Short(set == 1 ? input : initial);
@@ -304,7 +304,7 @@ internal class SLATCHTests
         foreach (var (initial, input, set, expected) in testCases)
         {
             // Arrange
-            var slatch = new SLATCH<Int>(new Int(initial), new Bit(true));
+            var slatch = new SLATCH<Int>(new Int(initial), Bit.One);
 
 
             var expectedOutput = new Int(expected);
@@ -331,7 +331,7 @@ internal class SLATCHTests
             int set = random.Next(0, 2);
 
             // Arrange
-            var slatch = new SLATCH<Int>(new Int(initial), new Bit(true));
+            var slatch = new SLATCH<Int>(new Int(initial), Bit.One);
 
 
             var expected = new Int(set == 1 ? input : initial);
@@ -370,7 +370,7 @@ internal class SLATCHTests
         foreach (var (initial, input, set, expected) in testCases)
         {
             // Arrange
-            var slatch = new SLATCH<Long>(new Long(initial), new Bit(true));
+            var slatch = new SLATCH<Long>(new Long(initial), Bit.One);
 
 
             var expectedOutput = new Long(expected);
@@ -397,7 +397,7 @@ internal class SLATCHTests
             int set = random.Next(0, 2);
 
             // Arrange
-            var slatch = new SLATCH<Long>(new Long(initial), new Bit(true));
+            var slatch = new SLATCH<Long>(new Long(initial), Bit.One);
 
 
             var expected = new Long(set == 1 ? input : initial);
@@ -422,35 +422,33 @@ internal class SLATCHTests
     {
         // Bit to Byte promotion
         var slatch1 = new SLATCH<Byte>();
-        slatch1.EVal(new Bit(true), new Bit(true));
-
-
+        slatch1.EVal(Byte.One, Bit.One);
 
         Byte actual1 = (Byte)slatch1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
-        slatch1.EVal(new Bit(false), new Bit(true));
+        slatch1.EVal(Byte.Zero, Bit.One);
 
         Byte actual2 = (Byte)slatch1;
         Assert.That(actual2, Is.EqualTo(new Byte(0x00)));
 
         // Byte to Short promotion
         var slatch2 = new SLATCH<Short>();
-        slatch2.EVal(new Byte(0xAA), new Bit(true));
+        slatch2.EVal(new Byte(0xAA), Bit.One);
 
         Short actual3 = (Short)slatch2;
         Assert.That(actual3, Is.EqualTo(new Short(0x00AA)));
 
         // Short to Int promotion
         var slatch3 = new SLATCH<Int>();
-        slatch3.EVal(new Short(0xAAAA), new Bit(true));
+        slatch3.EVal(new Short(0xAAAA), Bit.One);
 
         Int actual4 = (Int)slatch3;
         Assert.That(actual4, Is.EqualTo(new Int(0x0000AAAA)));
 
         // Int to Long promotion
         var slatch4 = new SLATCH<Long>();
-        slatch4.EVal(new Int(0xAAAAAAAA), new Bit(true));
+        slatch4.EVal(new Int(0xAAAAAAAA), Bit.One);
 
         Long actual5 = (Long)slatch4;
         Assert.That(actual5, Is.EqualTo(new Long(0x00000000AAAAAAAA)));

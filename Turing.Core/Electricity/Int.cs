@@ -49,6 +49,7 @@ public readonly record struct Int : IByteValue<Int>
 		newBits[index] = value;
 		return new Int(newBits);
 	}
+    public static implicit operator Int(Bit bit) => new Byte(bit);
 
     public static implicit operator Int(bool value)
     {

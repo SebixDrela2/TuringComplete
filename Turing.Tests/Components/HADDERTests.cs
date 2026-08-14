@@ -293,7 +293,7 @@ internal class HADDERTests
         // Bit to Byte promotion
         var bitA = new Bit(true);
         var bitB = new Bit(false);
-        (Byte Sum, Byte Carry) actual1 = new HADDER<Byte>(bitA, bitB);
+        (Byte Sum, Byte Carry) actual1 = new HADDER<Byte>((int)bitA, (int)bitB);
         Assert.That(actual1.Sum, Is.EqualTo(new Byte(0x01)));
         Assert.That(actual1.Carry, Is.EqualTo(new Byte(0x00)));
 

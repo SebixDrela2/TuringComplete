@@ -45,6 +45,8 @@ public record struct Byte : IByteValue<Byte>
         return new Byte(newBits);
     }
 
+    public static implicit operator Byte(Bit bit) => new Byte(bit);
+
     public static implicit operator Byte(bool value)
     {
         return new Byte(value ? 1 : 0);

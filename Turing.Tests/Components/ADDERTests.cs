@@ -140,12 +140,12 @@ internal class ADDERTests
             var inputCin = new Short(cin);
 
             // Act
-            (Short Sum, Short Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
+            (Short Sum, Bit Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X4}, B={b:X4}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)(int)expectedCarry),
                 $"Failed for A={a:X4}, B={b:X4}, Cin={cin}");
         }
     }
@@ -171,12 +171,12 @@ internal class ADDERTests
             var inputCin = new Short(cin);
 
             // Act
-            (Short Sum, Short Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
+            (Short Sum, Bit Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X4}, B={b:X4}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)(int)expectedCarry),
                 $"Failed for A={a:X4}, B={b:X4}, Cin={cin}");
         }
     }
@@ -216,12 +216,12 @@ internal class ADDERTests
             var inputCin = new Int(cin);
 
             // Act
-            (Int Sum, Int Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
+            (Int Sum, Bit Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X8}, B={b:X8}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)(int)expectedCarry),
                 $"Failed for A={a:X8}, B={b:X8}, Cin={cin}");
         }
     }
@@ -247,12 +247,12 @@ internal class ADDERTests
             var inputCin = new Int(cin);
 
             // Act
-            (Int Sum, Int Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
+            (Int Sum, Bit Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X8}, B={b:X8}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)(int)expectedCarry),
                 $"Failed for A={a:X8}, B={b:X8}, Cin={cin}");
         }
     }
@@ -300,12 +300,12 @@ internal class ADDERTests
             var inputCin = new Long(cin);
 
             // Act
-            (Long Sum, Long Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
+            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X16}, B={b:X16}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)expectedCarry),
                 $"Failed for A={a:X16}, B={b:X16}, Cin={cin}");
         }
     }
@@ -336,12 +336,12 @@ internal class ADDERTests
             var inputCin = new Long((long)cin);
 
             // Act
-            (Long Sum, Long Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
+            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
                 $"Failed for A={a:X16}, B={b:X16}, Cin={cin}");
-            Assert.That(actual.Carry, Is.EqualTo(expectedCarry),
+            Assert.That(actual.Carry, Is.EqualTo((Bit)expectedCarry),
                 $"Failed for A={a:X16}, B={b:X16}, Cin={cin}");
         }
     }
@@ -353,7 +353,7 @@ internal class ADDERTests
         var bitA = new Bit(true);
         var bitB = new Bit(false);
         var bitCin = new Bit(true);
-        (Byte Sum, Bit Carry) actual1 = new ADDER<Byte>(bitA, bitB, bitCin);
+        (Byte Sum, Bit Carry) actual1 = new ADDER<Byte>((int)bitA, (int)bitB, (int)bitCin);
         Assert.That(actual1.Sum, Is.EqualTo(new Byte(0x02))); // 1 + 0 + 1 = 2
         Assert.That(actual1.Carry, Is.EqualTo(new Bit(0x00))); // no carry
 
@@ -361,24 +361,24 @@ internal class ADDERTests
         var byteA = new Byte(0xFF);
         var byteB = new Byte(0x01);
         var byteCin = new Byte(0x00);
-        (Short Sum, Short Carry) actual2 = new ADDER<Short>(byteA, byteB, byteCin);
+        (Short Sum, Bit Carry) actual2 = new ADDER<Short>(byteA, byteB, byteCin);
         Assert.That(actual2.Sum, Is.EqualTo(new Short(0x0100))); // 255 + 1 = 256
-        Assert.That(actual2.Carry, Is.EqualTo(new Short(0x0000)));
+        Assert.That(actual2.Carry, Is.EqualTo(new Bit(0x0000)));
 
         // Short to Int promotion
         var shortA = new Short(0xFFFF);
         var shortB = new Short(0x0001);
         var shortCin = new Short(0x0000);
-        (Int Sum, Int Carry) actual3 = new ADDER<Int>(shortA, shortB, shortCin);
+        (Int Sum, Bit Carry) actual3 = new ADDER<Int>(shortA, shortB, shortCin);
         Assert.That(actual3.Sum, Is.EqualTo(new Int(0x00010000))); // 65535 + 1 = 65536
-        Assert.That(actual3.Carry, Is.EqualTo(new Int(0x00000000)));
+        Assert.That(actual3.Carry, Is.EqualTo(new Bit(0x00000000)));
 
         // Int to Long promotion
         var intA = new Int(0xFFFFFFFF);
         var intB = new Int(0x00000001);
         var intCin = new Int(0x00000000);
-        (Long Sum, Long Carry) actual4 = new ADDER<Long>(intA, intB, intCin);
+        (Long Sum, Bit Carry) actual4 = new ADDER<Long>(intA, intB, intCin);
         Assert.That(actual4.Sum, Is.EqualTo(new Long(0x0000000100000000L))); // 4294967295 + 1 = 4294967296
-        Assert.That(actual4.Carry, Is.EqualTo(new Long(0x0000000000000000L)));
+        Assert.That(actual4.Carry, Is.EqualTo(new Bit(0x0)));
     }
 }

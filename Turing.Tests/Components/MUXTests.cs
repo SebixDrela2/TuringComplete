@@ -303,10 +303,10 @@ internal class MUXTests
         // Bit to Byte promotion
         var bitA = new Bit(true);
         var bitB = new Bit(false);
-        Byte actual1 = new MUX<Byte>(bitA, bitB, new Bit(false));
+        Byte actual1 = new MUX<Byte>((int)bitA, (int)bitB, new Bit(false));
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
-        Byte actual2 = new MUX<Byte>(bitA, bitB, new Bit(true));
+        Byte actual2 = new MUX<Byte>((int)bitA, (int)bitB, new Bit(true));
         Assert.That(actual2, Is.EqualTo(new Byte(0x00)));
 
         // Byte to Short promotion

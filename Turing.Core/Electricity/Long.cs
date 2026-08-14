@@ -51,6 +51,8 @@ public readonly record struct Long : IByteValue<Long>
 
     public Bit LastBit() => _bits[BitWidth - 1];
 
+    public static implicit operator Long(Bit bit) => new Long(bit);
+
     public static implicit operator Long(bool value)
     {
         return new Long(value ? 0 : 1);
@@ -118,6 +120,8 @@ public readonly record struct Long : IByteValue<Long>
     }
 
     public static explicit operator Bit(Long l) => new Bit(l._bits[0]);
+
+    public static implicit operator int(Long value) => value;
 
     public override string ToString()
     {
