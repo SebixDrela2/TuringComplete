@@ -3,7 +3,7 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Gates;
 
-public class NAND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IBitValue<T>
+public class NAND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

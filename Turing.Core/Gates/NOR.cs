@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Gates;
 
-public class NOR<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IBitValue<T>
+public class NOR<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

@@ -3,7 +3,7 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
-public class MUX<T>(T inputA, T inputB, Bit sel) where T : struct, IBitValue<T>
+public class MUX<T>(T inputA, T inputB, Bit sel) where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

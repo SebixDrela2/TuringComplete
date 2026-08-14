@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿namespace Turing.Core.Electricity;
 
-namespace Turing.Core.Electricity;
-
-public readonly record struct Int : IBitValue<Int>
+public readonly record struct Int : IByteValue<Int>
 {
 	private readonly bool[] _bits; 
 

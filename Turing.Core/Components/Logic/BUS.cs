@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Components.Logic;
 
-public class BUS<T>(T inputA, T inputB, Bit sel0, Bit sel1) where T : struct, IBitValue<T>
+public class BUS<T>(T inputA, T inputB, Bit sel0, Bit sel1) where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

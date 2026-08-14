@@ -9,7 +9,7 @@ internal class COUNTERTests
 {
     // Helper: perform a full clock cycle that updates the counter state.
     // Assumes clock is LOW at the start (we set it explicitly inside).
-    private void CycleCounter<T>(COUNTER<T> counter, Bit load, T loadValue) where T : struct, IBitValue<T>
+    private void CycleCounter<T>(COUNTER<T> counter, Bit load, T loadValue) where T : struct, IValue<T>
     {
         counter._clock.Set(new Bit(false));
         counter.EVal(load, loadValue);

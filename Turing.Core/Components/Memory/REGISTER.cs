@@ -1,9 +1,8 @@
-﻿using Turing.Core.Components.Logic;
-using Turing.Core.Components.Memory;
+﻿using Turing.Core.Components.Memory;
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
 
-public class REGISTER<T> : IStateGate<T> where T : struct, IBitValue<T>
+public class REGISTER<T> : IStateGate<T> where T : struct, IValue<T>
 {
     private readonly SLATCH<T> _slatch;
     private readonly DELAY<T> _delay;

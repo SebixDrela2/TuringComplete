@@ -7,7 +7,7 @@ namespace Turing.Core.Components.Arithmetic;
 /// <summary>
 /// Two's complement negation: -value = ~value + 1
 /// </summary>
-public class NEG<T> where T : struct, IBitValue<T>
+public class NEG<T> where T : struct, IValue<T>
 {
     private readonly T _result;
 

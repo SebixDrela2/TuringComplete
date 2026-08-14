@@ -3,7 +3,7 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
-public class HADDER<T>(T inputA, T inputB) where T : struct, IBitValue<T>
+public class HADDER<T>(T inputA, T inputB) where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

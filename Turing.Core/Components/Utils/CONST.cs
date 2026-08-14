@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Components.Logic;
 
-public class CONST<T> where T : struct, IBitValue<T>
+public class CONST<T> where T : struct, IValue<T>
 {
     private readonly T _value;
 

@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Gates;
 
-public class NOT<T>(T input) : IGate<T, T> where T : struct, IBitValue<T>
+public class NOT<T>(T input) : IGate<T, T> where T : struct, IValue<T>
 {
     private readonly T _input = input;
 

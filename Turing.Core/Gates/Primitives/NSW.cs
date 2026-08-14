@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Gates.Primitives;
 
-public class NSW<T>(Bit gate, T source) : ISW<T> where T : struct, IBitValue<T>
+public class NSW<T>(Bit gate, T source) : ISW<T> where T : struct, IValue<T>
 {
     private readonly Bit _gate = gate;
     private readonly T _source = source;

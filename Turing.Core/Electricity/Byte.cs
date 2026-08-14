@@ -1,6 +1,6 @@
 ﻿namespace Turing.Core.Electricity;
 
-public record struct Byte : IBitValue<Byte>
+public record struct Byte : IByteValue<Byte>
 {
     private bool[] _bits;
     public bool[] Bits => _bits ??= new bool[8];

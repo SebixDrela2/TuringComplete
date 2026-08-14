@@ -2,7 +2,7 @@
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
 
-public class COUNTER<T> : IStateGate<T> where T : struct, IBitValue<T>
+public class COUNTER<T> : IStateGate<T> where T : struct, IValue<T>
 {
     private readonly REGISTER<T> _register;
     public readonly CLOCK _clock;

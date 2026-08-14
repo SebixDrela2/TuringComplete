@@ -4,7 +4,7 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Components.Memory;
 
-public class DELAY<T> : IStateGate<T> where T : struct, IBitValue<T>
+public class DELAY<T> : IStateGate<T> where T : struct, IValue<T>
 {
     private readonly CLOCK _clock;
     private SLATCH<T> _masterLatch;

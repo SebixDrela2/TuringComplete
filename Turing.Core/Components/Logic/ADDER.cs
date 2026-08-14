@@ -3,7 +3,7 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
-public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IBitValue<T>
+public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IValue<T>
 {
     private readonly T _inputA = inputA;
     private readonly T _inputB = inputB;

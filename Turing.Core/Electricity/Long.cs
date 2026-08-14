@@ -1,6 +1,6 @@
 ﻿namespace Turing.Core.Electricity;
 
-public readonly record struct Long : IBitValue<Long>
+public readonly record struct Long : IByteValue<Long>
 {
     private readonly bool[] _bits;
 

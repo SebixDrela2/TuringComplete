@@ -3,7 +3,7 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Components.Memory;
 
-public class SLATCH<T> : IStateGate<T> where T : struct, IBitValue<T>
+public class SLATCH<T> : IStateGate<T> where T : struct, IValue<T>
 {
     private T _state = default(T).FromValue(false);
 
