@@ -64,7 +64,6 @@ public class OVERTURE : Processor
         SetInputs(instruction, srcDecoder, dstDecoder, inputFlow, imm, alu);
         SetOutput(srcDecoder, dstDecoder, inputFlow);
         SetCounter(instruction, cond);
-        DebugView();
 
         var src7Pin = srcDecoder.GetBit(7);
         var dst7Pin = dstDecoder.GetBit(7);
@@ -144,6 +143,7 @@ public class OVERTURE : Processor
 
         _pc.EVal(new AND<Bit>(cond, condResult), r0_out);
     }
+
 
     private void DebugView()
     {

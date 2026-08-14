@@ -6,6 +6,7 @@ public readonly record struct Short : IByteValue<Short>
 
     public static Short Zero => 0;
 
+    public static Short One => 1;
     public Short(bool[] bits)
     {
         if (bits.Length != 16) throw new ArgumentException("Must have 16 bits");
@@ -44,6 +45,8 @@ public readonly record struct Short : IByteValue<Short>
         newBits[index] = value;
         return new Short(newBits);
     }
+
+    public Bit LastBit() => _bits[BitWidth - 1];
 
     public static implicit operator Short(int value)
     {

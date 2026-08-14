@@ -5,6 +5,7 @@ public record struct Byte : IByteValue<Byte>
     private bool[] _bits;
     public bool[] Bits => _bits ??= new bool[8];
     public static Byte Zero => 0;
+    public static Byte One => 1;
     public Byte(bool[] bits)
     {
         if (bits.Length != 8) throw new ArgumentException("Must have 8 bits");
@@ -119,4 +120,5 @@ public record struct Byte : IByteValue<Byte>
     
     public string ToBinaryString() => string.Concat(Bits.Reverse().Select(b => b ? "1" : "0"));
     public string ToHexString() => ((int)this).ToString("X2");
+    public Bit LastBit() => Bits[BitWidth - 1];
 }

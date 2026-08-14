@@ -4,6 +4,8 @@ public readonly record struct Int : IByteValue<Int>
 {
 	private readonly bool[] _bits;
 	public static Int Zero => 0;
+	public static Int One => 1;
+
 	public Int(bool[] bits)
 	{
 		if (bits.Length != 32) throw new ArgumentException("Must have 32 bits");
@@ -123,6 +125,7 @@ public readonly record struct Int : IByteValue<Int>
 	public string ToHexString()
 		=> ((uint)this).ToString("X8");
 
+    public Bit LastBit() => _bits[BitWidth - 1];
     public bool Equals(Int other)
     {
         if (_bits.Length != other._bits.Length) return false;

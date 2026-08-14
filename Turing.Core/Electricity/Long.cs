@@ -4,7 +4,7 @@ public readonly record struct Long : IByteValue<Long>
 {
     private readonly bool[] _bits;
     public static Long Zero => 0;
-
+    public static Long One => 1;
     public Long(bool[] bits)
     {
         if (bits.Length != 64) throw new ArgumentException("Must have 64 bits");
@@ -48,6 +48,8 @@ public readonly record struct Long : IByteValue<Long>
         newBits[index] = value;
         return new Long(newBits);
     }
+
+    public Bit LastBit() => _bits[BitWidth - 1];
 
     public static implicit operator Long(bool value)
     {

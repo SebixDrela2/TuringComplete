@@ -4,6 +4,7 @@ public interface IValue<T> where T : struct, IValue<T>
 {
     T Value { get; }
     static abstract T Zero { get; }
+    static abstract T One { get; }
     static abstract int BitWidth { get; }
     T FromValue(bool value);
     T FromBits(bool[] bits);
@@ -14,7 +15,10 @@ public interface IValue<T> where T : struct, IValue<T>
     abstract static implicit operator T(int value);
 }
 
-public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>;
+public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>
+{
+    Bit LastBit();
+}
 
 public interface IBitValue<T> : IValue<T> where T : struct, IBitValue<T>;
 
