@@ -83,6 +83,11 @@ public readonly record struct Short : IByteValue<Short>
         return new Short(bits);
     }
 
+    public static implicit operator Short(bool value)
+    {
+        return new Short(value ? 1 : 0);
+    }
+
     public override string ToString()
     {
         int result = 0;

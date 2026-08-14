@@ -48,6 +48,16 @@ public readonly record struct Long : IByteValue<Long>
         return new Long(newBits);
     }
 
+    public static implicit operator Long(bool value)
+    {
+        return new Long(value ? 0 : 1);
+    }
+
+    public static implicit operator Long(int value)
+    {
+        return new Long(value);
+    }
+
     public static implicit operator Long(long value)
     {
         var bits = new bool[64];

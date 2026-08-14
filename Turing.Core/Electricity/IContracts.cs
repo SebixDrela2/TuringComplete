@@ -8,6 +8,9 @@ public interface IValue<T> where T : struct, IValue<T>
     T FromBits(bool[] bits);
     Bit GetBit(int index);
     T SetBit(int index, bool value);
+
+    abstract static implicit operator T(bool value);
+    abstract static implicit operator T(int value);
 }
 
 public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>;

@@ -44,6 +44,11 @@ public record struct Byte : IByteValue<Byte>
         return new Byte(newBits);
     }
 
+    public static implicit operator Byte(bool value)
+    {
+        return new Byte(value ? 1 : 0);
+    }
+
     public static implicit operator Byte(int value)
     {
         var bits = new bool[8];

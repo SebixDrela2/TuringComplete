@@ -48,7 +48,12 @@ public readonly record struct Int : IByteValue<Int>
 		return new Int(newBits);
 	}
 
-	public static implicit operator Int(int value)
+    public static implicit operator Int(bool value)
+    {
+		return new Int(value ? 1: 0);
+    }
+
+    public static implicit operator Int(int value)
 	{
 		var bits = new bool[32];
 		for (int i = 0; i < 32; i++)
@@ -104,23 +109,7 @@ public readonly record struct Int : IByteValue<Int>
 		return new Int(bits);
 	}
 
-	public static Int operator <<(Int a, int shift)
-	{
-		var bits = new bool[32];
-		for (int i = 0; i < 32 - shift; i++)
-			bits[i + shift] = a._bits[i];
-		return new Int(bits);
-	}
-
-	public static Int operator >>(Int a, int shift)
-	{
-		var bits = new bool[32];
-		for (int i = 0; i < 32 - shift; i++)
-			bits[i] = a._bits[i + shift];
-		return new Int(bits);
-	}
-
-	public override string ToString()
+    public override string ToString()
 	{
 		uint result = 0;
 		for (int i = 0; i < 32; i++)
