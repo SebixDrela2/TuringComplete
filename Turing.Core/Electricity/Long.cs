@@ -3,6 +3,7 @@
 public readonly record struct Long : IByteValue<Long>
 {
     private readonly bool[] _bits;
+    public static Long Zero => 0;
 
     public Long(bool[] bits)
     {

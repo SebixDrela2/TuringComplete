@@ -4,7 +4,7 @@ public record struct Byte : IByteValue<Byte>
 {
     private bool[] _bits;
     public bool[] Bits => _bits ??= new bool[8];
-
+    public static Byte Zero => 0;
     public Byte(bool[] bits)
     {
         if (bits.Length != 8) throw new ArgumentException("Must have 8 bits");

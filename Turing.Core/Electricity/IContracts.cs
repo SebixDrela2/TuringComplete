@@ -3,6 +3,7 @@
 public interface IValue<T> where T : struct, IValue<T>
 {
     T Value { get; }
+    static abstract T Zero { get; }
     static abstract int BitWidth { get; }
     T FromValue(bool value);
     T FromBits(bool[] bits);

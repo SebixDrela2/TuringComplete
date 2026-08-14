@@ -2,8 +2,8 @@
 
 public readonly record struct Int : IByteValue<Int>
 {
-	private readonly bool[] _bits; 
-
+	private readonly bool[] _bits;
+	public static Int Zero => 0;
 	public Int(bool[] bits)
 	{
 		if (bits.Length != 32) throw new ArgumentException("Must have 32 bits");

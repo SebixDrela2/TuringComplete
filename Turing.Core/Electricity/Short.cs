@@ -2,7 +2,9 @@
 
 public readonly record struct Short : IByteValue<Short>
 {
-    private readonly bool[] _bits; 
+    private readonly bool[] _bits;
+
+    public static Short Zero => 0;
 
     public Short(bool[] bits)
     {

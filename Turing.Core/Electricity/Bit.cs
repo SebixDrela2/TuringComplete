@@ -8,6 +8,8 @@ public readonly record struct Bit : IBitValue<Bit>
     public Bit(int value) => _value = value == 1;
 
     public Bit Value => _value;
+
+    public static Bit Zero => 0;
     public static int BitWidth => 1;
 
     public Bit FromValue(bool value) => new(value);
