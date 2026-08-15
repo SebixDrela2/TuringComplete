@@ -5,10 +5,10 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexComponents;
 
-public class LSR<T>(T input, Byte bitShift) where T : struct, IByteValue<T>, IValue<T>
+public class LSR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IValue<T>
 {
     private readonly T _input = input;
-    private readonly Byte _bitShift = bitShift;
+    private readonly Int _bitShift = bitShift;
 
     public static implicit operator T(LSR<T> lsr)
     {
@@ -20,12 +20,14 @@ public class LSR<T>(T input, Byte bitShift) where T : struct, IByteValue<T>, IVa
             var bit0 = lsr._bitShift.GetBit(0);
             var bit1 = lsr._bitShift.GetBit(1);
             var bit2 = lsr._bitShift.GetBit(2);
+            var bit3 = lsr._bitShift.GetBit(3);
+            var bit4 = lsr._bitShift.GetBit(4);
 
             Bit disableBit = notInput.GetBit(i);
             Bit enableBit = (T)new NOT<T>(disableBit);
-            Byte decoded = new BIT_DECODER_THREE(bit2, bit1, bit0, disableBit);
+            Int decoded = new BIT_DECODER_FIVE(bit4, bit3, bit2, bit1, bit0, disableBit);
 
-            Byte swapped = new Byte(0);
+            Int swapped = new Byte(0);
 
             int loopAmount = (int)(T)new SW<T>(enableBit, i + 1);
 
