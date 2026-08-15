@@ -27,7 +27,7 @@ public class LSR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
             Bit enableBit = (T)new NOT<T>(disableBit);
             Int decoded = new BIT_DECODER_FIVE(bit4, bit3, bit2, bit1, bit0, disableBit);
 
-            Int swapped = new Byte(0);
+            Int swapped = 0;
 
             int loopAmount = (int)(T)new SW<T>(enableBit, i + 1);
 
