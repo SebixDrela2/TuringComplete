@@ -9,7 +9,7 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Global;
 
-public static class ByteValueExtensions
+public static class ValueExtensions
 {
     extension(IValue value)
     {
