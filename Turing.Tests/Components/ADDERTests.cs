@@ -56,7 +56,7 @@ internal class ADDERTests
                     // Arrange
                     var inputA = new Byte(a);
                     var inputB = new Byte(b);
-                    var inputCin = new Byte(cin);
+                    var inputCin = new Bit(cin);
 
                     // Act
                     (Byte Sum, Bit Carry) actual = new ADDER<Byte>(inputA, inputB, inputCin);
@@ -137,7 +137,7 @@ internal class ADDERTests
             // Arrange
             var inputA = new Short(a);
             var inputB = new Short(b);
-            var inputCin = new Short(cin);
+            var inputCin = new Bit(cin);
 
             // Act
             (Short Sum, Bit Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
@@ -168,7 +168,7 @@ internal class ADDERTests
             // Arrange
             var inputA = new Short(a);
             var inputB = new Short(b);
-            var inputCin = new Short(cin);
+            var inputCin = new Bit(cin);
 
             // Act
             (Short Sum, Bit Carry) actual = new ADDER<Short>(inputA, inputB, inputCin);
@@ -188,19 +188,19 @@ internal class ADDERTests
     [Test]
     public void ADDER_ImplicitConversion_WithIntInputs_SelectedCases_ReturnsCorrectOutput()
     {
-        (uint, uint, uint)[] testCases =
+        (uint, uint, Bit)[] testCases =
         [
-            (0x00000000, 0x00000000, 0x00000000),
-            (0xFFFFFFFF, 0xFFFFFFFF, 0x00000000),
-            (0xFFFFFFFF, 0xFFFFFFFF, 0x00000001),
-            (0xAAAAAAAA, 0x55555555, 0x00000000),
-            (0xAAAAAAAA, 0xAAAAAAAA, 0x00000000),
-            (0xAAAAAAAA, 0x00000000, 0x00000001),
-            (0x12345678, 0x87654321, 0x00000000),
-            (0x12345678, 0x87654321, 0x00000001),
-            (0xFFFFFFFF, 0x00000000, 0x00000001),
-            (0x80000000, 0x80000000, 0x00000000),
-            (0x80000000, 0x80000000, 0x00000001),
+            (0x00000000, 0x00000000, 0),
+            (0xFFFFFFFF, 0xFFFFFFFF, 0),
+            (0xFFFFFFFF, 0xFFFFFFFF, 1),
+            (0xAAAAAAAA, 0x55555555, 0),
+            (0xAAAAAAAA, 0xAAAAAAAA, 0),
+            (0xAAAAAAAA, 0x00000000, 1),
+            (0x12345678, 0x87654321, 0),
+            (0x12345678, 0x87654321, 1),
+            (0xFFFFFFFF, 0x00000000, 1),
+            (0x80000000, 0x80000000, 0),
+            (0x80000000, 0x80000000, 1),
         ];
 
         foreach (var (a, b, cin) in testCases)
@@ -213,10 +213,9 @@ internal class ADDERTests
             // Arrange
             var inputA = new Int(a);
             var inputB = new Int(b);
-            var inputCin = new Int(cin);
 
             // Act
-            (Int Sum, Bit Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
+            (Int Sum, Bit Carry) actual = new ADDER<Int>(inputA, inputB, cin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
@@ -244,7 +243,7 @@ internal class ADDERTests
             // Arrange
             var inputA = new Int(a);
             var inputB = new Int(b);
-            var inputCin = new Int(cin);
+            var inputCin = new Bit(cin);
 
             // Act
             (Int Sum, Bit Carry) actual = new ADDER<Int>(inputA, inputB, inputCin);
@@ -264,19 +263,19 @@ internal class ADDERTests
     [Test]
     public void ADDER_ImplicitConversion_WithLongInputs_SelectedCases_ReturnsCorrectOutput()
     {
-        (ulong, ulong, ulong)[] testCases =
+        (ulong, ulong, Bit)[] testCases =
         [
-            (0x0000000000000000UL, 0x0000000000000000UL, 0x0000000000000000UL),
-            (0xFFFFFFFFFFFFFFFFUL, 0xFFFFFFFFFFFFFFFFUL, 0x0000000000000000UL),
-            (0xFFFFFFFFFFFFFFFFUL, 0xFFFFFFFFFFFFFFFFUL, 0x0000000000000001UL),
-            (0xAAAAAAAAAAAAAAAAL, 0x5555555555555555L, 0x0000000000000000L),
-            (0xAAAAAAAAAAAAAAAAL, 0xAAAAAAAAAAAAAAAAL, 0x0000000000000000L),
-            (0xAAAAAAAAAAAAAAAAL, 0x0000000000000000L, 0x0000000000000001L),
-            (0x123456789ABCDEF0L, 0xFEDCBA987654321FL, 0x0000000000000000L),
-            (0x123456789ABCDEF0L, 0xFEDCBA987654321FL, 0x0000000000000001L),
-            (0xFFFFFFFFFFFFFFFFL, 0x0000000000000000L, 0x0000000000000001L),
-            (0x8000000000000000L, 0x8000000000000000L, 0x0000000000000000L),
-            (0x8000000000000000L, 0x8000000000000000L, 0x0000000000000001L),
+            (0x0000000000000000UL, 0x0000000000000000UL, 0),
+            (0xFFFFFFFFFFFFFFFFUL, 0xFFFFFFFFFFFFFFFFUL, 0),
+            (0xFFFFFFFFFFFFFFFFUL, 0xFFFFFFFFFFFFFFFFUL, 1),
+            (0xAAAAAAAAAAAAAAAAL, 0x5555555555555555L, 0),
+            (0xAAAAAAAAAAAAAAAAL, 0xAAAAAAAAAAAAAAAAL, 0),
+            (0xAAAAAAAAAAAAAAAAL, 0x0000000000000000L, 1),
+            (0x123456789ABCDEF0L, 0xFEDCBA987654321FL, 0),
+            (0x123456789ABCDEF0L, 0xFEDCBA987654321FL, 1),
+            (0xFFFFFFFFFFFFFFFFL, 0x0000000000000000L, 1),
+            (0x8000000000000000L, 0x8000000000000000L, 0),
+            (0x8000000000000000L, 0x8000000000000000L, 1),
         ];
 
         foreach (var (a, b, cin) in testCases)
@@ -286,8 +285,8 @@ internal class ADDERTests
             bool overflowAB = a > ulong.MaxValue - b;
 
             // Now add cin
-            ulong sum = sumAB + cin;
-            bool overflow = overflowAB || (cin > ulong.MaxValue - sumAB);
+            ulong sum = sumAB + (ulong)(int)cin;
+            bool overflow = overflowAB || ((ulong)(int)cin > ulong.MaxValue - sumAB);
 
             ulong carry = overflow ? 1UL : 0UL;
 
@@ -297,10 +296,9 @@ internal class ADDERTests
             // Arrange
             var inputA = new Long(a);
             var inputB = new Long(b);
-            var inputCin = new Long(cin);
 
             // Act
-            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
+            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, cin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
@@ -318,10 +316,10 @@ internal class ADDERTests
         {
             ulong a = ((ulong)random.Next() << 32) | (uint)random.Next();
             ulong b = ((ulong)random.Next() << 32) | (uint)random.Next();
-            ulong cin = (ulong)random.Next(0, 2);
+            Bit cin = (Bit)random.Next(0, 2);
 
             // Calculate expected
-            ulong total = a + b + cin;
+            ulong total = a + b + (ulong)(int)cin;
             ulong sum = total & 0xFFFFFFFFFFFFFFFFUL;
 
             // Carry is 1 if overflow occurred (total >= 2^64)
@@ -333,10 +331,9 @@ internal class ADDERTests
             // Arrange
             var inputA = new Long((long)a);
             var inputB = new Long((long)b);
-            var inputCin = new Long((long)cin);
 
             // Act
-            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, inputCin);
+            (Long Sum, Bit Carry) actual = new ADDER<Long>(inputA, inputB, cin);
 
             // Assert
             Assert.That(actual.Sum, Is.EqualTo(expectedSum),
@@ -360,7 +357,7 @@ internal class ADDERTests
         // Byte to Short promotion
         var byteA = new Byte(0xFF);
         var byteB = new Byte(0x01);
-        var byteCin = new Byte(0x00);
+        var byteCin = new Bit(0x00);
         (Short Sum, Bit Carry) actual2 = new ADDER<Short>(byteA, byteB, byteCin);
         Assert.That(actual2.Sum, Is.EqualTo(new Short(0x0100))); // 255 + 1 = 256
         Assert.That(actual2.Carry, Is.EqualTo(new Bit(0x0000)));
@@ -368,7 +365,7 @@ internal class ADDERTests
         // Short to Int promotion
         var shortA = new Short(0xFFFF);
         var shortB = new Short(0x0001);
-        var shortCin = new Short(0x0000);
+        var shortCin = new Bit(0x0000);
         (Int Sum, Bit Carry) actual3 = new ADDER<Int>(shortA, shortB, shortCin);
         Assert.That(actual3.Sum, Is.EqualTo(new Int(0x00010000))); // 65535 + 1 = 65536
         Assert.That(actual3.Carry, Is.EqualTo(new Bit(0x00000000)));
@@ -376,7 +373,7 @@ internal class ADDERTests
         // Int to Long promotion
         var intA = new Int(0xFFFFFFFF);
         var intB = new Int(0x00000001);
-        var intCin = new Int(0x00000000);
+        var intCin = new Bit(0x00000000);
         (Long Sum, Bit Carry) actual4 = new ADDER<Long>(intA, intB, intCin);
         Assert.That(actual4.Sum, Is.EqualTo(new Long(0x0000000100000000L))); // 4294967295 + 1 = 4294967296
         Assert.That(actual4.Carry, Is.EqualTo(new Bit(0x0)));

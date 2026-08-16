@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
   <Project Path="Turing.Core/Turing.Core.csproj" />
   <Project Path="Turing.Tests/Turing.Tests.csproj" />
   <Project Path="TuringComplete/Turing.TestApp.csproj" />

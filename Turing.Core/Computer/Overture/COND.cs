@@ -20,10 +20,6 @@ namespace Turing.Core.Overture;
 /// </summary>
 public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
 {
-    private readonly Bit _result;
-
-    public Bit Result => _result;
-
     protected override Bit ImplicitOperator()
     {
         // Extract the three condition bits

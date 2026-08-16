@@ -3,9 +3,9 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.ComplexComponents;
 
-public class EQ<T>(T inputA, T inputB) : TurComponentValue<T> where T : struct, IByteValue<T>
+public class EQ<T>(T inputA, T inputB) : TurComponentValue<Bit> where T : struct, IByteValue<T>
 {
-    protected override T ImplicitOperator()
+    protected override Bit ImplicitOperator()
     {
         Bit result = 1;
 

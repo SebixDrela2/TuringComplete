@@ -4,12 +4,12 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.ComplexComponents;
 
-public class LOW<T>(T inputA, T inputB) : TurComponentValue<T> where T : struct, IByteValue<T>
+public class LOW<T>(T inputA, T inputB) : TurComponentValue<Bit> where T : struct, IByteValue<T>
 {
     private readonly T inputA = inputA;
     private readonly T inputB = inputB;
 
-    protected override T ImplicitOperator()
+    protected override Bit ImplicitOperator()
     {
         (T _, Bit carry) = ((T, Bit)) new ADDER<T>(new NOT<T>(inputA), inputB, T.Zero);
 

@@ -1,4 +1,6 @@
-﻿namespace Turing.Core.Electricity;
+﻿using System.Runtime.CompilerServices;
+
+namespace Turing.Core.Electricity;
 
 public interface IValue
 {
@@ -18,7 +20,6 @@ public interface IValue<T> : IValue where T : struct, IValue<T>
 
     abstract static implicit operator T(bool value);
     abstract static implicit operator T(int value);
-
     abstract static implicit operator T(Bit value);
     abstract static implicit operator int(T value);
     virtual static implicit operator Bit(T value) => value.GetBit(0);

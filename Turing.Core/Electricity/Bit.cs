@@ -1,4 +1,6 @@
-﻿namespace Turing.Core.Electricity;
+﻿using System.Runtime.CompilerServices;
+
+namespace Turing.Core.Electricity;
 
 public record struct Bit : IBitValue<Bit>
 {
@@ -28,34 +30,9 @@ public record struct Bit : IBitValue<Bit>
     public static implicit operator Bit(int value) => new(value != 0);
     public static implicit operator int(Bit bit) => bit._value ? 1 : 0;
 
-    public static implicit operator Byte(Bit bit)
-    {
-        var bits = new bool[8];
-        bits[0] = bit._value;
-        return new Byte(bits);
-    }
-
-    // Same for Short, Int, Long
-    public static implicit operator Short(Bit bit)
-    {
-        var bits = new bool[16];
-        bits[0] = bit._value;
-        return new Short(bits);
-    }
-
-    public static implicit operator Int(Bit bit)
-    {
-        var bits = new bool[32];
-        bits[0] = bit._value;
-        return new Int(bits);
-    }
-
-    public static implicit operator Long(Bit bit)
-    {
-        var bits = new bool[64];
-        bits[0] = bit._value;
-        return new Long(bits);
-    }
+#pragma warning disable CS0473 // Explicit interface implementation matches more than one interface member
+    static implicit IValue<Bit>.operator Bit(Bit value) => value;
+#pragma warning restore CS0473 // Explicit interface implementation matches more than one interface member
 
     public override string ToString() => _value ? "1" : "0";
     public string ToBinaryString() => ToString();

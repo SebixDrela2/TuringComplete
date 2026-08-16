@@ -17,10 +17,6 @@ namespace Turing.Core.Overture;
 /// </summary>
 public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
 {
-    private readonly Byte _result;
-
-    public Byte Result => _result;
-
     protected override Byte ImplicitOperator()
     {
         // Compute all results
