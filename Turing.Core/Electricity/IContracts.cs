@@ -20,7 +20,7 @@ public interface IValue<T> : IValue where T : struct, IValue<T>
     abstract static implicit operator T(int value);
 }
 
-public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>, IValue<T>
+public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>, IValue<T>, IValue
 {
     Bit LastBit();
 

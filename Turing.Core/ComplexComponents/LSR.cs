@@ -5,23 +5,24 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexComponents;
 
-public class LSR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IValue<T>
+
+public class LSR<T>(T input, Int bitShift) : TurComponent<T> where T : struct, IByteValue<T>, IValue<T>
 {
     private readonly T _input = input;
     private readonly Int _bitShift = bitShift;
 
-    public static implicit operator T(LSR<T> lsr)
+    protected override T ImplicitOperator()
     {
         T result = 0;
-        T notInput = new NOT<T>(lsr._input);
+        T notInput = new NOT<T>(_input);
 
         for (var i = 0; i < T.BitWidth; i++)
         {
-            var bit0 = lsr._bitShift.GetBit(0);
-            var bit1 = lsr._bitShift.GetBit(1);
-            var bit2 = lsr._bitShift.GetBit(2);
-            var bit3 = lsr._bitShift.GetBit(3);
-            var bit4 = lsr._bitShift.GetBit(4);
+            var bit0 = _bitShift.GetBit(0);
+            var bit1 = _bitShift.GetBit(1);
+            var bit2 = _bitShift.GetBit(2);
+            var bit3 = _bitShift.GetBit(3);
+            var bit4 = _bitShift.GetBit(4);
 
             Bit disableBit = notInput.GetBit(i);
             Bit enableBit = (T)new NOT<T>(disableBit);

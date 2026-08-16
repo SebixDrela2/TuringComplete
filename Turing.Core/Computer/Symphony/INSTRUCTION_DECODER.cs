@@ -9,13 +9,13 @@ internal class INSTRUCTION_DECODER(Int instruction)
 
     public static implicit operator(Byte Mode, Byte OpCode, Byte Destination, Byte A, Byte B, Bit IsImm, Short ImmVal)(INSTRUCTION_DECODER decoder)
     {
-        Byte mode = ((Int)new SINDEXER<Int>(decoder._instruction, 29)).Into<Byte>();
-        Byte opCode = ((Int)new SINDEXER<Int>(decoder._instruction, 24)).Into<Byte>();
-        Byte dest = ((Int)new SINDEXER<Int>(decoder._instruction, 20)).Into<Byte>();
-        Byte a = ((Int)new SINDEXER<Int>(decoder._instruction, 16)).Into<Byte>();
-        Byte b = ((Int)new SINDEXER<Int>(decoder._instruction, 8)).Into<Byte>();
-        Bit isImm = ((Int)new SINDEXER<Int>(decoder._instruction, 28)).Into<Bit>();
-        Short immVal = ((Int)new SINDEXER<Int>(decoder._instruction, 0)).Into<Short>();
+        Byte mode = ExecTo<Byte>(new LSR<Int>(decoder._instruction, 29));
+        Byte opCode = ExecTo<Byte>(new LSR<Int>(decoder._instruction, 24));
+        Byte dest = ExecTo<Byte>(new LSR<Int>(decoder._instruction, 20));
+        Byte a = ExecTo<Byte>(new LSR<Int>(decoder._instruction, 16));
+        Byte b = ExecTo<Byte>(new LSR<Int>(decoder._instruction, 8));
+        Bit isImm = ExecTo<Bit>(new LSR<Int>(decoder._instruction, 28));
+        Short immVal = ExecTo<Short>(new LSR<Int>(decoder._instruction, 0));
 
         return (mode, opCode, dest, a, b, isImm, immVal);
     }
