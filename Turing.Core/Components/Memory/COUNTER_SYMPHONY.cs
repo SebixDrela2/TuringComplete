@@ -2,7 +2,7 @@
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
 
-public class COUNTER4<T> : IStateGate<T> where T : struct, IValue<T>
+public class COUNTER_SYMPHONY<T> : IStateGate<T> where T : struct, IValue<T>
 {
     private readonly REGISTER<T> _register;
     public readonly CLOCK _clock;
@@ -10,14 +10,14 @@ public class COUNTER4<T> : IStateGate<T> where T : struct, IValue<T>
 
     public T State => _register.State;
 
-    public COUNTER4(CLOCK clock)
+    public COUNTER_SYMPHONY(CLOCK clock)
     {
         _clock = clock;
         _register = new REGISTER<T>(_clock);
         _one = new CONST<T>(4);
     }
 
-    public COUNTER4(T initialValue, CLOCK clock)
+    public COUNTER_SYMPHONY(T initialValue, CLOCK clock)
     {
         _clock = clock;
         _register = new REGISTER<T>(_clock);
@@ -45,7 +45,7 @@ public class COUNTER4<T> : IStateGate<T> where T : struct, IValue<T>
         _register.Reset();
     }
 
-    public static implicit operator T(COUNTER4<T> counter)
+    public static implicit operator T(COUNTER_SYMPHONY<T> counter)
     {
         return counter.State;
     }
