@@ -3,15 +3,12 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
-public class HADDER<T>(T inputA, T inputB) where T : struct, IValue<T>
+public class HADDER<T>(T inputA, T inputB) : TurComponent<(T Sum, Bit Carry)> where T : struct, IValue<T>
 {
-    private readonly T _inputA = inputA;
-    private readonly T _inputB = inputB;
-
-    public static implicit operator (T Sum, T Carry)(HADDER<T> adder)
+    protected override (T Sum, Bit Carry) ImplicitOperator()
     {
-        T sum = new XOR<T>(adder._inputA, adder._inputB);
-        T carry = new AND<T>(adder._inputA, adder._inputB);
+        T sum = new XOR<T>(inputA, inputB);
+        T carry = new AND<T>(inputA, inputB);
 
         return (sum, carry);
     }

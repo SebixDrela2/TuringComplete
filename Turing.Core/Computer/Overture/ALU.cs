@@ -15,13 +15,13 @@ namespace Turing.Core.Overture;
 /// Opcode 5: SUB (a - b)
 /// The opcode is taken from bits 5,6,7 of the opcode byte.
 /// </summary>
-public class ALU
+public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
 {
     private readonly Byte _result;
 
     public Byte Result => _result;
 
-    public ALU(Byte op, Byte a, Byte b)
+    protected override Byte ImplicitOperator()
     {
         // Compute all results
         Byte nandResult = new NAND<Byte>(a, b);
@@ -61,12 +61,13 @@ public class ALU
         Byte or45 = new OR<Byte>(selected4, selected5);
         Byte or0123 = new OR<Byte>(or01, or23);
         Byte or012345 = new OR<Byte>(or0123, or45);
-        _result = or012345;
+
+        return or012345;
     }
 
     private static Byte Add(Byte a, Byte b)
     {
-        Byte zero = new Byte(0);
+        Bit zero = new Bit(0);
         (Byte Sum, Bit Carry) = ((Byte, Bit)) new ADDER<Byte>(a, b, zero);
         return Sum;
     }
@@ -83,10 +84,5 @@ public class ALU
     {
         Byte mask = new Byte(select.Value ? 0xFF : 0x00);
         return new AND<Byte>(value, mask);
-    }
-
-    public static implicit operator Byte(ALU alu)
-    {
-        return alu._result;
     }
 }

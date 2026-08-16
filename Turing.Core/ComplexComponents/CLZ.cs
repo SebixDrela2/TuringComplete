@@ -5,15 +5,13 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexComponents;
 
-public class CLZ<T>(T input) where T : struct, IByteValue<T>
+public class CLZ<T>(T input) : TurComponentValue<T>  where T : struct, IByteValue<T>
 {
-    private readonly T _input = input;
-
-    public static implicit operator T(CLZ<T> clz)
-    {
+    protected override T ImplicitOperator()
+    { 
         (T Val, Bit _) result = ((T, Bit))new ADDER<T>(T.Zero, T.Zero, T.One);
 
-        T notInput = new NOT<T>(clz._input);
+        T notInput = new NOT<T>(input);
 
         var swBit = notInput.GetBit(0);
 

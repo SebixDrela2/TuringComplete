@@ -2,7 +2,7 @@
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
 
-public class REGISTER<T> : IStateGate<T> where T : struct, IValue<T>
+public class REGISTER<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private readonly SLATCH<T> _slatch;
     private readonly DELAY<T> _delay;
@@ -23,10 +23,10 @@ public class REGISTER<T> : IStateGate<T> where T : struct, IValue<T>
         _delay.EVal(latched);
     }
 
-    public static implicit operator T(REGISTER<T> register) => register.State;
-
     public void Reset()
     {
         _delay.Reset();
     }
+
+    protected override T ImplicitOperator() => State;
 }

@@ -18,15 +18,15 @@ public interface IValue<T> : IValue where T : struct, IValue<T>
 
     abstract static implicit operator T(bool value);
     abstract static implicit operator T(int value);
+
+    abstract static implicit operator T(Bit value);
+    abstract static implicit operator int(T value);
+    virtual static implicit operator Bit(T value) => value.GetBit(0);
 }
 
 public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>, IValue<T>, IValue
 {
     Bit LastBit();
-
-    abstract static implicit operator T(Bit value);
-    abstract static implicit operator int(T value);
-    virtual static implicit operator Bit(T value) => value.GetBit(0);
 }
 
 public interface IBitValue<T> : IValue<T> where T : struct, IBitValue<T>;

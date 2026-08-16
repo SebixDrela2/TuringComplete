@@ -3,13 +3,10 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Gates;
 
-public class NOT<T>(T input) : IGate<T, T> where T : struct, IValue<T>
+public class NOT<T>(T input) : TurComponentValue<T>, IGate<T, T> where T : struct, IValue<T>
 {
-    private readonly T _input = input;
-
-    public static implicit operator T(NOT<T> gate)
+    protected override T ImplicitOperator()
     {
-        var input = gate._input;
         var result = T.Zero;
 
         for (int i = 0; i < T.BitWidth; i++)

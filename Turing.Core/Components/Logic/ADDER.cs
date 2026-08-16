@@ -3,22 +3,22 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
-public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IValue<T>
+public class ADDER<T>(T inputA, T inputB, Bit cin) : TurComponent<(T Sum, Bit Carry)> where T : struct, IValue<T>
 {
-    private readonly T _inputA = inputA;
-    private readonly T _inputB = inputB;
-    private readonly T _cin = cin;
+    private readonly T inputA = inputA;
+    private readonly T inputB = inputB;
+    private readonly Bit cin = cin;
 
-    public static implicit operator (T Sum, Bit Carry)(ADDER<T> adder)
+    protected override (T Sum, Bit Carry) ImplicitOperator()
     {
         int bitWidth = T.BitWidth;
         var sumBits = new bool[bitWidth];
-        Bit carry = new Bit((bool)adder._cin.GetBit(0));
+        Bit carry = new Bit((bool)cin.GetBit(0));
 
         for (int i = 0; i < bitWidth; i++)
         {
-            var bitA = new Bit((bool)adder._inputA.GetBit(i));
-            var bitB = new Bit((bool)adder._inputB.GetBit(i));
+            var bitA = new Bit((bool)inputA.GetBit(i));
+            var bitB = new Bit((bool)inputB.GetBit(i));
 
             var (sum1, carryOut) = ((Bit, Bit))new HADDER<Bit>(bitA, bitB);
             var (finalSum, finalCarry) = ((Bit, Bit))new HADDER<Bit>(sum1, carry);
@@ -30,6 +30,6 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IValue<T>
 
         var sum = T.FromBits(sumBits);
 
-        return (sum, carry.Value);
+        return (sum, carry);
     }
 }

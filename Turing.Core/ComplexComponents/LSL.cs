@@ -5,28 +5,25 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexComponents;
 
-public class LSL<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IValue<T>
+public class LSL<T>(T input, Int bitShift) : TurComponentValue<T> where T : struct, IByteValue<T>, IValue<T>
 {
-    private readonly T _input = input;
-    private readonly Int _bitShift = bitShift;
-
-    public static implicit operator T(LSL<T> lsl)
-    {
+    protected override T ImplicitOperator()
+    { 
         T result = 0;
-        T notInput = new NOT<T>(lsl._input);
+        T notInput = new NOT<T>(input);
 
-        var bit0 = lsl._bitShift.GetBit(0);
-        var bit1 = lsl._bitShift.GetBit(1);
-        var bit2 = lsl._bitShift.GetBit(2);
-        var bit3 = lsl._bitShift.GetBit(3);
-        var bit4 = lsl._bitShift.GetBit(4);
-        var signBit = lsl._input.GetBit(T.BitWidth - 1);
+        var bit0 = bitShift.GetBit(0);
+        var bit1 = bitShift.GetBit(1);
+        var bit2 = bitShift.GetBit(2);
+        var bit3 = bitShift.GetBit(3);
+        var bit4 = bitShift.GetBit(4);
+        var signBit = input.GetBit(T.BitWidth - 1);
         var pinsToChange = T.BitWidth - 1;
         var indexable = T.BitWidth - 1;
         var shiftAmount = 1;
 
         Int decoded = new BIT_DECODER_FIVE(bit4, bit3, bit2, bit1, bit0, T.Zero);
-        result = new SW<T>(decoded.GetBit(0), lsl._input);
+        result = new SW<T>(decoded.GetBit(0), input);
 
         while (pinsToChange > 0)
         {
@@ -35,7 +32,7 @@ public class LSL<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
 
             for (var i = shiftAmount; i <= indexable; i++)
             {
-                swapped.SetBit(shiftAmount + idx, lsl._input.GetBit(idx));
+                swapped.SetBit(shiftAmount + idx, input.GetBit(idx));
                 idx++;
             }
 

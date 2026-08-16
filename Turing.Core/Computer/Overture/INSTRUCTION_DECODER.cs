@@ -2,13 +2,11 @@
 
 namespace Turing.Core.Overture;
 
-internal class INSTRUCTION_DECODER(Byte input)
+internal class INSTRUCTION_DECODER(Byte input) : TurComponent<(Bit Immediate, Bit ALU, Bit Move, Bit Condition)>
 {
-    private readonly Byte _input = input;
-
-    public static implicit operator(Bit Immediate, Bit ALU, Bit Move, Bit Condition)(INSTRUCTION_DECODER decoder)
+    protected override (Bit Immediate, Bit ALU, Bit Move, Bit Condition) ImplicitOperator()
     {
-        var bits = decoder._input.Bits;
+        var bits = input.Bits;
         Bit bit7 = bits[6];
         Bit bit8 = bits[7];
 

@@ -18,13 +18,13 @@ namespace Turing.Core.Overture;
 /// 110 -> if value <= 0
 /// 111 -> if value > 0
 /// </summary>
-public class COND
+public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
 {
     private readonly Bit _result;
 
     public Bit Result => _result;
 
-    public COND(Byte value, Byte condition)
+    protected override Bit ImplicitOperator()
     {
         // Extract the three condition bits
         Bit c0 = condition.GetBit(0); // LSB of the condition code
@@ -90,12 +90,7 @@ public class COND
         Bit or1234 = new OR<Bit>(or12, or34);
         Bit or5678 = new OR<Bit>(or56, or78);
 
-        _result = new OR<Bit>(or1234, or5678);
-    }
-
-    public static implicit operator Bit(COND cond)
-    {
-        return cond._result;
+        return new OR<Bit>(or1234, or5678);
     }
 
     private static Bit IsZero(Byte value)

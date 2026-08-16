@@ -4,7 +4,7 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Components.Memory;
 
-public class DELAY<T> : IStateGate<T> where T : struct, IValue<T>
+public class DELAY<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private readonly CLOCK _clock;
     private SLATCH<T> _masterLatch;
@@ -27,10 +27,9 @@ public class DELAY<T> : IStateGate<T> where T : struct, IValue<T>
         _masterLatch.EVal(input, tick);
         _slaveLatch.EVal(_masterLatch, negTick);
     }
-
-    public static implicit operator T(DELAY<T> delay)
+    protected override T ImplicitOperator()
     {
-        return delay._slaveLatch;
+        return _slaveLatch;
     }
 
     public void Reset()

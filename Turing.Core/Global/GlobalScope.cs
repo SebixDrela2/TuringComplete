@@ -10,7 +10,7 @@ namespace Turing.Core.Global;
 
 public static partial class GlobalScope
 {
-    public static T ExecTo<T>(TurComponent value)
+    public static T ExecTo<T>(TurComponentValue value)
         where T : struct, IValue<T>
     {
         return value.Into<T>();

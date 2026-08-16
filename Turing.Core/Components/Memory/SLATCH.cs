@@ -3,7 +3,7 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Components.Memory;
 
-public class SLATCH<T> : IStateGate<T> where T : struct, IValue<T>
+public class SLATCH<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private T _state = T.Zero;
 
@@ -23,13 +23,10 @@ public class SLATCH<T> : IStateGate<T> where T : struct, IValue<T>
         _state = (T)mux;
     }
 
-    public static implicit operator T(SLATCH<T> latch)
-    {
-        return latch._state;
-    }
-
     public void Reset()
     {
         _state = T.Zero;
     }
+
+    protected override T ImplicitOperator() => _state;
 }

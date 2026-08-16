@@ -5,29 +5,26 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexComponents;
 
-public class ASR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IValue<T>
+public class ASR<T>(T input, Int bitShift) : TurComponentValue<T> where T : struct, IByteValue<T>, IValue<T>
 {
-    private readonly T _input = input;
-    private readonly Int _bitShift = bitShift;
-
-    public static implicit operator T(ASR<T> asr)
+    protected override T ImplicitOperator()
     {
         T result = 0;
-        T notInput = new NOT<T>(asr._input);
+        T notInput = new NOT<T>(input);
 
-        var bit0 = asr._bitShift.GetBit(0);
-        var bit1 = asr._bitShift.GetBit(1);
-        var bit2 = asr._bitShift.GetBit(2);
-        var bit3 = asr._bitShift.GetBit(3);
-        var bit4 = asr._bitShift.GetBit(4);
-        var signBit = asr._input.GetBit(T.BitWidth - 1);
+        var bit0 = bitShift.GetBit(0);
+        var bit1 = bitShift.GetBit(1);
+        var bit2 = bitShift.GetBit(2);
+        var bit3 = bitShift.GetBit(3);
+        var bit4 = bitShift.GetBit(4);
+        var signBit = input.GetBit(T.BitWidth - 1);
         var pinsToChange = T.BitWidth - 1;
         var indexable = T.BitWidth - 1;
         var shiftAmount = 1;
         var currDecoderIndex = 0;
 
         Int decoded = new BIT_DECODER_FIVE(bit4, bit3, bit2, bit1, bit0, T.Zero);
-        result = new SW<T>(decoded.GetBit(currDecoderIndex), asr._input);
+        result = new SW<T>(decoded.GetBit(currDecoderIndex), input);
 
         while (pinsToChange > 0)
         {
@@ -36,7 +33,7 @@ public class ASR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
 
             for (var i = indexable; i > shiftAmount; i--) 
             {
-                swapped.SetBit(indexable - idx - shiftAmount, asr._input.GetBit(indexable - idx));
+                swapped.SetBit(indexable - idx - shiftAmount, input.GetBit(indexable - idx));
                 idx++;
             }
 

@@ -4,20 +4,17 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.ComplexComponents;
 
-public class SINDEXER<T>(T input, Int shift) 
+public class SINDEXER<T>(T input, Int shift) : TurComponentValue<T>
     where T : struct, IByteValue<T>
 {
-    private readonly T _input = input;
-    private readonly Int _shift = shift;
-
-    public static implicit operator T(SINDEXER<T> indexer)
+    protected override T ImplicitOperator()
     {
-        var negBit = indexer._shift.LastBit();
+        var negBit = shift.LastBit();
 
         return new MUX<T>(
-            new LSR<T>(indexer._input, indexer._shift), 
-            new LSL<T>(indexer._input, 
-                new NEG<Int>(indexer._shift)
+            new LSR<T>(input, shift), 
+            new LSL<T>(input, 
+                new NEG<Int>(shift)
             ), 
             negBit
         );

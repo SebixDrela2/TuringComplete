@@ -2,15 +2,12 @@
 
 namespace Turing.Core.Gates;
 
-public class OR<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IValue<T>
+public class OR<T>(T inputA, T inputB) : TurComponentValue<T>, IGate<T, T> where T : struct, IValue<T>
 {
-    private readonly T _inputA = inputA;
-    private readonly T _inputB = inputB;
-
-    public static implicit operator T(OR<T> gate)
+    protected override T ImplicitOperator()
     {
-        T notA = new NOT<T>(gate._inputA);
-        T notB = new NOT<T>(gate._inputB);
+        T notA = new NOT<T>(inputA);
+        T notB = new NOT<T>(inputB);
         T result = new NAND<T>(notA, notB);
 
         return result;

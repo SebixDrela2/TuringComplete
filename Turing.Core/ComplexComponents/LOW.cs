@@ -4,17 +4,17 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.ComplexComponents;
 
-public class LOW<T>(T inputA, T inputB) where T : struct, IByteValue<T>
+public class LOW<T>(T inputA, T inputB) : TurComponentValue<T> where T : struct, IByteValue<T>
 {
-    private readonly T _inputA = inputA;
-    private readonly T _inputB = inputB;
+    private readonly T inputA = inputA;
+    private readonly T inputB = inputB;
 
-    public static implicit operator Bit(LOW<T> low)
+    protected override T ImplicitOperator()
     {
-        (T _, Bit carry) = ((T, Bit)) new ADDER<T>(new NOT<T>(low._inputA), low._inputB, T.Zero);
+        (T _, Bit carry) = ((T, Bit)) new ADDER<T>(new NOT<T>(inputA), inputB, T.Zero);
 
-        var nsignA = low._inputA.LastBit();
-        var nsignB = low._inputB.LastBit();
+        var nsignA = inputA.LastBit();
+        var nsignB = inputB.LastBit();
 
         Bit xnor1 = new XNOR<Bit>(carry, nsignA);
         Bit xnor2 = new XNOR<Bit>(xnor1, nsignB);

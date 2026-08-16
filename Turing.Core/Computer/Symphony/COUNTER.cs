@@ -4,7 +4,7 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Symphony;
 
-public class COUNTER<T> : IStateGate<T> where T : struct, IValue<T>
+public class COUNTER<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private readonly REGISTER<T> _register;
     public readonly CLOCK _clock;
@@ -47,10 +47,7 @@ public class COUNTER<T> : IStateGate<T> where T : struct, IValue<T>
         _register.Reset();
     }
 
-    public static implicit operator T(COUNTER<T> counter)
-    {
-        return counter.State;
-    }
+    protected override T ImplicitOperator() => State;
 
     private static T Add(T a, T b)
     {

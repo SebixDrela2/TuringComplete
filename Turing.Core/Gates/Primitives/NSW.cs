@@ -4,13 +4,10 @@ using Turing.Core.Electricity;
 namespace Turing.Core.Gates.Primitives;
 
 [Component(Primitive = true)]
-public class NSW<T>(Bit gate, T source) : ISW<T> where T : struct, IValue<T>
+public class NSW<T>(Bit gate, T source) : TurComponentValue<T>, ISW<T> where T : struct, IValue<T>
 {
-    private readonly Bit _gate = gate;
-    private readonly T _source = source;
-
-    public static implicit operator T(NSW<T> nsw)
+    protected override T ImplicitOperator()
     {
-        return !nsw._gate ? nsw._source : T.Zero;
+        return !gate ? source : T.Zero;
     }
 }
