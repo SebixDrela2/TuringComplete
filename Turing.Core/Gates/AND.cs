@@ -1,4 +1,5 @@
 ﻿using Turing.Core.Electricity;
+using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Gates;
 
@@ -9,9 +10,19 @@ public class AND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IValue<T
 
     public static implicit operator T(AND<T> gate)
     {
-        T nand = new NAND<T>(gate._inputA, gate._inputB);
-        T not = new NOT<T>(nand);
+        var inputA = gate._inputA;
+        var inputB = gate._inputB;
+        var result = T.Zero;
 
-        return not;
+        for (int i = 0; i < T.BitWidth; i++)
+        {
+            Bit bit = new SW<Bit>(
+              inputA.GetBit(i),
+              inputB.GetBit(i)
+            );
+            result.SetBit(i, bit);
+        }
+
+        return result;
     }
 }
