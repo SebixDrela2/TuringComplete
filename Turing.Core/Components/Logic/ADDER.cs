@@ -20,10 +20,9 @@ public class ADDER<T>(T inputA, T inputB, Bit cin) : TurComponent<(T Sum, Bit Ca
             var bitA = new Bit((bool)inputA.GetBit(i));
             var bitB = new Bit((bool)inputB.GetBit(i));
 
-            var (sum1, carryOut) = ((Bit, Bit))new HADDER<Bit>(bitA, bitB);
-            var (finalSum, finalCarry) = ((Bit, Bit))new HADDER<Bit>(sum1, carry);
-            var or = new OR<Bit>(carryOut, finalCarry);
-            carry = (Bit)or;
+            var (sum1, carryOut) = ((Bit, Bit))new HADDER(bitA, bitB);
+            var (finalSum, finalCarry) = ((Bit, Bit))new HADDER(sum1, carry);
+            carry = new OR<Bit>(carryOut, finalCarry);
 
             sumBits[i] = finalSum.Value;
         }
