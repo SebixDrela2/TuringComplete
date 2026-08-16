@@ -1,6 +1,7 @@
 ﻿using Turing.Core.Components.Memory;
 using Turing.Core.Electricity;
 using Turing.Core.Gates.Primitives;
+using Turing.Core.Overture;
 
 namespace Turing.Tests.Components.Memory;
 

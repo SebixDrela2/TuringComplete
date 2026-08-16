@@ -1,21 +1,26 @@
 ﻿namespace Turing.Core.Electricity;
 
-public interface IValue<T> where T : struct, IValue<T>
+public interface IValue
+{
+    bool[] ToBits();
+}
+
+public interface IValue<T> : IValue where T : struct, IValue<T>
 {
     T Value { get; }
+    Bit GetBit(int index);
+    void SetBit(int index, bool value);
     static abstract T Zero { get; }
     static abstract T One { get; }
     static abstract int BitWidth { get; }
-    T FromValue(bool value);
-    T FromBits(bool[] bits);
-    Bit GetBit(int index);
-    void SetBit(int index, bool value);
+    abstract static T FromValue(bool value);
+    abstract static T FromBits(bool[] bits);
 
     abstract static implicit operator T(bool value);
     abstract static implicit operator T(int value);
 }
 
-public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>
+public interface IByteValue<T> : IValue<T> where T : struct, IByteValue<T>, IValue<T>
 {
     Bit LastBit();
 

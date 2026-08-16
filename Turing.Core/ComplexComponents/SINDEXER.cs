@@ -4,7 +4,8 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.ComplexComponents;
 
-public class SINDEXER<T>(T input, Int shift) where T : struct, IByteValue<T>
+public class SINDEXER<T>(T input, Int shift) 
+    where T : struct, IByteValue<T>
 {
     private readonly T _input = input;
     private readonly Int _shift = shift;

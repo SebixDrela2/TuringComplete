@@ -21,7 +21,7 @@ public class BIT_DECODER_THREE(Bit inputA, Bit inputB, Bit inputC, Bit disable)
 
         var notDisable = new NOT<Bit>(decoder._disable);
         var enable = (Bit)notDisable;
-        var enableT = decoder._inputA.FromValue(enable.Value);
+        var enableT = Bit.FromValue(enable.Value);
 
         Bit y0 = new AND<Bit>(
             new AND<Bit>(new AND<Bit>(notA_Result, notB_Result), notC_Result),

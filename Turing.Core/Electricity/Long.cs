@@ -26,9 +26,11 @@ public readonly record struct Long : IByteValue<Long>
     }
 
     public Long Value => FromBits(_bits);
+
+    public bool[] ToBits() => _bits;
     public static int BitWidth => 64;
 
-    public Long FromValue(bool value)
+    public static Long FromValue(bool value)
     {
         if (value)
         {
@@ -40,7 +42,7 @@ public readonly record struct Long : IByteValue<Long>
 
         return new Long(0);
     }
-    public Long FromBits(bool[] bits) => new Long(bits);
+    public static Long FromBits(bool[] bits) => new Long(bits);
     public Bit GetBit(int index) => _bits[index];
     public void SetBit(int index, bool value)
     {

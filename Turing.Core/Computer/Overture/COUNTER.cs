@@ -54,8 +54,7 @@ public class COUNTER<T> : IStateGate<T> where T : struct, IValue<T>
 
     private static T Add(T a, T b)
     {
-        T zero = a.FromValue(false);
-        (T Sum, Bit Carry) result = new ADDER<T>(a, b, zero);
+        (T Sum, Bit Carry) result = new ADDER<T>(a, b, T.Zero);
         return result.Sum;
     }
 }

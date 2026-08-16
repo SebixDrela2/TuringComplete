@@ -13,6 +13,6 @@ public class SW<T>(Bit gate, T source) : ISW<T> where T : struct, IValue<T>
 
     public static implicit operator T(SW<T> sw)
     {
-        return sw._gate.Value ? sw._source : sw._source.FromValue(false);
+        return sw._gate.Value ? sw._source : T.Zero;
     }
 }

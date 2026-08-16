@@ -28,7 +28,7 @@ public class BIT_DECODER_FIVE(Bit inputA, Bit inputB, Bit inputC, Bit inputD, Bi
 
         var notDisable = new NOT<Bit>(decoder._disable);
         var enable = (Bit)notDisable;
-        var enableT = decoder._inputA.FromValue(enable.Value);
+        var enableT = Bit.FromValue(enable.Value);
 
         Bit y0 = new AND<Bit>(
             new AND<Bit>(

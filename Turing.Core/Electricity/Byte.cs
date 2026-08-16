@@ -24,11 +24,10 @@ public record struct Byte : IByteValue<Byte>
     public Byte Value => FromBits(Bits);
     public static int BitWidth => 8;
 
-    public Byte FromValue(bool value)
+    public static Byte FromValue(bool value)
     {
         if (value)
         {
-            // Return all ones (0xFF)
             var bits = new bool[8];
             for (int i = 0; i < 8; i++) bits[i] = true;
             return new Byte(bits);
@@ -36,7 +35,7 @@ public record struct Byte : IByteValue<Byte>
 
         return new Byte(0);
     }
-    public Byte FromBits(bool[] bits) => new Byte(bits);
+    public static Byte FromBits(bool[] bits) => new Byte(bits);
     public Bit GetBit(int index) => Bits[index];
     public void SetBit(int index, bool value)
     {
@@ -121,4 +120,11 @@ public record struct Byte : IByteValue<Byte>
     public string ToBinaryString() => string.Concat(Bits.Reverse().Select(b => b ? "1" : "0"));
     public string ToHexString() => ((int)this).ToString("X2");
     public Bit LastBit() => Bits[BitWidth - 1];
+
+    public bool[] ToBits() => Bits;
+
+    public Y Into<Y>() where Y : struct, IValue<Y>
+    {
+        throw new NotImplementedException();
+    }
 }

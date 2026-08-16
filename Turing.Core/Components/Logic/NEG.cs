@@ -18,8 +18,7 @@ public class NEG<T> where T : struct, IValue<T>
         T notVal = new NOT<T>(value);
         CONST<T> oneConst = new CONST<T>(1);
         T one = (T)oneConst;
-        T zero = value.FromValue(false);
-        (T Sum, Bit Carry) = ((T, Bit)) new ADDER<T>(notVal, one, zero);
+        (T Sum, Bit Carry) = ((T, Bit)) new ADDER<T>(notVal, one, T.Zero);
         _result = Sum;
     }
 

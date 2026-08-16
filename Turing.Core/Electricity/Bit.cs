@@ -9,12 +9,14 @@ public record struct Bit : IBitValue<Bit>
 
     public Bit Value => _value;
 
+    public bool[] ToBits() => [_value];
+
     public static Bit Zero => 0;
     public static Bit One => 1;
     public static int BitWidth => 1;
 
-    public Bit FromValue(bool value) => new(value);
-    public Bit FromBits(bool[] bits) => bits.Length > 0 ? new Bit(bits[0]) : new Bit(false);
+    public static Bit FromValue(bool value) => new(value);
+    public static Bit FromBits(bool[] bits) => bits.Length > 0 ? new Bit(bits[0]) : new Bit(false);
     public Bit GetBit(int index) => index == 0 ? _value : throw new IndexOutOfRangeException();
     public void SetBit(int index, bool value)
     {

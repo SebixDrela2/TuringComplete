@@ -28,7 +28,7 @@ public class ADDER<T>(T inputA, T inputB, T cin) where T : struct, IValue<T>
             sumBits[i] = finalSum.Value;
         }
 
-        var sum = adder._inputA.FromBits(sumBits);
+        var sum = T.FromBits(sumBits);
 
         return (sum, carry.Value);
     }

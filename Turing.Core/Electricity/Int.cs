@@ -27,9 +27,11 @@ public readonly record struct Int : IByteValue<Int>
     }
 
     public Int Value => FromBits(_bits);
+
+	public bool[] ToBits() => _bits;
 	public static int BitWidth => 32;
 
-    public Int FromValue(bool value)
+    public static Int FromValue(bool value)
     {
         if (value)
         {
@@ -41,7 +43,7 @@ public readonly record struct Int : IByteValue<Int>
 
         return new Int(0);
     }
-    public Int FromBits(bool[] bits) => new Int(bits);
+    public static Int FromBits(bool[] bits) => new Int(bits);
     public Bit GetBit(int index) => _bits[index];
     public void SetBit(int index, bool value)
     {

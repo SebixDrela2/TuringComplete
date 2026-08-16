@@ -23,7 +23,7 @@ public readonly record struct Short : IByteValue<Short>
     public Short Value => FromBits(_bits);
     public static int BitWidth => 16;
 
-    public Short FromValue(bool value)
+    public static Short FromValue(bool value)
     {
         if (value)
         {
@@ -36,7 +36,7 @@ public readonly record struct Short : IByteValue<Short>
         return new Short(0);
     }
 
-    public Short FromBits(bool[] bits) => new Short(bits);
+    public static Short FromBits(bool[] bits) => new Short(bits);
 
     public Bit GetBit(int index) => _bits[index];
     public void SetBit(int index, bool value)
@@ -118,5 +118,10 @@ public readonly record struct Short : IByteValue<Short>
         foreach (var bit in _bits)
             hashCode.Add(bit);
         return hashCode.ToHashCode();
+    }
+
+    public bool[] ToBits()
+    {
+        throw new NotImplementedException();
     }
 }

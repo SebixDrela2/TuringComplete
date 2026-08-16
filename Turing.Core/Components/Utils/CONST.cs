@@ -16,7 +16,7 @@ public class CONST<T> where T : struct, IValue<T>
             bits[i] = ((value >> i) & 1) == 1;
         }
 
-        _value = T.Zero.FromBits(bits);
+        _value = T.FromBits(bits);
     }
 
     public static implicit operator T(CONST<T> constant)

@@ -5,7 +5,7 @@ namespace Turing.Core.Components.Memory;
 
 public class SLATCH<T> : IStateGate<T> where T : struct, IValue<T>
 {
-    private T _state = default(T).FromValue(false);
+    private T _state = T.Zero;
 
     public T State => _state;
 
@@ -30,6 +30,6 @@ public class SLATCH<T> : IStateGate<T> where T : struct, IValue<T>
 
     public void Reset()
     {
-        _state = default(T).FromValue(false);
+        _state = T.Zero;
     }
 }
