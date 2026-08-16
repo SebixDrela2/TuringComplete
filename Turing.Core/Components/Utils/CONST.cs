@@ -2,16 +2,16 @@
 
 namespace Turing.Core.Components.Logic;
 
+[Component(Primitive = true)]
 public class CONST<T> where T : struct, IValue<T>
 {
     private readonly T _value;
 
     public CONST(ulong value)
     {
-        int bitWidth = GetBitWidth();
-        var bits = new bool[bitWidth];
+        var bits = new bool[T.BitWidth];
 
-        for (int i = 0; i < bitWidth && i < 64; i++)
+        for (int i = 0; i < T.BitWidth && i < 64; i++)
         {
             bits[i] = ((value >> i) & 1) == 1;
         }
@@ -23,18 +23,5 @@ public class CONST<T> where T : struct, IValue<T>
     public static implicit operator T(CONST<T> constant)
     {
         return constant._value;
-    }
-
-    private static int GetBitWidth()
-    {
-        return typeof(T) switch
-        {
-            Type t when t == typeof(Bit) => 1,
-            Type t when t == typeof(Byte) => 8,
-            Type t when t == typeof(Short) => 16,
-            Type t when t == typeof(Int) => 32,
-            Type t when t == typeof(Long) => 64,
-            _ => throw new NotSupportedException($"Type {typeof(T)} not supported")
-        };
     }
 }

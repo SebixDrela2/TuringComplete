@@ -10,7 +10,7 @@ namespace Turing.Core.Overture;
 public class OVERTURE : Processor
 {
     private readonly REGISTER<Byte>[] _regs;
-    private readonly COUNTER<Byte> _pc;
+    private readonly COUNTER_OVERTURE<Byte> _pc;
     private readonly RAM _ram;
 
     private Byte _output;
@@ -31,7 +31,7 @@ public class OVERTURE : Processor
             _regs[i] = new REGISTER<Byte>(Clock);
         }
 
-        _pc = new COUNTER<Byte>(Clock);
+        _pc = new COUNTER_OVERTURE<Byte>(Clock);
         _output = new Byte(0);
         _ram = new RAM(instructions);
     }
