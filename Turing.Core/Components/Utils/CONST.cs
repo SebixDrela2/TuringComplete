@@ -11,13 +11,12 @@ public class CONST<T> where T : struct, IValue<T>
     {
         var bits = new bool[T.BitWidth];
 
-        for (int i = 0; i < T.BitWidth && i < 64; i++)
+        for (int i = 0; i < T.BitWidth; i++)
         {
             bits[i] = ((value >> i) & 1) == 1;
         }
 
-        T template = default(T);
-        _value = template.FromBits(bits);
+        _value = T.Zero.FromBits(bits);
     }
 
     public static implicit operator T(CONST<T> constant)

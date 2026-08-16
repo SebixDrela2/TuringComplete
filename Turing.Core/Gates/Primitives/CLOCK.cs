@@ -1,5 +1,8 @@
-﻿namespace Turing.Core.Gates.Primitives;
+﻿using Turing.Core.Components;
 
+namespace Turing.Core.Gates.Primitives;
+
+[Component(Primitive = true)]
 public class CLOCK
 {
     private Bit _tick = new Bit(1);
