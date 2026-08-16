@@ -9,7 +9,7 @@ internal class COUNTERTests
 {
     // Helper: perform a full clock cycle that updates the counter state.
     // Assumes clock is LOW at the start (we set it explicitly inside).
-    private void CycleCounter<T>(COUNTER_OVERTURE<T> counter, Bit load, T loadValue) where T : struct, IValue<T>
+    private void CycleCounter<T>(COUNTER<T> counter, Bit load, T loadValue) where T : struct, IValue<T>
     {
         counter._clock.Set(new Bit(false));
         counter.EVal(load, loadValue);
@@ -27,7 +27,7 @@ internal class COUNTERTests
     public void COUNTER_Bit_CountsCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Bit>(clock);
+        var counter = new COUNTER<Bit>(clock);
         Assert.That((Bit)counter, Is.EqualTo(new Bit(0)));
 
         CycleCounter(counter, new Bit(false), new Bit(0));
@@ -44,7 +44,7 @@ internal class COUNTERTests
     public void COUNTER_Bit_Load_LoadsValue()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Bit>(clock);
+        var counter = new COUNTER<Bit>(clock);
 
         CycleCounter(counter, Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
@@ -60,7 +60,7 @@ internal class COUNTERTests
     public void COUNTER_Bit_Load_OnlyOnTick()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Bit>(clock);
+        var counter = new COUNTER<Bit>(clock);
 
         clock.Set(new Bit(false));
         counter.EVal(Bit.One, new Bit(1));
@@ -88,7 +88,7 @@ internal class COUNTERTests
     public void COUNTER_Bit_Reset_ResetsToZero()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Bit>(clock);
+        var counter = new COUNTER<Bit>(clock);
         CycleCounter(counter, Bit.One, new Bit(1));
         Assert.That((Bit)counter, Is.EqualTo(new Bit(1)));
 
@@ -110,7 +110,7 @@ internal class COUNTERTests
                     for (int tick = 0; tick <= 1; tick++)
                     {
                         var clock = new CLOCK();
-                        var counter = new COUNTER_OVERTURE<Bit>(clock); // start at 0
+                        var counter = new COUNTER<Bit>(clock); // start at 0
 
                         // Load the initial value using a full cycle
                         CycleCounter(counter, Bit.One, new Bit(init));
@@ -151,7 +151,7 @@ internal class COUNTERTests
     public void COUNTER_Byte_CountsCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0)));
 
         for (int i = 1; i <= 10; i++)
@@ -165,7 +165,7 @@ internal class COUNTERTests
     public void COUNTER_Byte_Load_LoadsValue()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
 
         for (int i = 1; i <= 5; i++)
             CycleCounter(counter, new Bit(false), new Byte(0));
@@ -188,7 +188,7 @@ internal class COUNTERTests
     public void COUNTER_Byte_Load_OnlyOnTick()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
 
         clock.Set(new Bit(false));
         counter.EVal(Bit.One, new Byte(0xAA));
@@ -215,7 +215,7 @@ internal class COUNTERTests
     public void COUNTER_Byte_Reset_ResetsToZero()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
 
         for (int i = 1; i <= 5; i++)
             CycleCounter(counter, new Bit(false), new Byte(0));
@@ -234,7 +234,7 @@ internal class COUNTERTests
     public void COUNTER_Byte_WrapsAroundCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
         CycleCounter(counter, Bit.One, new Byte(0xFF));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xFF)));
 
@@ -249,7 +249,7 @@ internal class COUNTERTests
     public void COUNTER_NoTick_DoesNotChangeState()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
         CycleCounter(counter, Bit.One, new Byte(0xAA));
         Assert.That((Byte)counter, Is.EqualTo(new Byte(0xAA)));
 
@@ -285,7 +285,7 @@ internal class COUNTERTests
             int tick = random.Next(0, 2);
 
             var clock = new CLOCK();
-            var counter = new COUNTER_OVERTURE<Byte>(clock);
+            var counter = new COUNTER<Byte>(clock);
             // Load initial value via a cycle
             CycleCounter(counter, Bit.One, new Byte(init));
             Assert.That((Byte)counter, Is.EqualTo(new Byte(init))); // sanity
@@ -324,7 +324,7 @@ internal class COUNTERTests
         for (int i = 0; i < 100; i++)
         {
             var clock = new CLOCK();
-            var counter = new COUNTER_OVERTURE<Short>(clock);
+            var counter = new COUNTER<Short>(clock);
             ushort expected = 0;
 
             int steps = random.Next(1, 20);
@@ -350,7 +350,7 @@ internal class COUNTERTests
     public void COUNTER_Short_ConstructorWithInitialValue_StartsAtValue()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Short>(clock);
+        var counter = new COUNTER<Short>(clock);
         CycleCounter(counter, Bit.One, new Short(0xAAAA));
         Assert.That((Short)counter, Is.EqualTo(new Short(0xAAAA)));
 
@@ -365,7 +365,7 @@ internal class COUNTERTests
     public void COUNTER_Short_WrapsAroundCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Short>(clock);
+        var counter = new COUNTER<Short>(clock);
         CycleCounter(counter, Bit.One, new Short(0xFFFF));
         Assert.That((Short)counter, Is.EqualTo(new Short(0xFFFF)));
 
@@ -387,7 +387,7 @@ internal class COUNTERTests
         for (int i = 0; i < 100; i++)
         {
             var clock = new CLOCK();
-            var counter = new COUNTER_OVERTURE<Int>(clock);
+            var counter = new COUNTER<Int>(clock);
             uint expected = 0;
 
             int steps = random.Next(1, 20);
@@ -413,7 +413,7 @@ internal class COUNTERTests
     public void COUNTER_Int_ConstructorWithInitialValue_StartsAtValue()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Int>(clock);
+        var counter = new COUNTER<Int>(clock);
         CycleCounter(counter, Bit.One, new Int(0xAAAAAAAA));
         Assert.That((Int)counter, Is.EqualTo(new Int(0xAAAAAAAA)));
 
@@ -428,7 +428,7 @@ internal class COUNTERTests
     public void COUNTER_Int_WrapsAroundCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Int>(clock);
+        var counter = new COUNTER<Int>(clock);
         CycleCounter(counter, Bit.One, new Int(0xFFFFFFFF));
         Assert.That((Int)counter, Is.EqualTo(new Int(0xFFFFFFFF)));
 
@@ -450,7 +450,7 @@ internal class COUNTERTests
         for (int i = 0; i < 100; i++)
         {
             var clock = new CLOCK();
-            var counter = new COUNTER_OVERTURE<Long>(clock);
+            var counter = new COUNTER<Long>(clock);
             ulong expected = 0;
 
             int steps = random.Next(1, 20);
@@ -476,7 +476,7 @@ internal class COUNTERTests
     public void COUNTER_Long_ConstructorWithInitialValue_StartsAtValue()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Long>(clock);
+        var counter = new COUNTER<Long>(clock);
         CycleCounter(counter, Bit.One, new Long(0xAAAAAAAAAAAAAAAAL));
         Assert.That((Long)counter, Is.EqualTo(new Long(0xAAAAAAAAAAAAAAAAL)));
 
@@ -491,7 +491,7 @@ internal class COUNTERTests
     public void COUNTER_Long_WrapsAroundCorrectly()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Long>(clock);
+        var counter = new COUNTER<Long>(clock);
         CycleCounter(counter, Bit.One, new Long(0xFFFFFFFFFFFFFFFFL));
         Assert.That((Long)counter, Is.EqualTo(new Long(0xFFFFFFFFFFFFFFFFL)));
 
@@ -510,7 +510,7 @@ internal class COUNTERTests
     public void COUNTER_Reset_ResetsToZero()
     {
         var clock = new CLOCK();
-        var counter = new COUNTER_OVERTURE<Byte>(clock);
+        var counter = new COUNTER<Byte>(clock);
 
         for (int i = 1; i <= 10; i++)
             CycleCounter(counter, new Bit(false), new Byte(0));
@@ -533,23 +533,23 @@ internal class COUNTERTests
     public void COUNTER_MixedTypes_CompilesAndWorks()
     {
         var clock = new CLOCK();
-        var counter1 = new COUNTER_OVERTURE<Byte>(clock);
+        var counter1 = new COUNTER<Byte>(clock);
 
         CycleCounter(counter1, Bit.One, Byte.One);
         Byte actual1 = (Byte)counter1;
         Assert.That(actual1, Is.EqualTo(new Byte(0x01)));
 
-        var counter2 = new COUNTER_OVERTURE<Short>(clock);
+        var counter2 = new COUNTER<Short>(clock);
         CycleCounter(counter2, Bit.One, new Byte(0xAA));
         Short actual2 = (Short)counter2;
         Assert.That(actual2, Is.EqualTo(new Short(0x00AA)));
 
-        var counter3 = new COUNTER_OVERTURE<Int>(clock);
+        var counter3 = new COUNTER<Int>(clock);
         CycleCounter(counter3, Bit.One, new Short(0xAAAA));
         Int actual3 = (Int)counter3;
         Assert.That(actual3, Is.EqualTo(new Int(0x0000AAAA)));
 
-        var counter4 = new COUNTER_OVERTURE<Long>(clock);
+        var counter4 = new COUNTER<Long>(clock);
         CycleCounter(counter4, Bit.One, new Int(0xAAAAAAAA));
         Long actual4 = (Long)counter4;
         Assert.That(actual4, Is.EqualTo(new Long(0x00000000AAAAAAAA)));
