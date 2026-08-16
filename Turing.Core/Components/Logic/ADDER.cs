@@ -5,10 +5,6 @@ namespace Turing.Core.Components.Logic;
 
 public class ADDER<T>(T inputA, T inputB, Bit cin) : TurComponent<(T Sum, Bit Carry)> where T : struct, IValue<T>
 {
-    private readonly T inputA = inputA;
-    private readonly T inputB = inputB;
-    private readonly Bit cin = cin;
-
     protected override (T Sum, Bit Carry) ImplicitOperator()
     {
         int bitWidth = T.BitWidth;
