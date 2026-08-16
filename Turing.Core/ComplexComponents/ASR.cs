@@ -32,7 +32,6 @@ public class ASR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
         while (pinsToChange > 0)
         {
             T swapped = 0;
-
             var idx = 1;
 
             for (var i = indexable; i > shiftAmount; i--) 
