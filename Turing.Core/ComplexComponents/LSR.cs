@@ -26,12 +26,9 @@ public class LSR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
             Bit disableBit = notInput.GetBit(i);
             Bit enableBit = (T)new NOT<T>(disableBit);
             Int decoded = new BIT_DECODER_FIVE(bit4, bit3, bit2, bit1, bit0, disableBit);
-
             Int swapped = 0;
 
-            int loopAmount = (int)(T)new SW<T>(enableBit, i + 1);
-
-            for (var j = loopAmount - 1; j >= 0; j--)
+            for (var j = i; j >= 0; j--)
             {
                 var first = i - j;
                 var last = j;
@@ -39,7 +36,7 @@ public class LSR<T>(T input, Int bitShift) where T : struct, IByteValue<T>, IVal
                 swapped.SetBit(first, decoded.GetBit(last));
             }
 
-            result = new OR<T>((int)swapped, (int)result);
+            result = new OR<T>(new SW<T>(enableBit, (int)swapped), (int)result);
         }
 
         return result;
