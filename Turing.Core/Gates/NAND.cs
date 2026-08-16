@@ -20,7 +20,7 @@ public class NAND<T>(T inputA, T inputB) : IGate<T, T> where T : struct, IValue<
             Bit t1Out = new SW<Bit>(aBit, bBit);
             Bit t2Out = new SW<Bit>(bBit, t1Out);
 
-            Bit notted = !t2Out;
+            Bit notted = new NOT<Bit>(t2Out);
             resultBits[i] = notted.Value;
         }
 
