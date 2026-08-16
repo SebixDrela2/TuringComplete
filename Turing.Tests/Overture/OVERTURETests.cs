@@ -12,7 +12,7 @@ internal partial class OVERTURETests
         ], new Byte(0xAA));
 
         Assert.That(cpu.Output, Is.EqualTo(new Byte(0xAA)));
-        Assert.That(cpu.ProgramCounter, Is.EqualTo(3));
+        Assert.That(cpu.ProgramCounter, Is.EqualTo(2));
     }
 
     [Test]
