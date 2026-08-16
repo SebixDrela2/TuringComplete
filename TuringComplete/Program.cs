@@ -1,13 +1,14 @@
 ﻿using Turing.Core.ComplexComponents;
 using Turing.Core.Electricity;
+using Byte = Turing.Core.Electricity.Byte;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        var shift = 1;
-        var val = 2048;
+        var shift = 6;
+        var val = -124;
 
-        Int value = new LSR<Int>(val, shift);
+        Byte value = new ASR<Byte>(val, shift);
     }
 }
