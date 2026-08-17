@@ -36,13 +36,14 @@ public class SYMPHONY : Processor
         _pc = new COUNTER<Int>(Clock);
         _output = new Int(0);
     }
+
     protected override void Step()
     {
         Int instruction = _ram.Load(_pc);
 
         var (mode, opCode, destination, A, B, isImm, immVal) = ((Byte, Byte, Byte, Byte, Byte, Bit, Short)) new INSTRUCTION_DECODER(instruction);
 
-        var (io, alu, jump, ram) = ((Bit, Bit, Bit, Bit))new BIT_DECODER_TWO(mode);
+        var (io, alu, jump, ram) = ((Bit, Bit, Bit, Bit))new MODE_DECODER(mode);
 
         Bit destNotZero = new NOT<Bit>(new EQ<Byte>(destination, Byte.Zero));
 

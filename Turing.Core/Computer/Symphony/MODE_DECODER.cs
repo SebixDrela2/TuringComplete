@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Computer.Symphony;
 
-internal class BIT_DECODER_TWO(Byte mode) : TurComponent<(Bit IO, Bit ALU, Bit JUMP, Bit RAM)>
+internal class MODE_DECODER(Byte mode) : TurComponent<(Bit IO, Bit ALU, Bit JUMP, Bit RAM)>
 {
     protected override (Bit IO, Bit ALU, Bit JUMP, Bit RAM) ImplicitOperator()
     {
