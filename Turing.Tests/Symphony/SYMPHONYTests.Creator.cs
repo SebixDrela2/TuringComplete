@@ -219,6 +219,8 @@ internal partial class SYMPHONYTests
                     case [[.. var label, ':']]:
                         _labelDict.Add(label, instructions.Count * 4);
                         continue;
+                    case [[]]:
+                        continue;
                     case var @default:
                         throw new NotImplementedException(string.Join(' ', @default));
                 }

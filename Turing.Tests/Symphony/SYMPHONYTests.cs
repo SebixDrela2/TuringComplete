@@ -39,6 +39,6 @@ internal partial class SYMPHONYTests
             jmp SkipToSpace      
             """;
 
-        var instructions = Instruction.Parse()
+        var instructions = Instruction.Parse(asm);
     }
 }
