@@ -7,7 +7,7 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Computer.Symphony;
 
-public class ALU(Byte op, Int a, Int b) : TurComponentValue<Int>
+public class ALU(Byte op, Int a, Int b, Bit enable) : TurComponentValue<Int>
 {
     protected override Int ImplicitOperator()
     {
