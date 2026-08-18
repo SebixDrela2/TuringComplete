@@ -61,6 +61,6 @@ internal partial class SYMPHONYTests
             """;
 
         var instructions = _parser.Parse(asm);
-        var cpu = RunSymphony(instructions, new Byte((int)'a'));
+        var cpu = RunSymphony(instructions, "The brown fox jumped over black dog"u8);
     }
 }

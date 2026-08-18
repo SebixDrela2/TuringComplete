@@ -5,12 +5,19 @@ namespace Turing.Tests.Symphony;
 
 internal partial class SYMPHONYTests
 {
-    private SYMPHONY RunSymphony(Byte[] instructions, params IEnumerable<Byte> inputs)
+    private SYMPHONY RunSymphony(Byte[] instructions, ReadOnlySpan<byte> inputs)
+    {
+        return RunSymphony(instructions, inputs.ToArray().Select(x => (Byte)x));
+    }
+
+    private static SYMPHONY RunSymphony(Byte[] instructions, params IEnumerable<Byte> inputs)
     {
         var cpu = new SYMPHONY(instructions);
 
         var en = inputs.GetEnumerator();
-        cpu.Input = en.MoveNext() ? en.Current : default;
+        bool hasNext = en.MoveNext();
+        cpu.Input = hasNext ? en.Current : default;
+
 
         while (true)
         {
@@ -18,10 +25,22 @@ internal partial class SYMPHONYTests
 
             if (cpu.InputPin)
             {
-                cpu.Input = en.MoveNext() ? en.Current : default;
+                if (!hasNext)
+                {
+                    return cpu;
+                }
+
+                hasNext = en.MoveNext();
+                cpu.Input = hasNext ? en.Current : default;
             }
 
-            if (cpu.OffPin || cpu.OutputPin)
+            if (cpu.OutputPin)
+            {
+                var c = (char)(byte)(int)cpu.Output;
+                Console.Write(c);
+            }
+
+            if (cpu.OffPin)
             {
                 return cpu;
             }

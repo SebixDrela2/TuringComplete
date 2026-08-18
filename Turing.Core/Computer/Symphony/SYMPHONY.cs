@@ -62,7 +62,8 @@ public class SYMPHONY : Processor
         Int ramLoad_32 = new SW<Int>(new AND<Bit>(new EQ<Byte>(opCode, 2), ram), _ram.Load(mux));
         Int ramLoad = new OR<Int>(new OR<Int>(ramLoad_8, ramLoad_16), ramLoad_32);
 
-        Int inputData = new SW<Int>(new AND<Bit>(io, new EQ<Byte>(opCode, 1)), Input);
+        InputPin = new AND<Bit>(io, new EQ<Byte>(opCode, 1));
+        Int inputData = new SW<Int>(InputPin, Input);
         Int aluResult = new SW<Int>(alu, new ALU(opCode, loadA, mux, alu));
         Int dstFlow = new OR<Int>(ramLoad, new OR<Int>(inputData, aluResult));
 
