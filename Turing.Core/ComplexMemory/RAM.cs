@@ -1,14 +1,13 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Turing.Core.Components;
 using Turing.Core.Electricity;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Turing.Core.ComplexMemory;
 
 [Component(Primitive = true)]
 public class RAM
 {
-    public static byte Off => throw new NotImplementedException();
     private readonly Byte[] _state;
 
     public RAM(int size)
@@ -21,7 +20,7 @@ public class RAM
         _state = new Byte[1 << Short.BitWidth];
 
         instructions.CopyTo(_state);
-        _state.AsSpan(instructions.Length).Fill(Off);
+        _state[instructions.Length + 3] = 0x80;
     }
 
     public Int Load(Int address)
@@ -30,7 +29,6 @@ public class RAM
         var byte2 = (byte)_state[address + 1];
         var byte3 = (byte)_state[address + 2];
         var byte4 = (byte)_state[address + 3];
-
 
         Int result = MemoryMarshal.Read<int>([byte1, byte2, byte3, byte4]);
 

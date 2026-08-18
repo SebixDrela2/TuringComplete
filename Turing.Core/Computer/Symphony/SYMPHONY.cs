@@ -42,11 +42,9 @@ public class SYMPHONY : Processor
         Int instruction = _ram.Load(_pc);
 
         var (mode, opCode, destination, A, B, isImm, immVal) = ((Byte, Byte, Byte, Byte, Byte, Bit, Short)) new INSTRUCTION_DECODER(instruction);
-
         var (io, alu, jump, ram) = ((Bit, Bit, Bit, Bit))new MODE_DECODER(mode);
 
         Bit destNotZero = new NOT<Bit>(new EQ<Byte>(destination, Byte.Zero));
-
         Byte addressA = new SINDEXER<Byte>(A, -2);
         Byte addressB = new SINDEXER<Byte>(B, -2);
         Byte dstAddress = new SINDEXER<Byte>(destination, -2);
@@ -70,7 +68,9 @@ public class SYMPHONY : Processor
         Int dstFlow = new OR<Int>(ramLoad, new OR<Int>(inputData, aluResult));
 
         _regRam.Write(dstAddress, dstFlow, destNotZero);
-        _output = new SW<Int>(new AND<Bit>(io, opCode.GetBit(2)), loadB);
+        OutputPin = new AND<Bit>(io, opCode.GetBit(2));
+        _output = new SW<Int>(OutputPin, loadB);
+        OffPin = instruction.LastBit();
 
         Bit flags = new COND(loadA.Into<Byte>(), opCode);
         Bit isJump = new AND<Bit>(flags, jump);

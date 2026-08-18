@@ -9,6 +9,13 @@ public class SINDEXER<T>(T input, Int shift) : TurComponentValue<T>
 {
     protected override T ImplicitOperator()
     {
+        if (shift < 0)
+        {
+            return (T)(input << -shift);
+        }
+
+        return (T)(input >> shift);
+
         var negBit = shift.LastBit();
 
         return new MUX<T>(

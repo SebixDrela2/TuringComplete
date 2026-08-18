@@ -4,14 +4,20 @@ namespace Turing.Core.Global;
 
 public abstract class TurComponentValue
 {
-    public abstract Y Into<Y>()
+    public Y Into<Y>()
+        where Y : struct, IValue<Y>
+    {
+        return Into<Y>(Y.BitWidth);
+    }
+
+    public abstract Y Into<Y>(int bitWidth)
         where Y : struct, IValue<Y>;
 }
 
 public abstract class TurComponentValue<T> : TurComponentValue
     where T : struct, IValue<T>
 {
-    public override Y Into<Y>() => ImplicitOperator().Into<Y>();
+    public override Y Into<Y>(int bitWidth) => ImplicitOperator().Into<Y>(bitWidth);
 
     public static implicit operator T(TurComponentValue<T> comp) => comp.ImplicitOperator();
 

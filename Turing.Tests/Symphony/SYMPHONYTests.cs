@@ -1,8 +1,17 @@
-﻿namespace Turing.Tests.Symphony;
+﻿using Turing.Core.Computer.Symphony;
+
+namespace Turing.Tests.Symphony;
 
 [TestFixture]
 internal partial class SYMPHONYTests
 {
+    private InstructionParser _parser;
+    [SetUp]
+    public void SetUp()
+    {
+        _parser = new();
+    }
+
     [Test]
     public void Symphony_Capitalizes_Char()
     {
@@ -39,6 +48,7 @@ internal partial class SYMPHONYTests
             jmp SkipToSpace      
             """;
 
-        var instructions = Instruction.Parse(asm);
+        var instructions = _parser.Parse(asm);
+        var cpu = RunSymphony(instructions, new Byte('a'));
     }
 }

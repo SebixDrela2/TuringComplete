@@ -15,4 +15,10 @@ public static partial class GlobalScope
     {
         return value.Into<T>();
     }
+
+    public static T ExecTo<T>(int bitWidth, TurComponentValue value)
+        where T : struct, IValue<T>
+    {
+        return value.Into<T>(bitWidth);
+    }
 }

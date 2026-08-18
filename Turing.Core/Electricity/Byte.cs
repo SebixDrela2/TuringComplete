@@ -1,5 +1,8 @@
-﻿namespace Turing.Core.Electricity;
+﻿using System.Diagnostics;
 
+namespace Turing.Core.Electricity;
+
+[DebuggerDisplay($"{{Number,nq}}")]
 public record struct Byte : IByteValue<Byte>
 {
     private bool[] _bits;
@@ -22,6 +25,7 @@ public record struct Byte : IByteValue<Byte>
     }
 
     public Byte Value => FromBits(Bits);
+    public int Number => (int)Value;
     public static int BitWidth => 8;
 
     public static Byte FromValue(bool value)
@@ -126,5 +130,10 @@ public record struct Byte : IByteValue<Byte>
     public Y Into<Y>() where Y : struct, IValue<Y>
     {
         throw new NotImplementedException();
+    }
+
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
     }
 }
