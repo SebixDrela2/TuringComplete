@@ -244,7 +244,7 @@ internal partial class SYMPHONYTests
                             _labelDict.Add(label, token);
                         }
 
-                        token.DefineLabel(instructions.Count);
+                        token.DefineLabel(instructions.Count * 4);
                         continue;
                     case [[]]:
                         continue;
@@ -268,7 +268,7 @@ internal partial class SYMPHONYTests
                 }
 
                 var count = instructions.Count;
-                Action<int> lambda = (x) => { instructions[count] |= x; };
+                Action<int> lambda = (x) => instructions[count] |= x;
 
                 if (!_labelDict.TryGetValue(val, out var token))
                 {
@@ -276,9 +276,7 @@ internal partial class SYMPHONYTests
                     _labelDict.Add(val, token);
                 }
 
-                token.RequireLabel(lambda);
-
-                return 0;
+                return token.RequireLabel(lambda);
             }
         }
         private  int Value(string val) => int.Parse(val);

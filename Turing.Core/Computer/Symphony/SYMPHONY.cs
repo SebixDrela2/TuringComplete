@@ -30,8 +30,8 @@ public class SYMPHONY : Processor
 
     public SYMPHONY(params Byte[] instructions)
     {
-        _regRam = new RAM(Short.BitWidth);
-        _ram = new RAM(instructions);
+        _regRam = new RAM(Clock, Short.BitWidth);
+        _ram = new RAM(Clock, instructions);
 
         _pc = new COUNTER<Int>(Clock);
         _output = new Int(0);
@@ -51,30 +51,29 @@ public class SYMPHONY : Processor
 
         Int loadA = _regRam.Load(addressA);
         Int loadB = _regRam.Load(addressB);
-        Int ramOpsAddress = new MUX<Int>(B, immVal, isImm);
+        Int mux = new MUX<Int>(loadB, immVal, isImm);
 
-        _ram.Write(ramOpsAddress, loadA.Into<Byte>(), new AND<Bit>(opCode.GetBit(4), ram));
-        _ram.Write(ramOpsAddress, loadA.Into<Short>(), new AND<Bit>(opCode.GetBit(5), ram));
-        _ram.Write(ramOpsAddress, loadA, new AND<Bit>(opCode.GetBit(6), ram));
+        _ram.Write(mux, loadA.Into<Byte>(), new AND<Bit>(new EQ<Byte>(opCode, 4), ram));
+        _ram.Write(mux, loadA.Into<Short>(), new AND<Bit>(new EQ<Byte>(opCode, 5), ram));
+        _ram.Write(mux, loadA, new AND<Bit>(new EQ<Byte>(opCode, 6), ram));
 
-        Int ramLoad_8 = new SW<Int>(new AND<Bit>(opCode.GetBit(0), ram), _ram.Load(ramOpsAddress)).Into<Byte>();
-        Int ramLoad_16 = new SW<Int>(new AND<Bit>(opCode.GetBit(1), ram), _ram.Load(ramOpsAddress)).Into<Short>();
-        Int ramLoad_32 = new SW<Int>(new AND<Bit>(opCode.GetBit(2), ram), _ram.Load(ramOpsAddress));
+        Int ramLoad_8 = new SW<Int>(new AND<Bit>(new EQ<Byte>(opCode, 0), ram), _ram.Load(mux)).Into<Byte>();
+        Int ramLoad_16 = new SW<Int>(new AND<Bit>(new EQ<Byte>(opCode, 1), ram), _ram.Load(mux)).Into<Short>();
+        Int ramLoad_32 = new SW<Int>(new AND<Bit>(new EQ<Byte>(opCode, 2), ram), _ram.Load(mux));
         Int ramLoad = new OR<Int>(new OR<Int>(ramLoad_8, ramLoad_16), ramLoad_32);
 
-        Int inputData = new SW<Int>(new AND<Bit>(io, opCode.GetBit(1)), Input);
-        Int aluInput = new MUX<Int>(loadB, immVal, isImm);
-        Int aluResult = new SW<Int>(alu, new ALU(opCode, loadA, aluInput, alu));
+        Int inputData = new SW<Int>(new AND<Bit>(io, new EQ<Byte>(opCode, 1)), Input);
+        Int aluResult = new SW<Int>(alu, new ALU(opCode, loadA, mux, alu));
         Int dstFlow = new OR<Int>(ramLoad, new OR<Int>(inputData, aluResult));
 
         _regRam.Write(dstAddress, dstFlow, destNotZero);
-        OutputPin = new AND<Bit>(io, opCode.GetBit(2));
-        _output = new SW<Int>(OutputPin, loadB);
+        OutputPin = new AND<Bit>(io, new EQ<Byte>(opCode, 2));
+        _output = new SW<Int>(OutputPin, mux);
         OffPin = instruction.LastBit();
 
         Bit flags = new COND(loadA.Into<Byte>(), opCode);
         Bit isJump = new AND<Bit>(flags, jump);
 
-        _pc.EVal(isJump, loadB);
+        _pc.EVal(isJump, mux);
     }
 }

@@ -48,7 +48,19 @@ internal partial class SYMPHONYTests
             jmp SkipToSpace      
             """;
 
+        var asm2 = 
+            """
+            in r2
+            add r2, r2, 1
+            cmp r2, 98
+            je Bebe
+            out 2
+
+            Bebe:
+            out 3
+            """;
+
         var instructions = _parser.Parse(asm);
-        var cpu = RunSymphony(instructions, new Byte('a'));
+        var cpu = RunSymphony(instructions, new Byte((int)'a'));
     }
 }

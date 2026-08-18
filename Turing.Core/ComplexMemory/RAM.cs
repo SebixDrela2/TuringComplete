@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Turing.Core.Components;
 using Turing.Core.Electricity;
+using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.ComplexMemory;
 
@@ -9,15 +10,18 @@ namespace Turing.Core.ComplexMemory;
 public class RAM
 {
     private readonly Byte[] _state;
+    private readonly CLOCK _clock;
 
-    public RAM(int size)
+    public RAM(CLOCK clock, int size)
     {
+        _clock = clock;
         _state = new Byte[size * sizeof(int)];
     }
 
-    public RAM(params Byte[] instructions)
+    public RAM(CLOCK clock, params Byte[] instructions)
     {
         _state = new Byte[1 << Short.BitWidth];
+        _clock = clock;
 
         instructions.CopyTo(_state);
         _state[instructions.Length + 3] = 0x80;
@@ -37,7 +41,7 @@ public class RAM
 
     public void Write(Int address, Int value, Bit enabled)
     {
-        if (enabled)
+        if (enabled && _clock.TickVal == Bit.One)
         {
             int intValue = value;
             var bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref intValue, 1));
