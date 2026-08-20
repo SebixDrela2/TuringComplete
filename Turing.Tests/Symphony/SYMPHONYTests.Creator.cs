@@ -255,19 +255,19 @@ internal partial class SYMPHONYTests
                             instructions.Add(0b_01110110_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
                             return;
                         case ["mov", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                            instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
                             return;
                         case ["mov", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
                             instructions.Add(0b_00110001_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
                             return;
                         case ["neg", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                            instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
                             return;
                         case ["neg", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
                             instructions.Add(0b_00110101_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
                             return;
                         case ["not", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                            instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
                             return;
                         case ["not", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
                             instructions.Add(0b_00110011_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));

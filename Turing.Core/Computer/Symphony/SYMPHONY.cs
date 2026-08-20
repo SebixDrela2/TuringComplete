@@ -41,7 +41,7 @@ public class SYMPHONY : Processor
     {
         Int instruction = _ram.Load(_pc);
 
-        if ((Int)_pc == 140 && Clock.TickVal == Bit.One)
+        if ((Int)_pc == 64 && Clock.TickVal == Bit.One)
         {
 
         }
