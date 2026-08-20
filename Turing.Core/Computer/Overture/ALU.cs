@@ -1,33 +1,31 @@
 ﻿using Turing.Core.Components.Arithmetic;
 using Turing.Core.Components.Logic;
-using Turing.Core.Electricity;
 using Turing.Core.Gates;
 
 namespace Turing.Core.Overture;
 
 /// <summary>
-/// Arithmetic Logic Unit with 6 operations:
-/// Opcode 0: NAND
-/// Opcode 1: OR
-/// Opcode 2: AND
-/// Opcode 3: NOR
-/// Opcode 4: ADD (a + b)
-/// Opcode 5: SUB (a - b)
-/// The opcode is taken from bits 5,6,7 of the opcode byte.
+/// <br>This is an Arithemtic Logic unit which supports 6 basic operations with 3 inputs</br>
+/// <br>Inputs are as follows Byte opcode, Byte A, Byte B</br>
+/// <br>The opcode is taken from bits 5,6,7 of the opcode byte.</br>
+/// <br>Opcode 0: NAND</br>
+/// <br>Opcode 1: OR</br>
+/// <br>Opcode 2: AND</br>
+/// <br>Opcode 3: NOR</br>
+/// <br>Opcode 4: ADD</br>
+/// <br>Opcode 5: SUB</br>
 /// </summary>
 public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
 {
     protected override Byte ImplicitOperator()
-    {
-        // Compute all results
+    {       
         Byte nandResult = new NAND<Byte>(a, b);
         Byte orResult = new OR<Byte>(a, b);
         Byte andResult = new AND<Byte>(a, b);
         Byte norResult = new NOR<Byte>(a, b);
         Byte addResult = Add(a, b);
         Byte subResult = Subtract(a, b);
-
-        // Extract opcode bits (LSB = bit5)
+    
         Bit c0 = op.GetBit(0);
         Bit c1 = op.GetBit(1);
         Bit c2 = op.GetBit(2);
@@ -35,8 +33,7 @@ public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
         Bit n0 = new NOT<Bit>(c0);
         Bit n1 = new NOT<Bit>(c1);
         Bit n2 = new NOT<Bit>(c2);
-
-        // One‑hot decode for opcodes 0‑5 (6‑7 unused -> zero)
+  
         Bit sel0 = new AND<Bit>(new AND<Bit>(n2, n1), n0); // 0: NAND
         Bit sel1 = new AND<Bit>(new AND<Bit>(n2, n1), c0); // 1: OR
         Bit sel2 = new AND<Bit>(new AND<Bit>(n2, c1), n0); // 2: AND
@@ -51,7 +48,6 @@ public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
         Byte selected4 = Select(sel4, addResult);
         Byte selected5 = Select(sel5, subResult);
 
-        // OR all selected results
         Byte or01 = new OR<Byte>(selected0, selected1);
         Byte or23 = new OR<Byte>(selected2, selected3);
         Byte or45 = new OR<Byte>(selected4, selected5);
@@ -65,20 +61,22 @@ public class ALU(Byte op, Byte a, Byte b) : TurComponentValue<Byte>
     {
         Bit zero = new Bit(0);
         (Byte Sum, Bit Carry) = ((Byte, Bit)) new ADDER<Byte>(a, b, zero);
+
         return Sum;
     }
 
     private static Byte Subtract(Byte a, Byte b)
     {
-        // a - b = a + (-b)
         NEG<Byte> neg = new NEG<Byte>(b);
         Byte negB = (Byte)neg;
+
         return Add(a, negB);
     }
 
     private static Byte Select(Bit select, Byte value)
     {
         Byte mask = new Byte(select.Value ? 0xFF : 0x00);
+
         return new AND<Byte>(value, mask);
     }
 }

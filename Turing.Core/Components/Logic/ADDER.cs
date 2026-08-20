@@ -3,6 +3,16 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
+/// <summary>
+/// <br>ADDER is the base component for all operational logic, it perfoms line bitwise addition for all supported data types.</br>
+/// <br>It takes two inputs A and B as parameters as well as the optional carry.</br>
+/// <br>Basic ADDER requires chaining different adders in order to support multi level bitness.</br>
+/// <br>The more bits in data type the more work does the ADDER.</br>
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="inputA"></param>
+/// <param name="inputB"></param>
+/// <param name="cin"></param>
 public class ADDER<T>(T inputA, T inputB, Bit cin) : TurComponent<(T Sum, Bit Carry)> where T : struct, IValue<T>
 {
     protected override (T Sum, Bit Carry) ImplicitOperator()

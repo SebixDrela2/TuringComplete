@@ -1,38 +1,34 @@
-﻿using Turing.Core.Electricity;
-using Turing.Core.Gates;
+﻿using Turing.Core.Gates;
 using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Overture;
 
 /// <summary>
-/// Condition Component
-/// Condition Byte uses bits 5, 6, 7 as a 3-bit condition code.
-/// 
-/// Cond Logic:
-/// 000 -> Never
-/// 001 -> Always
-/// 010 -> if value == 0
-/// 011 -> if value != 0
-/// 100 -> if value < 0
-/// 101 -> if value >= 0
-/// 110 -> if value <= 0
-/// 111 -> if value > 0
+/// <br>COND is a conditional component it returns BIT given value matches its condition.<br/>
+/// <br>Condition Byte uses bits 5, 6, 7 as a 3-bit condition code.<br/>
+/// <br/>
+/// <br>Cond Logic:<br/>
+/// <br>000 -> Never<br/>
+/// <br>001 -> Always<br/>
+/// <br>010 -> if value == 0<br/>
+/// <br>011 -> if value != 0<br/>
+/// <br>100 -> if value < 0<br/>
+/// <br>101 -> if value >= 0<br/>
+/// <br>110 -> if value <= 0<br/>
+/// <br>111 -> if value > 0<br/>
 /// </summary>
 public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
 {
     protected override Bit ImplicitOperator()
     {
-        // Extract the three condition bits
-        Bit c0 = condition.GetBit(0); // LSB of the condition code
+        Bit c0 = condition.GetBit(0);
         Bit c1 = condition.GetBit(1);
-        Bit c2 = condition.GetBit(2); // MSB
+        Bit c2 = condition.GetBit(2); 
 
-        // NOT versions
         Bit n0 = new NOT<Bit>(c0);
         Bit n1 = new NOT<Bit>(c1);
         Bit n2 = new NOT<Bit>(c2);
 
-        // Decode the 3-bit code into 8 one‑hot selects (code = (c2 << 2) | (c1 << 1) | c0)
         //  000 -> Never
         //  001 -> Always
         //  010 -> == 0
@@ -49,16 +45,14 @@ public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
         Bit selGeZero = new AND<Bit>(new AND<Bit>(c2, n1), c0); // 101
         Bit selLeZero = new AND<Bit>(new AND<Bit>(c2, c1), n0); // 110
         Bit selGtZero = new AND<Bit>(new AND<Bit>(c2, c1), c0); // 111
-
-        // Compute value comparisons
+  
         Bit isZero = IsZero(value);
-        Bit isNegative = new Bit((bool)value.GetBit(Byte.BitWidth - 1)); // MSB is sign bit
+        Bit isNegative = new Bit((bool)value.GetBit(Byte.BitWidth - 1)); 
 
         Bit isPositive = new AND<Bit>(new NOT<Bit>(isZero), new NOT<Bit>(isNegative));
         Bit isNonNegative = new NOT<Bit>(isNegative);
         Bit isNonPositive = new NOT<Bit>(isPositive);
 
-        // Result for each condition
         Bit resNever = new Bit(false);
         Bit resAlways = new Bit(true);
         Bit resEqZero = isZero;
@@ -68,7 +62,6 @@ public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
         Bit resLeZero = isNonPositive;
         Bit resGtZero = isPositive;
 
-        // Select the correct result using AND with the one‑hot selects
         Bit r0 = new SW<Bit>(selNever, resNever);
         Bit r1 = new SW<Bit>(selAlways, resAlways);
         Bit r2 = new SW<Bit>(selEqZero, resEqZero);
@@ -78,7 +71,6 @@ public class COND(Byte value, Byte condition) : TurComponentValue<Bit>
         Bit r6 = new SW<Bit>(selLeZero, resLeZero);
         Bit r7 = new SW<Bit>(selGtZero, resGtZero);
 
-        // OR all selected results together
         Bit or12 = new OR<Bit>(r0, r1);
         Bit or34 = new OR<Bit>(r2, r3);
         Bit or56 = new OR<Bit>(r4, r5);

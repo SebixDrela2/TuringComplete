@@ -3,6 +3,12 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Components.Memory;
 
+/// <summary>
+/// <br>SLATCH commonly known as set latch is a component which locks in value on high set</br>
+/// <br>This is an absolute base for digital logic memory.</br>
+/// <br>It is also first component which has a state on it's own.</br>
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class SLATCH<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private T _state = T.Zero;

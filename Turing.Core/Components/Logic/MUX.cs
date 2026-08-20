@@ -3,6 +3,14 @@ using Turing.Core.Gates;
 
 namespace Turing.Core.Components.Logic;
 
+/// <summary>
+/// <br>MUX is basically a choser, it takes three inputs.</br>
+/// <br>If select bit is OFF it takes first value, otherwise if its ON it takes second value.</br>
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="inputA"></param>
+/// <param name="inputB"></param>
+/// <param name="sel"></param>
 public class MUX<T>(T inputA, T inputB, Bit sel) : TurComponentValue<T> where T : struct, IValue<T>
 {
     protected override T ImplicitOperator()

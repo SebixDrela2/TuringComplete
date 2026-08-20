@@ -1,7 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿namespace Turing.Core.Electricity;
 
-namespace Turing.Core.Electricity;
-
+/// <summary>
+/// <br>Everything begins with a signal either low or high.</br>
+/// <br>Low voltage represents no state, High voltage represents existing state."</br>
+/// <br>In computer science its abstracted to a concept called "Bit".</br>
+/// </summary>
 public record struct Bit : IBitValue<Bit>
 {
     private bool _value;

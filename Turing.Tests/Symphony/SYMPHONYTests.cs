@@ -897,7 +897,6 @@ internal partial class SYMPHONYTests
             """;
 
         var cpu = Run(asm, new Byte(2), new Byte(4));
-        // 2^4 = 16
         Assert.That(cpu.Output, Is.EqualTo(new Int(16)));
     }
 }

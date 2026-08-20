@@ -2,6 +2,14 @@
 
 namespace Turing.Core.Components.Logic;
 
+/// <summary>
+/// <br>Three bit decoder returns BYTE where each bit is uniquely decoded for the three bits provided.</br>
+/// <br>On default three bit decoder is always enabled, however if current is provided to disabled returned values will all have negative current</br>
+/// </summary>
+/// <param name="inputA"></param>
+/// <param name="inputB"></param>
+/// <param name="inputC"></param>
+/// <param name="disable"></param>
 public class BIT_DECODER_THREE(Bit inputA, Bit inputB, Bit inputC, Bit disable) : TurComponentValue<Byte>
 {
     protected override Byte ImplicitOperator()
