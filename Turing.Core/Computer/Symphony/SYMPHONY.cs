@@ -40,12 +40,6 @@ public class SYMPHONY : Processor
     protected override void Step()
     {
         Int instruction = _ram.Load(_pc);
-
-        if ((Int)_pc == 64 && Clock.TickVal == Bit.One)
-        {
-
-        }
-
         var (mode, opCode, destination, A, B, isImm, immVal) = ((Byte, Byte, Byte, Byte, Byte, Bit, Short)) new INSTRUCTION_DECODER(instruction);
         var (io, alu, jump, ram) = ((Bit, Bit, Bit, Bit))new MODE_DECODER(mode);
 

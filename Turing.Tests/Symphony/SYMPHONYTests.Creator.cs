@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Turing.Core.Computer.Symphony;
@@ -349,26 +350,31 @@ internal partial class SYMPHONYTests
         }
         private  int Value(string val) => int.Parse(val);
 
-        private  int Register(string val) => val switch
-        {
-            "zr"    => 0b_0000,
-            "r1"    => 0b_0001,
-            "r2"    => 0b_0010,
-            "r3"    => 0b_0011,
-            "r4"    => 0b_0100,
-            "r5"    => 0b_0101,
-            "r6"    => 0b_0110,
-            "r7"    => 0b_0111,
-            "r8"    => 0b_1000,
-            "r9"    => 0b_1001,
-            "r10"   => 0b_1010,
-            "r11"   => 0b_1011,
-            "r12"   => 0b_1100,
-            "r13"   => 0b_1101,
-            "sp"    => 0b_1110,
-            "flags" => 0b_1111,
-            _ => throw new NotImplementedException(),
-        };
+        private int Register(string val)
+        {         
+            return val switch
+            {
+
+                "zr" => 0b_0000,
+                "r1" => 0b_0001,
+                "r2" => 0b_0010,
+                "r3" => 0b_0011,
+                "r4" => 0b_0100,
+                "r5" => 0b_0101,
+                "r6" => 0b_0110,
+                "r7" => 0b_0111,
+                "r8" => 0b_1000,
+                "r9" => 0b_1001,
+                "r10" => 0b_1010,
+                "r11" => 0b_1011,
+                "r12" => 0b_1100,
+                "r13" => 0b_1101,
+                "sp" => 0b_1110,
+                "flags" => 0b_1111,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
         private bool IsRegister(string s) => !string.IsNullOrEmpty(s) && s.Any(s => !char.IsDigit(s)) && s.Any(char.IsDigit);
         private bool IsLabelOrImmiediate(string s) => !string.IsNullOrEmpty(s) && (s.All(s => !char.IsDigit(s)) || s.All(char.IsDigit));
         private bool IsLabel(string s) => !string.IsNullOrEmpty(s) && s.All(s => !char.IsDigit(s));

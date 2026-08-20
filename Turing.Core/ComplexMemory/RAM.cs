@@ -29,6 +29,11 @@ public class RAM
 
     public Int Load(Int address)
     {
+        if (address < 0)
+        {
+            return -1; // Lazy evaluation, not proper return, success digital logic.
+        }
+
         int digitalAddress = (ushort)(short)(int)address;
 
         var byte1 = (byte)_state[digitalAddress];
