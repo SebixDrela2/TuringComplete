@@ -41,6 +41,11 @@ public class SYMPHONY : Processor
     {
         Int instruction = _ram.Load(_pc);
 
+        if ((Int)_pc == 140 && Clock.TickVal == Bit.One)
+        {
+
+        }
+
         var (mode, opCode, destination, A, B, isImm, immVal) = ((Byte, Byte, Byte, Byte, Byte, Bit, Short)) new INSTRUCTION_DECODER(instruction);
         var (io, alu, jump, ram) = ((Bit, Bit, Bit, Bit))new MODE_DECODER(mode);
 
@@ -65,7 +70,8 @@ public class SYMPHONY : Processor
         InputPin = new AND<Bit>(io, new EQ<Byte>(opCode, 1));
         Int inputData = new SW<Int>(InputPin, Input);
         Int aluResult = new SW<Int>(alu, new ALU(opCode, loadA, mux, alu));
-        Int dstFlow = new OR<Int>(ramLoad, new OR<Int>(inputData, aluResult));
+        Int dstFlow =  new OR<Int>(ramLoad, new OR<Int>(inputData, aluResult));
+        dstFlow = new OR<Int>(dstFlow, new SW<Int>(new AND<Bit>(new EQ<Byte>(opCode, 7), io), _pc));
 
         _regRam.Write(dstAddress, dstFlow, destNotZero);
         OutputPin = new AND<Bit>(io, new EQ<Byte>(opCode, 2));

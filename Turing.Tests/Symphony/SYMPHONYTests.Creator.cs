@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Turing.Core.Computer.Symphony;
 
 namespace Turing.Tests.Symphony;
@@ -36,8 +38,7 @@ internal partial class SYMPHONYTests
 
             if (cpu.OutputPin)
             {
-                var c = (char)(byte)(int)cpu.Output;
-                Console.Write(c);
+                return cpu;
             }
 
             if (cpu.OffPin)
@@ -74,203 +75,239 @@ internal partial class SYMPHONYTests
         public Byte[] Parse(string instructionList)
         {
             var instructions = new List<int>();
+            instructionList = PreProcess(instructionList);
+            var debug = new List<string>();
+            var debug2 = new List<string>();
 
-            foreach(var line in instructionList.AsSpan().EnumerateLines())
+            foreach (var line in instructionList.AsSpan().EnumerateLines())
             {
-                var lineSplit = line.ToString().Trim().Split(' ', StringSplitOptions.TrimEntries);
-
-                switch(lineSplit)
+                if (string.IsNullOrEmpty(line.ToString()))
                 {
-                    case ["nop"]:
-                        instructions.Add(0b_00000000_00000000_00000000_00000000);
-                        continue;
-                    case ["in", var val]:
-                        instructions.Add(0b_00000001_00000000_00000000_00000000 | Register(val) << 20);
-                        continue;
-                    case ["out", var val and [< '0' or  > '9', ..]]:
-                        instructions.Add(0b_00000010_00000000_00000000_00000000 | Register(val) << 8);
-                        continue;
-                    case ["out", var val]:
-                        instructions.Add(0b_00010010_00000000_00000000_00000000 | Value(val));
-                        continue;
-                    case ["counter", var val]:
-                        instructions.Add(0b_00000111_00000000_00000000_00000000 | Register(val) << 20);
-                        continue;
-                    case ["nand", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["or", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["and", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["nor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["add", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100100_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["sub", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["lsl", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00100111_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["lsr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00101000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["asr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
-                        instructions.Add(0b_00101001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
-                        continue;
-                    case ["cmp", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                        instructions.Add(0b_00101010_11110000_00000000_00000000 | Register(arg1) << 16 | Register(arg2) << 8);
-                        continue;
-                    case ["nand", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["or", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["nor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["and", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["add", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110100_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["sub", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["lsl", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00110111_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["lsr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00111000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["asr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
-                        instructions.Add(0b_00111001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
-                        continue;
-                    case ["cmp", [.. var arg1, ','], var arg2] when IsImmiediate(arg2):
-                        instructions.Add(0b_00111010_11110000_00000000_00000000 | Register(arg1) << 16 | int.Parse(arg2));
-                        continue;
-                    case ["jmp", var arg1] when IsRegister(arg1):
-                        instructions.Add(0b_01001000_00001111_00000000_00000000 | Register(arg1) << 8);
-                        continue;
-                    case ["jmp", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011000_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["je", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01010001_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jne", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011001_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jb", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01010010_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jae", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011010_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jbe", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01010011_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["ja", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011011_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jl", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01010100_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jge", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011100_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jle", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01010101_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["jg", var arg1] when IsLabelOrImmiediate(arg1):
-                        instructions.Add(0b_01011101_00001111_00000000_00000000 | ValueLabel(arg1));
-                        continue;
-                    case ["load_8", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsRegister(arg2):
-                        instructions.Add(0b_01100000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
-                        continue;
-                    case ["load_8", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsImmiediate(arg2):
-                        instructions.Add(0b_01110000_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
-                        continue;
-                    case ["load_16", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsRegister(arg2):
-                        instructions.Add(0b_01100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
-                        continue;
-                    case ["load_16", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsImmiediate(arg2):
-                        instructions.Add(0b_01110001_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
-                        continue;
-                    case ["load_32", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsRegister(arg2):
-                        instructions.Add(0b_01100010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
-                        continue;
-                    case ["load_32", [.. var arg1, ','], ['[' ,.. var arg2, ']']] when IsImmiediate(arg2):
-                        instructions.Add(0b_01110010_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
-                        continue;
-                    case ["store_8", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
-                        instructions.Add(0b_01100100_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
-                        continue;
-                    case ["store_8", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
-                        instructions.Add(0b_01110100_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
-                        continue;
-                    case ["store_16", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
-                        instructions.Add(0b_01100101_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
-                        continue;
-                    case ["store_16", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
-                        instructions.Add(0b_01110101_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
-                        continue;
-                    case ["store_32", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
-                        instructions.Add(0b_01100110_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
-                        continue;
-                    case ["store_32", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
-                        instructions.Add(0b_01110110_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
-                        continue;
-                    case ["mov", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                        instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
-                        continue;
-                    case ["mov", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
-                        instructions.Add(0b_00110001_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
-                        continue;
-                    case ["neg", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                        instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
-                        continue;
-                    case ["neg", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
-                        instructions.Add(0b_00110101_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
-                        continue;
-                    case ["not", [.. var arg1, ','], var arg2] when IsRegister(arg2):
-                        instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
-                        continue;
-                    case ["not", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
-                        instructions.Add(0b_00110011_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
-                        continue;
-                    case [[.. var label, ':']]:
+                    continue;
+                }
 
-                        if (!_labelDict.TryGetValue(label, out var token))
-                        {
-                            token = new LabelToken();
-                            _labelDict.Add(label, token);
-                        }
+                debug.Add($"{line.Trim()} -> {instructions.Count * 4}");
+                var lineSplit = line.ToString().Trim().Split(' ', StringSplitOptions.TrimEntries);
+                var instructionCount = instructions.Count;
 
-                        token.DefineLabel(instructions.Count * 4);
-                        continue;
-                    case [[]]:
-                        continue;
-                    case var @default:
-                        throw new NotImplementedException(string.Join(' ', @default));
+                Assemble();
+
+                debug2.Add($"{line} ({string.Join(" ", instructions[instructionCount..])})");
+
+                void Assemble()
+                {
+                    switch (lineSplit)
+                    {
+                        case ["nop"]:
+                            instructions.Add(0b_00000000_00000000_00000000_00000000);
+                            return;
+                        case ["in", var val]:
+                            instructions.Add(0b_00000001_00000000_00000000_00000000 | Register(val) << 20);
+                            return;
+                        case ["out", var val and [< '0' or > '9', ..]]:
+                            instructions.Add(0b_00000010_00000000_00000000_00000000 | Register(val) << 8);
+                            return;
+                        case ["out", var val]:
+                            instructions.Add(0b_00010010_00000000_00000000_00000000 | Value(val));
+                            return;
+                        case ["counter", var val]:
+                            instructions.Add(0b_00000111_00000000_00000000_00000000 | Register(val) << 20);
+                            return;
+                        case ["nand", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["or", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["and", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["nor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["add", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100100_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["sub", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["lsl", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00100111_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["lsr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00101000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["asr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsRegister(arg3):
+                            instructions.Add(0b_00101001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | Register(arg3) << 8);
+                            return;
+                        case ["cmp", [.. var arg1, ','], var arg2] when IsRegister(arg2):
+                            instructions.Add(0b_00101010_11110000_00000000_00000000 | Register(arg1) << 16 | Register(arg2) << 8);
+                            return;
+                        case ["nand", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["or", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["nor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["and", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["add", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110100_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["sub", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["xor", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110110_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["lsl", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00110111_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["lsr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00111000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["asr", [.. var arg1, ','], [.. var arg2, ','], var arg3] when IsLabelOrImmiediate(arg3):
+                            instructions.Add(0b_00111001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 16 | ValueLabel(arg3));
+                            return;
+                        case ["cmp", [.. var arg1, ','], var arg2] when IsImmiediate(arg2):
+                            instructions.Add(0b_00111010_11110000_00000000_00000000 | Register(arg1) << 16 | int.Parse(arg2));
+                            return;
+                        case ["jmp", var arg1] when IsRegister(arg1):
+                            instructions.Add(0b_01001000_00001111_00000000_00000000 | Register(arg1) << 8);
+                            return;
+                        case ["jmp", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011000_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["je", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01010001_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jne", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011001_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jb", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01010010_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jae", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011010_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jbe", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01010011_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["ja", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011011_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jl", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01010100_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jge", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011100_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jle", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01010101_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["jg", var arg1] when IsLabelOrImmiediate(arg1):
+                            instructions.Add(0b_01011101_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["load_8", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsRegister(arg2):
+                            instructions.Add(0b_01100000_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
+                            return;
+                        case ["load_8", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsImmiediate(arg2):
+                            instructions.Add(0b_01110000_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
+                            return;
+                        case ["load_16", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsRegister(arg2):
+                            instructions.Add(0b_01100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
+                            return;
+                        case ["load_16", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsImmiediate(arg2):
+                            instructions.Add(0b_01110001_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
+                            return;
+                        case ["load_32", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsRegister(arg2):
+                            instructions.Add(0b_01100010_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg2) << 8);
+                            return;
+                        case ["load_32", [.. var arg1, ','], ['[', .. var arg2, ']']] when IsImmiediate(arg2):
+                            instructions.Add(0b_01110010_00000000_00000000_00000000 | Register(arg1) << 20 | int.Parse(arg2));
+                            return;
+                        case ["store_8", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
+                            instructions.Add(0b_01100100_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
+                            return;
+                        case ["store_8", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
+                            instructions.Add(0b_01110100_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
+                            return;
+                        case ["store_16", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
+                            instructions.Add(0b_01100101_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
+                            return;
+                        case ["store_16", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
+                            instructions.Add(0b_01110101_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
+                            return;
+                        case ["store_32", ['[', .. var arg1, ']', ','], var arg2] when IsRegister(arg1):
+                            instructions.Add(0b_01100110_00000000_00000000_00000000 | Register(arg2) << 16 | Register(arg1) << 8);
+                            return;
+                        case ["store_32", ['[', .. var arg1, ']', ','], var arg2] when IsImmiediate(arg1):
+                            instructions.Add(0b_01110110_00000000_00000000_00000000 | Register(arg2) << 16 | int.Parse(arg1));
+                            return;
+                        case ["mov", [.. var arg1, ','], var arg2] when IsRegister(arg2):
+                            instructions.Add(0b_00100001_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            return;
+                        case ["mov", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
+                            instructions.Add(0b_00110001_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
+                            return;
+                        case ["neg", [.. var arg1, ','], var arg2] when IsRegister(arg2):
+                            instructions.Add(0b_00100101_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            return;
+                        case ["neg", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
+                            instructions.Add(0b_00110101_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
+                            return;
+                        case ["not", [.. var arg1, ','], var arg2] when IsRegister(arg2):
+                            instructions.Add(0b_00100011_00000000_00000000_00000000 | Register(arg1) << 20 | Register(arg1) << 8);
+                            return;
+                        case ["not", [.. var arg1, ','], var arg2] when IsLabelOrImmiediate(arg2):
+                            instructions.Add(0b_00110011_00000000_00000000_00000000 | Register(arg1) << 20 | ValueLabel(arg2));
+                            return;
+                        case ["push", var arg1] when IsRegister(arg1):
+                            Push(arg1);
+                            return;
+                        case ["pop", var arg1] when IsRegister(arg1):
+                            Pop(arg1);
+                            return;
+                        case ["call", var arg1] when IsLabel(arg1):
+                            instructions.Add(0b_00000111_11110000_00000000_00000000);
+                            instructions.Add(0b_00110100_11111111_00000000_00010100);
+                            Push("flags");
+                            instructions.Add(0b_01011000_00001111_00000000_00000000 | ValueLabel(arg1));
+                            return;
+                        case ["ret"]:
+                            Pop("flags");
+                            instructions.Add(0b_01001000_00001111_00001111_00000000);
+                            return;
+                        case [[.. var label, ':']]:
+
+                            if (!_labelDict.TryGetValue(label, out var token))
+                            {
+                                token = new LabelToken();
+                                _labelDict.Add(label, token);
+                            }
+
+                            token.DefineLabel(instructions.Count * 4);
+                            return;
+                        case [[]]:
+                            return;
+                        case var @default:
+                            throw new NotImplementedException(string.Join(' ', @default));
+                    }
                 }
             }
+
+            File.WriteAllLines("daniel2.txt", debug2);
+            //File.WriteAllLines("daniel.txt", debug);
 
             return [.. instructions.SelectMany(instruction =>
             {
@@ -278,6 +315,18 @@ internal partial class SYMPHONYTests
                 .ToArray()
                 .Select(x => (Byte)x);
             })];
+
+            void Push(string arg1)
+            {
+                instructions.Add(0b_00110101_11101110_00000000_00000100);
+                instructions.Add(0b_01100110_00000000_00001110_00000000 | Register(arg1) << 16);
+            }
+
+            void Pop(string arg1)
+            {
+                instructions.Add(0b_01100010_00000000_00001110_00000000 | Register(arg1) << 20);
+                instructions.Add(0b_00110100_11101110_00000000_00000100);
+            }
 
             int ValueLabel(string val)
             {
@@ -320,9 +369,28 @@ internal partial class SYMPHONYTests
             "flags" => 0b_1111,
             _ => throw new NotImplementedException(),
         };
-        private bool IsRegister(string s) => !string.IsNullOrEmpty(s) && s.Any(char.IsLetter) && s.Any(char.IsDigit);
-        private bool IsLabelOrImmiediate(string s) => !string.IsNullOrEmpty(s) && (s.All(char.IsLetter) || s.All(char.IsDigit));
-        private bool IsLabel(string s) => !string.IsNullOrEmpty(s) && s.All(char.IsLetter);
+        private bool IsRegister(string s) => !string.IsNullOrEmpty(s) && s.Any(s => !char.IsDigit(s)) && s.Any(char.IsDigit);
+        private bool IsLabelOrImmiediate(string s) => !string.IsNullOrEmpty(s) && (s.All(s => !char.IsDigit(s)) || s.All(char.IsDigit));
+        private bool IsLabel(string s) => !string.IsNullOrEmpty(s) && s.All(s => !char.IsDigit(s));
         private bool IsImmiediate(string s) => !string.IsNullOrEmpty(s) && s.All(char.IsDigit);
+
+        // const BASE = r3
+        private string PreProcess(string instructionList)
+        {
+            var regex = new Regex(@"^\s*?const\s+(?<key>.*?)\s+=\s+(?<value>.*?)\s*?$", RegexOptions.Multiline);
+            var matches = regex.Matches(instructionList);
+
+            instructionList = regex.Replace(instructionList, string.Empty);
+
+            foreach(Match match in matches)
+            {
+                var key = match.Groups["key"].Value;
+                var value = match.Groups["value"].Value;
+
+                instructionList = Regex.Replace(instructionList, $@"(?<=[\s,]){key}(?=[\s,])", value);
+            }
+
+            return instructionList;
+        }
     }
 }

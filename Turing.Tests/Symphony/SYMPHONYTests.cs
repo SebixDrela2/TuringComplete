@@ -17,50 +17,73 @@ internal partial class SYMPHONYTests
     {
         var asm =
             """
-            LOOP:
-            in r6
+            const RES   = r1
+            const ARG_1 = r1
+            const ARG_2 = r2
+          
+            in ARG_1 
+            in ARG_2 
 
-            cmp r6, 32
-            je IsSpace
-            cmp r6, 97
-            jge ToUpper
-            cmp r6, 122
-            jge ToUpper
+            call power 
+            out RES 
 
-            YieldReturn:
-            out r6
-            jmp SkipToSpace
+            multiply:             
+                push r3
 
-            ToUpper:
-            sub r6, r6, 32
-            jmp YieldReturn
+                const LHS = r1 
+                const RHS = r2 
+                const ACC = r3 
 
-            IsSpace:
-            out r6
-            jmp LOOP
+                mov ACC, 0
 
-            SkipToSpace:
-            in r6
-            cmp r6, 32
-            je IsSpace
+                jmp mul_condition
+                mul_start:
+                sub RHS, RHS, 1
+                add ACC, ACC, LHS
+                mul_condition:
+                cmp RHS, 0
+                jne mul_start
 
-            out r6
-            jmp SkipToSpace      
+                mov RES, ACC
+             
+                pop r3
+
+                ret
+
+            power:
+                push r3
+                push r4
+
+                const BASE = r3
+                const REM_POW = r4 
+
+                mov BASE, ARG_1
+                sub REM_POW, ARG_2, 1
+
+                
+                pow_start:
+                sub REM_POW, REM_POW, 1
+
+                mov ARG_2, BASE
+
+                call multiply
+
+                pow_condition:
+                cmp REM_POW, 0
+                jne pow_start
+             
+                pop r4
+                pop r3
+
+                ret           
             """;
 
         var asm2 = 
             """
-            in r2
-            add r2, r2, 1
-            cmp r2, 98
-            je Bebe
-            out 2
-
-            Bebe:
-            out 3
+            add r3, r3, r1
             """;
 
         var instructions = _parser.Parse(asm);
-        var cpu = RunSymphony(instructions, "The brown fox jumped over black dog"u8);
+        var cpu = RunSymphony(instructions, new Byte(0x2), new Byte(0x3));
     }
 }

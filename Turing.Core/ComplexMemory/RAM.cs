@@ -29,10 +29,12 @@ public class RAM
 
     public Int Load(Int address)
     {
-        var byte1 = (byte)_state[address];
-        var byte2 = (byte)_state[address + 1];
-        var byte3 = (byte)_state[address + 2];
-        var byte4 = (byte)_state[address + 3];
+        int digitalAddress = (ushort)(short)(int)address;
+
+        var byte1 = (byte)_state[digitalAddress];
+        var byte2 = (byte)_state[digitalAddress + 1];
+        var byte3 = (byte)_state[digitalAddress + 2];
+        var byte4 = (byte)_state[digitalAddress + 3];
 
         Int result = MemoryMarshal.Read<int>([byte1, byte2, byte3, byte4]);
 
@@ -43,13 +45,14 @@ public class RAM
     {
         if (enabled && _clock.TickVal == Bit.One)
         {
+            int digitalAddress = (ushort)(short)(int)address;
             int intValue = value;
             var bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref intValue, 1));
 
-            _state[address] = bytes[0];
-            _state[address + 1] = bytes[1];
-            _state[address + 2] = bytes[2];
-            _state[address + 3] = bytes[3];
+            _state[digitalAddress] = bytes[0];
+            _state[digitalAddress + 1] = bytes[1];
+            _state[digitalAddress + 2] = bytes[2];
+            _state[digitalAddress + 3] = bytes[3];
         }
     }
 }
