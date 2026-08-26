@@ -2,6 +2,11 @@
 
 namespace Turing.Core.Computer.Symphony;
 
+/// <summary>
+/// <br>SYMPHONY conditional component.</br>
+/// </summary>
+/// <param name="flags"></param>
+/// <param name="cond"></param>
 internal class COND(Byte flags, Byte cond) : TurComponent<Bit>
 {
     protected override Bit ImplicitOperator()

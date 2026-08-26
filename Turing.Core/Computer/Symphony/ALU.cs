@@ -7,6 +7,13 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Computer.Symphony;
 
+/// <summary>
+/// <br>ALU for SYMPHONY architecture is just OVERTURE AlU with extended bits for XOR,LSR,ASR and CMP_FLAGS</br>
+/// </summary>
+/// <param name="op"></param>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <param name="enable"></param>
 public class ALU(Byte op, Int a, Int b, Bit enable) : TurComponentValue<Int>
 {
     protected override Int ImplicitOperator()

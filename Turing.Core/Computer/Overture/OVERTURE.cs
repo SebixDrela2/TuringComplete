@@ -7,6 +7,12 @@ using Turing.Core.Computers;
 
 namespace Turing.Core.Overture;
 
+/// <summary>
+/// <br>OVERTURE archetype, a true computer in every way done without any C# conditionals</br>
+/// <br>OVERTURE has byte sized instructions.</br>
+/// <br>OVERTURE has 5 registers ranging from r0-r5</br>
+/// <br>OVERTURE supports input and output, as well as jumps</br>
+/// </summary>
 public class OVERTURE : Processor
 {
     private readonly REGISTER<Byte>[] _regs;

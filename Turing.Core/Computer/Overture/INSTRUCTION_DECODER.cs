@@ -2,6 +2,10 @@
 
 namespace Turing.Core.Overture;
 
+/// <summary>
+/// <br>Instruction decoder takes byte as an input and outputs all 4 configuration bits of given assembly instruction in OVERTURE archetype.</br>
+/// </summary>
+/// <param name="input"></param>
 internal class INSTRUCTION_DECODER(Byte input) : TurComponent<(Bit Immediate, Bit ALU, Bit Move, Bit Condition)>
 {
     protected override (Bit Immediate, Bit ALU, Bit Move, Bit Condition) ImplicitOperator()

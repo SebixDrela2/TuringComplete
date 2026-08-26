@@ -3,6 +3,11 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Computer.Symphony;
 
+/// <summary>
+/// <br>SYMPHONY component, for comparing values between given A and given flags B</br>
+/// </summary>
+/// <param name="A"></param>
+/// <param name="B"></param>
 internal class CMP_FLAGS(Int A, Int B) : TurComponentValue<Int>
 {
     protected override Int ImplicitOperator()

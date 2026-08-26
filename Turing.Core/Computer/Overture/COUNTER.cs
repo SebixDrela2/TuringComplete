@@ -4,6 +4,11 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Overture;
 
+/// <summary>
+/// <br>Counter is a component which increments it's value by given constant every tick.</br>
+/// <br>Counter can be overriden with given T value if override bit is set.</br>
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class COUNTER<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private readonly REGISTER<T> _register;

@@ -2,6 +2,10 @@
 
 namespace Turing.Core.Computer.Symphony;
 
+/// <summary>
+/// <br>SYMPHONY mode decoder, 2 bit decoder which takes BYTE as an input, returns IO,ALU,JUMP,RAM mode selectively.</br>
+/// </summary>
+/// <param name="mode"></param>
 internal class MODE_DECODER(Byte mode) : TurComponent<(Bit IO, Bit ALU, Bit JUMP, Bit RAM)>
 {
     protected override (Bit IO, Bit ALU, Bit JUMP, Bit RAM) ImplicitOperator()

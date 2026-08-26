@@ -3,6 +3,10 @@ using Turing.Core.Electricity;
 
 namespace Turing.Core.Computer.Symphony;
 
+/// <summary>
+/// <br>Symphony instruction decoder, takes INT as an input and outputs Bytes for Mode,OpOpcode,Destination,A,B,IsImmiediate,ImmiediateValue.</br>
+/// </summary>
+/// <param name="instruction"></param>
 internal class INSTRUCTION_DECODER(Int instruction) : TurComponent<(Byte Mode, Byte OpCode, Byte Destination, Byte A, Byte B, Bit IsImm, Short ImmVal)>
 {
     protected override (Byte Mode, Byte OpCode, Byte Destination, Byte A, Byte B, Bit IsImm, Short ImmVal) ImplicitOperator()

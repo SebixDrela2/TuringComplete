@@ -4,6 +4,10 @@ using Turing.Core.Gates.Primitives;
 
 namespace Turing.Core.Symphony;
 
+/// <summary>
+/// <br>SYMPHONY counter, increments value by 4 and can be overriden</br>
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class COUNTER<T> : TurComponentValue<T>, IStateGate<T> where T : struct, IValue<T>
 {
     private readonly REGISTER<T> _register;

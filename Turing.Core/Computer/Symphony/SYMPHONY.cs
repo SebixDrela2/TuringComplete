@@ -9,16 +9,19 @@ using Turing.Core.Symphony;
 
 namespace Turing.Core.Computer.Symphony;
 
+
+/// <summary>
+/// <br>SYMPHONY archetype, a true computer in every way, arithmetically compatible with same arch level ALU</br>
+/// <br>SYMPHONY instructions are INT sized</br>
+/// <br>SYMPHONY can write to its own program memory as well as to register files.</br>
+/// <br>SYMPHONY can jump instructions conditionally.</br>
+/// <br>SYMPHONY Can be turned off by reaching OffPin or if OutputPin is on.</br>
+/// </summary>
 public class SYMPHONY : Processor
 {
     private readonly COUNTER<Int> _pc;
     private readonly RAM _ram;
     private readonly RAM _regRam;
-
-    //private Int ZERO_REG => _regs[0];
-    //private Int SP => _regs[14];
-    //private Int FLAGS => _regs[15];
-
     private Int _output;
 
     public Bit InputPin { get; private set; }
