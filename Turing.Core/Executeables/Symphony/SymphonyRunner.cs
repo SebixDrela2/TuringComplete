@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Turing.Core.Computer.Symphony;
 
-namespace Turing.Core.Executeables;
+namespace Turing.Core.Executeables.Symphony;
 
 public class SymphonyRunner
 {

@@ -1,5 +1,5 @@
 ﻿using Turing.Core.Computer.Symphony;
-using Turing.Core.Executeables;
+using Turing.Core.Executeables.Symphony;
 
 namespace Turing.Tests.Symphony;
 

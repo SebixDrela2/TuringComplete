@@ -1,7 +1,20 @@
-﻿namespace Turing.Tests.Overture;
+﻿using Turing.Core.Executeables.Overture;
+using Turing.Core.Overture;
+using static Turing.Core.Executeables.Overture.OvertureRunner;
+
+namespace Turing.Tests.Overture;
 
 internal partial class OVERTURETests
 {
+    private OvertureRunner _runner;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _runner = new();
+    }
+
+
     [Test]
     public void Move_RegisterToRegister_Works()
     {
@@ -441,4 +454,6 @@ internal partial class OVERTURETests
 
         Assert.That(cpu.Output, Is.EqualTo(new Byte(expectedCircumference)));
     }
+
+    private OVERTURE RunOverture(Byte[] instructions, params IEnumerable<Byte> inputs) => _runner.RunOverture(instructions, inputs);
 }
