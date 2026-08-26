@@ -29,17 +29,24 @@ public class RAM
 
     public Int Load(Int address)
     {
-        if (address < 0)
+        uint digitalAddress = (uint)(int)address;
+
+        if ((int)address is <0 and not <=-4)
         {
             return -1; // Lazy evaluation, not proper return, success digital logic.
         }
 
-        int digitalAddress = (ushort)(short)(int)address;
+        if (address >= 0 && digitalAddress + 3 >= _state.Length)
+        {
+            return -1; // Lazy evaluation, not proper return, success digital logic.
+        }
 
-        var byte1 = (byte)_state[digitalAddress];
-        var byte2 = (byte)_state[digitalAddress + 1];
-        var byte3 = (byte)_state[digitalAddress + 2];
-        var byte4 = (byte)_state[digitalAddress + 3];
+        int shortAddress = (ushort)(short)(int)digitalAddress;
+
+        var byte1 = (byte)_state[shortAddress];
+        var byte2 = (byte)_state[shortAddress + 1];
+        var byte3 = (byte)_state[shortAddress + 2];
+        var byte4 = (byte)_state[shortAddress + 3];
 
         Int result = MemoryMarshal.Read<int>([byte1, byte2, byte3, byte4]);
 

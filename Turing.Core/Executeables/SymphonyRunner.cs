@@ -1,19 +1,21 @@
-﻿using System.Globalization;
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Turing.Core.Computer.Symphony;
 
-namespace Turing.Tests.Symphony;
+namespace Turing.Core.Executeables;
 
-internal partial class SYMPHONYTests
+public class SymphonyRunner
 {
-    private SYMPHONY RunSymphony(Byte[] instructions, ReadOnlySpan<byte> inputs)
+    private readonly InstructionParser _parser = new();
+
+    public SYMPHONY RunSymphony(string asm, params IEnumerable<Byte> inputs)
     {
-        return RunSymphony(instructions, inputs.ToArray().Select(x => (Byte)x));
+        var instructions = _parser.Parse(asm);
+
+        return RunSymphony(instructions, inputs);
     }
 
-    private static SYMPHONY RunSymphony(Byte[] instructions, params IEnumerable<Byte> inputs)
+    public SYMPHONY RunSymphony(Byte[] instructions, params IEnumerable<Byte> inputs)
     {
         var cpu = new SYMPHONY(instructions);
 
@@ -77,8 +79,6 @@ internal partial class SYMPHONYTests
         {
             var instructions = new List<int>();
             instructionList = PreProcess(instructionList);
-            var debug = new List<string>();
-            var debug2 = new List<string>();
 
             foreach (var line in instructionList.AsSpan().EnumerateLines())
             {
@@ -87,13 +87,8 @@ internal partial class SYMPHONYTests
                     continue;
                 }
 
-                debug.Add($"{line.Trim()} -> {instructions.Count * 4}");
                 var lineSplit = line.ToString().Trim().Split(' ', StringSplitOptions.TrimEntries);
-                var instructionCount = instructions.Count;
-
                 Assemble();
-
-                debug2.Add($"{line} ({string.Join(" ", instructions[instructionCount..])})");
 
                 void Assemble()
                 {
@@ -307,9 +302,6 @@ internal partial class SYMPHONYTests
                 }
             }
 
-            File.WriteAllLines("daniel2.txt", debug2);
-            //File.WriteAllLines("daniel.txt", debug);
-
             return [.. instructions.SelectMany(instruction =>
             {
                 return MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref instruction, 1))
@@ -348,47 +340,43 @@ internal partial class SYMPHONYTests
                 return token.RequireLabel(lambda);
             }
         }
-        private  int Value(string val) => int.Parse(val);
+        private static int Value(string val) => int.Parse(val);
 
-        private int Register(string val)
-        {         
-            return val switch
-            {
+        private static int Register(string val) => val switch
+        {
 
-                "zr" => 0b_0000,
-                "r1" => 0b_0001,
-                "r2" => 0b_0010,
-                "r3" => 0b_0011,
-                "r4" => 0b_0100,
-                "r5" => 0b_0101,
-                "r6" => 0b_0110,
-                "r7" => 0b_0111,
-                "r8" => 0b_1000,
-                "r9" => 0b_1001,
-                "r10" => 0b_1010,
-                "r11" => 0b_1011,
-                "r12" => 0b_1100,
-                "r13" => 0b_1101,
-                "sp" => 0b_1110,
-                "flags" => 0b_1111,
-                _ => throw new NotImplementedException(),
-            };
-        }
+            "zr" => 0b_0000,
+            "r1" => 0b_0001,
+            "r2" => 0b_0010,
+            "r3" => 0b_0011,
+            "r4" => 0b_0100,
+            "r5" => 0b_0101,
+            "r6" => 0b_0110,
+            "r7" => 0b_0111,
+            "r8" => 0b_1000,
+            "r9" => 0b_1001,
+            "r10" => 0b_1010,
+            "r11" => 0b_1011,
+            "r12" => 0b_1100,
+            "r13" => 0b_1101,
+            "sp" => 0b_1110,
+            "flags" => 0b_1111,
+            _ => throw new NotImplementedException(),
+        };
 
-        private bool IsRegister(string s) => !string.IsNullOrEmpty(s) && s.Any(s => !char.IsDigit(s)) && s.Any(char.IsDigit);
-        private bool IsLabelOrImmiediate(string s) => !string.IsNullOrEmpty(s) && (s.All(s => !char.IsDigit(s)) || s.All(char.IsDigit));
-        private bool IsLabel(string s) => !string.IsNullOrEmpty(s) && s.All(s => !char.IsDigit(s));
-        private bool IsImmiediate(string s) => !string.IsNullOrEmpty(s) && s.All(char.IsDigit);
+        private static bool IsRegister(string s) => !string.IsNullOrEmpty(s) && s.Any(s => !char.IsDigit(s)) && s.Any(char.IsDigit);
+        private static bool IsLabelOrImmiediate(string s) => !string.IsNullOrEmpty(s) && (s.All(s => !char.IsDigit(s)) || s.All(char.IsDigit));
+        private static bool IsLabel(string s) => !string.IsNullOrEmpty(s) && s.All(s => !char.IsDigit(s));
+        private static bool IsImmiediate(string s) => !string.IsNullOrEmpty(s) && s.All(char.IsDigit);
 
-        // const BASE = r3
-        private string PreProcess(string instructionList)
+        private static string PreProcess(string instructionList)
         {
             var regex = new Regex(@"^\s*?const\s+(?<key>.*?)\s+=\s+(?<value>.*?)\s*?$", RegexOptions.Multiline);
             var matches = regex.Matches(instructionList);
 
             instructionList = regex.Replace(instructionList, string.Empty);
 
-            foreach(Match match in matches)
+            foreach (Match match in matches)
             {
                 var key = match.Groups["key"].Value;
                 var value = match.Groups["value"].Value;

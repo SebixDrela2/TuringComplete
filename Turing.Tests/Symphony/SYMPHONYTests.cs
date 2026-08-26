@@ -1,22 +1,21 @@
 ﻿using Turing.Core.Computer.Symphony;
+using Turing.Core.Executeables;
 
 namespace Turing.Tests.Symphony;
 
 [TestFixture]
 internal partial class SYMPHONYTests
 {
-    private InstructionParser _parser;
+    private SymphonyRunner _runner;
+
     [SetUp]
     public void SetUp()
-    {
-        _parser = new();
+    {      
+        _runner = new();
     }
 
-    private SYMPHONY Run(string asm, params Byte[] inputs)
-    {
-        var instructions = _parser.Parse(asm);
-        return RunSymphony(instructions, inputs);
-    }
+    private SYMPHONY Run(string asm, params Byte[] inputs) => _runner.RunSymphony(asm, inputs);
+
 
     [Test]
     public void Test_Nop()
