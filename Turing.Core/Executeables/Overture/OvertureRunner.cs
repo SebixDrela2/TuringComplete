@@ -2,7 +2,7 @@
 
 namespace Turing.Core.Executeables.Overture;
 
-public partial class OvertureRunner
+public class OvertureRunner
 {
     public OVERTURE RunOverture(Byte[] instructions, params IEnumerable<Byte> inputs)
     {
