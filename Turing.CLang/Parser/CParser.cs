@@ -14,46 +14,37 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private readonly Dictionary<string, int> _variableOffsets = [];
     private int _stackOffset = 0;
     private int _labelCounter = 0;
-    private int _tempCounter = 0;
 
     public List<string> Parse()
     {
         while (_position < _tokens.Count)
         {
             var statement = ParseStatement();
-
             if (statement.HasValue)
-            {
                 GenerateStatement(statement.Value);
-            }
         }
-
         return _assembly;
     }
 
     private Statement? ParseStatement()
     {
         var token = Peek();
+        if (!token.HasValue) return null;
 
-        if (!token.HasValue)
+        return token.Value.Type switch
         {
-            return null;
-        }
-
-        var value = GetTokenValue(token.Value);
-
-        return (token.Value.Type, value) switch
-        {
-            (TokenType.Identifier, Keywords.Return) => ParseReturnStatement(),
-            (TokenType.Identifier, Keywords.If) => ParseIfStatement(),
-            (TokenType.Identifier, Keywords.While) => ParseWhileStatement(),
-            (TokenType.Identifier, Keywords.For) => ParseForStatement(),
-            (TokenType.Identifier, Keywords.Break) => ParseBreakStatement(),
-            (TokenType.Identifier, Keywords.Continue) => ParseContinueStatement(),
-            (TokenType.Identifier, var v) when Keywords.IsType(v) => ParseDeclarationStatement(),
-            (TokenType.Identifier, var v) when IsVariable(v) => ParseExpressionStatement(),
-            (TokenType.OpenCurlyBracket, _) => ParseBlockStatement(),
-            (TokenType.Semicolon, _) => ParseEmptyStatement(),
+            TokenType.Return => ParseReturnStatement(),
+            TokenType.If => ParseIfStatement(),
+            TokenType.While => ParseWhileStatement(),
+            TokenType.For => ParseForStatement(),
+            TokenType.Break => ParseBreakStatement(),
+            TokenType.Continue => ParseContinueStatement(),
+            TokenType.Else => throw new InvalidOperationException("Unexpected 'else'"),
+            TokenType.Identifier when Keywords.IsType(GetTokenValue(token.Value)) => ParseDeclarationStatement(),
+            TokenType.Identifier when IsVariable(GetTokenValue(token.Value)) => ParseExpressionStatement(),
+            TokenType.Identifier => ParseExpressionStatement(),
+            TokenType.OpenCurlyBracket => ParseBlockStatement(),
+            TokenType.Semicolon => ParseEmptyStatement(),
             _ => ParseExpressionStatement()
         };
     }
@@ -67,7 +58,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         _variableOffsets[name] = _stackOffset;
         _stackOffset += 4;
 
-        if (Peek().Value.Type == TokenType.Assign)
+        if (Peek().HasValue && Peek().Value.Type == TokenType.Assign)
         {
             Consume();
             var expression = ParseExpression();
@@ -83,12 +74,8 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         Consume();
         Expression? expression = null;
-
-        if (Peek().Value.Type != TokenType.Semicolon)
-        {
+        if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
             expression = ParseExpression();
-        }
-
         Consume(TokenType.Semicolon);
         return new ReturnStatement(expression);
     }
@@ -103,7 +90,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var thenStatement = ParseStatement();
         Statement? elseStatement = null;
 
-        if (Peek().Value.Type == TokenType.Identifier && GetTokenValue(Peek().Value) == Keywords.Else)
+        if (Peek().HasValue && Peek().Value.Type == TokenType.Else)
         {
             Consume();
             elseStatement = ParseStatement();
@@ -118,7 +105,6 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         Consume(TokenType.OpenParen);
         var condition = ParseExpression();
         Consume(TokenType.CloseParen);
-
         var body = ParseStatement();
         return new WhileStatement(condition, body.Value);
     }
@@ -129,24 +115,18 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         Consume(TokenType.OpenParen);
 
         Statement? initialization = null;
-        if (Peek().Value.Type != TokenType.Semicolon)
-        {
+        if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
             initialization = ParseStatement();
-        }
         Consume(TokenType.Semicolon);
 
         Expression? condition = null;
-        if (Peek().Value.Type != TokenType.Semicolon)
-        {
+        if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
             condition = ParseExpression();
-        }
         Consume(TokenType.Semicolon);
 
         Expression? increment = null;
-        if (Peek().Value.Type != TokenType.CloseParen)
-        {
+        if (Peek().HasValue && Peek().Value.Type != TokenType.CloseParen)
             increment = ParseExpression();
-        }
         Consume(TokenType.CloseParen);
 
         var body = ParseStatement();
@@ -171,16 +151,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         Consume(TokenType.OpenCurlyBracket);
         var statements = new List<Statement>();
-
-        while (Peek().Value.Type != TokenType.CloseCurlyBracket && _position < _tokens.Count)
+        while (_position < _tokens.Count && Peek().Value.Type != TokenType.CloseCurlyBracket)
         {
-            var statement = ParseStatement();
-            if (statement.HasValue)
-            {
-                statements.Add(statement.Value);
-            }
+            var stmt = ParseStatement();
+            if (stmt.HasValue) statements.Add(stmt.Value);
         }
-
         Consume(TokenType.CloseCurlyBracket);
         return new BlockStatement(statements);
     }
@@ -193,9 +168,9 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
     private Statement ParseExpressionStatement()
     {
-        var expression = ParseExpression();
+        var expr = ParseExpression();
         Consume(TokenType.Semicolon);
-        return new ExpressionStatement(expression);
+        return new ExpressionStatement(expr);
     }
 
     private Expression ParseExpression(int precedence = 0)
@@ -205,12 +180,19 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         while (_position < _tokens.Count)
         {
             var token = Peek();
-            var op = GetBinaryOperator(token.Value);
+            if (!token.HasValue) break;
 
-            if (!op.HasValue || GetPrecedence(op.Value) <= precedence)
+            // Special handling for assignment (lowest precedence)
+            if (token.Value.Type == TokenType.Assign && precedence <= 0)
             {
-                break;
+                Consume();
+                var rhs = ParseExpression(0);
+                return new AssignmentExpression(left, rhs);
             }
+
+            var op = GetBinaryOperator(token.Value);
+            if (!op.HasValue || GetPrecedence(op.Value) <= precedence)
+                break;
 
             Consume();
             var right = ParseExpression(GetPrecedence(op.Value));
@@ -227,30 +209,20 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         return token.Type switch
         {
-            TokenType.Identifier when int.TryParse(value, out int num) =>
-                new LiteralExpression(num),
-
-            TokenType.Identifier when IsVariable(value) =>
-                new IdentifierExpression(value),
-
-            TokenType.Identifier =>
-                new IdentifierExpression(value),
-
-            TokenType.OpenParen =>
-                ParseParenthesizedExpression(),
-
-            TokenType.Plus or TokenType.Minus or TokenType.BitNot or TokenType.LogicalNot =>
-                ParseUnaryExpression(token),
-
+            TokenType.Identifier when int.TryParse(value, out int num) => new LiteralExpression(num),
+            TokenType.Identifier when IsVariable(value) => new IdentifierExpression(value),
+            TokenType.Identifier => new IdentifierExpression(value),
+            TokenType.OpenParen => ParseParenthesizedExpression(),
+            TokenType.Plus or TokenType.Minus or TokenType.BitNot or TokenType.LogicalNot => ParseUnaryExpression(token),
             _ => throw new NotImplementedException($"Unexpected token: {token.Type}")
         };
     }
 
     private Expression ParseParenthesizedExpression()
     {
-        var expression = ParseExpression();
+        var expr = ParseExpression();
         Consume(TokenType.CloseParen);
-        return new ParenthesizedExpression(expression);
+        return new ParenthesizedExpression(expr);
     }
 
     private Expression ParseUnaryExpression(Token token)
@@ -263,8 +235,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             TokenType.LogicalNot => UnaryOperator.LogicalNot,
             _ => throw new NotImplementedException()
         };
-
-        var operand = ParseExpression(GetPrecedence(GetBinaryOperator(token) ?? BinaryOperator.Plus));
+        var operand = ParseExpression(GetPrecedence(BinaryOperator.Plus));
         return new UnaryExpression(op, operand);
     }
 
@@ -285,10 +256,9 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             TokenType.BitASRShift => BinaryOperator.BitwiseRightShift,
             TokenType.LessThan => BinaryOperator.LessThan,
             TokenType.GreaterThan => BinaryOperator.GreaterThan,
-            TokenType.Assign when Peek().Value.Type == TokenType.Assign => BinaryOperator.Equal,
+            TokenType.Assign when Peek().HasValue && Peek().Value.Type == TokenType.Assign => BinaryOperator.Equal,
             TokenType.LogicalAnd => BinaryOperator.LogicalAnd,
             TokenType.LogicalOr => BinaryOperator.LogicalOr,
-            TokenType.Assign => BinaryOperator.Assign,
             _ => null
         };
     }
@@ -310,53 +280,30 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         _ => 0
     };
 
+    // ------------------- Code Generation ----------------------
+
     private void GenerateStatement(Statement statement)
     {
         switch (statement)
         {
-            case ReturnStatement returnStmt:
-                GenerateReturn(returnStmt);
-                break;
-            case ExpressionStatement exprStmt:
-                GenerateExpression(exprStmt.Expression);
-                break;
-            case BlockStatement blockStmt:
-                foreach (var stmt in blockStmt.Statements)
-                {
-                    GenerateStatement(stmt);
-                }
-                break;
-            case IfStatement ifStmt:
-                GenerateIf(ifStmt);
-                break;
-            case WhileStatement whileStmt:
-                GenerateWhile(whileStmt);
-                break;
-            case ForStatement forStmt:
-                GenerateFor(forStmt);
-                break;
-            case DeclarationStatement declStmt:
-                GenerateDeclaration(declStmt);
-                break;
-            case BreakStatement:
-                _assembly.Add($"jmp {GetTempLabel()}");
-                break;
-            case ContinueStatement:
-                _assembly.Add($"jmp {GetTempLabel()}");
-                break;
-            case EmptyStatement:
-                break;
+            case ReturnStatement rs: GenerateReturn(rs); break;
+            case ExpressionStatement es: GenerateExpression(es.Expression); break;
+            case BlockStatement bs: foreach (var s in bs.Statements) GenerateStatement(s); break;
+            case IfStatement ifs: GenerateIf(ifs); break;
+            case WhileStatement ws: GenerateWhile(ws); break;
+            case ForStatement fs: GenerateFor(fs); break;
+            case DeclarationStatement ds: GenerateDeclaration(ds); break;
+            case BreakStatement: _assembly.Add($"jmp {GetTempLabel()}"); break;
+            case ContinueStatement: _assembly.Add($"jmp {GetTempLabel()}"); break;
+            case EmptyStatement: break;
         }
     }
 
-    private void GenerateReturn(ReturnStatement returnStmt)
+    private void GenerateReturn(ReturnStatement rs)
     {
-        if (returnStmt.Expression.HasValue)
-        {
-            GenerateExpression(returnStmt.Expression.Value);
-            _assembly.Add($"mov r1, r1");
-        }
-        _assembly.Add($"ret");
+        if (rs.Expression.HasValue)
+            GenerateExpression(rs.Expression.Value);
+        _assembly.Add("ret");
     }
 
     private void GenerateIf(IfStatement ifStmt)
@@ -365,19 +312,26 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var endLabel = GetTempLabel();
 
         GenerateExpression(ifStmt.Condition);
-        _assembly.Add($"cmp r1, #0");
+        _assembly.Add("cmp r1, #0");
         _assembly.Add($"je {elseLabel}");
 
         GenerateStatement(ifStmt.ThenStatement);
-        _assembly.Add($"jmp {endLabel}");
-        _assembly.Add($"{elseLabel}:");
 
-        if (ifStmt.ElseStatement.HasValue)
+        // Only add jump to end if there is an else block or if the then block doesn't end with return/jump
+        bool thenEndsWithReturn = ifStmt.ThenStatement is ReturnStatement ||
+                                  (ifStmt.ThenStatement is BlockStatement bs && bs.Statements.LastOrDefault() is ReturnStatement);
+        if (ifStmt.ElseStatement.HasValue || !thenEndsWithReturn)
         {
-            GenerateStatement(ifStmt.ElseStatement.Value);
+            _assembly.Add($"jmp {endLabel}");
         }
 
-        _assembly.Add($"{endLabel}:");
+        _assembly.Add($"{elseLabel}:");
+        if (ifStmt.ElseStatement.HasValue)
+            GenerateStatement(ifStmt.ElseStatement.Value);
+
+        // Add end label only if we used it
+        if (ifStmt.ElseStatement.HasValue || !thenEndsWithReturn)
+            _assembly.Add($"{endLabel}:");
     }
 
     private void GenerateWhile(WhileStatement whileStmt)
@@ -387,7 +341,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         _assembly.Add($"{startLabel}:");
         GenerateExpression(whileStmt.Condition);
-        _assembly.Add($"cmp r1, #0");
+        _assembly.Add("cmp r1, #0");
         _assembly.Add($"je {endLabel}");
 
         GenerateStatement(whileStmt.Body);
@@ -402,23 +356,18 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var incrementLabel = GetTempLabel();
 
         if (forStmt.Initialization.HasValue)
-        {
             GenerateStatement(forStmt.Initialization.Value);
-        }
 
         _assembly.Add($"jmp {startLabel}");
         _assembly.Add($"{incrementLabel}:");
-
         if (forStmt.Increment.HasValue)
-        {
             GenerateExpression(forStmt.Increment.Value);
-        }
 
         _assembly.Add($"{startLabel}:");
         if (forStmt.Condition.HasValue)
         {
             GenerateExpression(forStmt.Condition.Value);
-            _assembly.Add($"cmp r1, #0");
+            _assembly.Add("cmp r1, #0");
             _assembly.Add($"je {endLabel}");
         }
 
@@ -441,33 +390,24 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         switch (expression)
         {
-            case LiteralExpression literal:
-                _assembly.Add($"mov r1, #{literal.Value}");
+            case LiteralExpression lit:
+                _assembly.Add($"mov r1, #{lit.Value}");
                 break;
-
             case IdentifierExpression ident:
                 if (_variableOffsets.TryGetValue(ident.Name, out var offset))
-                {
                     _assembly.Add($"load_32 r1, [sp - {offset}]");
-                }
                 else
-                {
                     _assembly.Add($"mov r1, {ident.Name}");
-                }
                 break;
-
-            case BinaryExpression binary:
-                GenerateBinary(binary);
+            case BinaryExpression bin:
+                GenerateBinary(bin);
                 break;
-
-            case AssignmentExpression assignment:
-                GenerateAssignment(assignment);
+            case AssignmentExpression assign:
+                GenerateAssignment(assign);
                 break;
-
             case UnaryExpression unary:
                 GenerateUnary(unary);
                 break;
-
             case ParenthesizedExpression paren:
                 GenerateExpression(paren.Expression);
                 break;
@@ -477,18 +417,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private void GenerateBinary(BinaryExpression binary)
     {
         GenerateExpression(binary.Lhs);
-        _assembly.Add($"push r1");
-
+        _assembly.Add("push r1");
         GenerateExpression(binary.Rhs);
-        _assembly.Add($"pop r2");
+        _assembly.Add("pop r2");
 
         var op = binary.Op;
-        if (op == BinaryOperator.Assign)
-        {
-            _assembly.Add($"mov r1, r2");
-            return;
-        }
-
         var asmOp = op.ToAssembly();
 
         if (op is BinaryOperator.Equal or BinaryOperator.NotEqual or
@@ -496,8 +429,8 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual)
         {
             _assembly.Add($"cmp r2, r1");
-            _assembly.Add($"mov r1, #1");
-            _assembly.Add($"mov r1, #0");
+            _assembly.Add("mov r1, #0");
+            _assembly.Add("mov r1, #1");
             return;
         }
 
@@ -507,44 +440,39 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private void GenerateAssignment(AssignmentExpression assignment)
     {
         GenerateExpression(assignment.Value);
-
-        if (assignment.Target is IdentifierExpression ident)
+        if (assignment.Target is IdentifierExpression ident &&
+            _variableOffsets.TryGetValue(ident.Name, out var offset))
         {
-            if (_variableOffsets.TryGetValue(ident.Name, out var offset))
-            {
-                _assembly.Add($"store_32 [sp - {offset}], r1");
-            }
+            _assembly.Add($"store_32 [sp - {offset}], r1");
         }
     }
 
     private void GenerateUnary(UnaryExpression unary)
     {
         GenerateExpression(unary.Operand);
-
         switch (unary.Op)
         {
             case UnaryOperator.Minus:
-                _assembly.Add($"neg r1, r1");
+                _assembly.Add("neg r1, r1");
                 break;
             case UnaryOperator.BitwiseNot:
-                _assembly.Add($"not r1, r1");
+                _assembly.Add("not r1, r1");
                 break;
             case UnaryOperator.LogicalNot:
-                _assembly.Add($"cmp r1, #0");
-                _assembly.Add($"mov r1, #1");
-                _assembly.Add($"mov r1, #0");
+                _assembly.Add("cmp r1, #0");
+                _assembly.Add("mov r1, #1");
+                _assembly.Add("mov r1, #0");
                 break;
         }
     }
 
     private string GetTempLabel() => $"L{_labelCounter++}";
-    private string GetTempRegister() => $"r{_tempCounter++ % 13 + 1}";
 
     private Token? Peek() => _position < _tokens.Count ? _tokens[_position] : null;
     private Token Consume() => _tokens[_position++];
     private void Consume(TokenType type)
     {
-        if (Peek().HasValue && Peek()?.Value.Type == type)
+        if (Peek().HasValue && Peek().Value.Type == type)
             _position++;
     }
     private string GetTokenValue(Token token) => _source.Substring(token.Range.Start, token.Range.End - token.Range.Start);

@@ -35,4 +35,6 @@ public enum TokenType
     Slash,  
     Star,   
     Percent,
+    Break,
+    Continue,
 }
