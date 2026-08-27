@@ -20,8 +20,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         while (_position < _tokens.Count)
         {
             var statement = ParseStatement();
+
             if (statement.HasValue)
+            {
                 GenerateStatement(statement.Value);
+            }
         }
         return _assembly;
     }
@@ -74,8 +77,12 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         Consume();
         Expression? expression = null;
+
         if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
+        {
             expression = ParseExpression();
+        }
+
         Consume(TokenType.Semicolon);
         return new ReturnStatement(expression);
     }
@@ -104,6 +111,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         Consume();
         Consume(TokenType.OpenParen);
         var condition = ParseExpression();
+
         Consume(TokenType.CloseParen);
         var body = ParseStatement();
         return new WhileStatement(condition, body.Value);
@@ -115,18 +123,30 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         Consume(TokenType.OpenParen);
 
         Statement? initialization = null;
+
         if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
+        {
             initialization = ParseStatement();
+        }
+
         Consume(TokenType.Semicolon);
 
         Expression? condition = null;
+
         if (Peek().HasValue && Peek().Value.Type != TokenType.Semicolon)
+        {
             condition = ParseExpression();
+        }
+
         Consume(TokenType.Semicolon);
 
         Expression? increment = null;
+
         if (Peek().HasValue && Peek().Value.Type != TokenType.CloseParen)
+        {
             increment = ParseExpression();
+        }
+
         Consume(TokenType.CloseParen);
 
         var body = ParseStatement();
@@ -151,18 +171,22 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         Consume(TokenType.OpenCurlyBracket);
         var statements = new List<Statement>();
+
         while (_position < _tokens.Count && Peek().Value.Type != TokenType.CloseCurlyBracket)
         {
             var stmt = ParseStatement();
             if (stmt.HasValue) statements.Add(stmt.Value);
         }
+
         Consume(TokenType.CloseCurlyBracket);
+
         return new BlockStatement(statements);
     }
 
     private Statement ParseEmptyStatement()
     {
         Consume(TokenType.Semicolon);
+
         return new EmptyStatement();
     }
 
@@ -170,6 +194,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         var expr = ParseExpression();
         Consume(TokenType.Semicolon);
+
         return new ExpressionStatement(expr);
     }
 
@@ -182,7 +207,6 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             var token = Peek();
             if (!token.HasValue) break;
 
-            // Special handling for assignment (lowest precedence)
             if (token.Value.Type == TokenType.Assign && precedence <= 0)
             {
                 Consume();
@@ -191,8 +215,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             }
 
             var op = GetBinaryOperator(token.Value);
+
             if (!op.HasValue || GetPrecedence(op.Value) <= precedence)
+            {
                 break;
+            }
 
             Consume();
             var right = ParseExpression(GetPrecedence(op.Value));
@@ -222,6 +249,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     {
         var expr = ParseExpression();
         Consume(TokenType.CloseParen);
+
         return new ParenthesizedExpression(expr);
     }
 
@@ -236,32 +264,30 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             _ => throw new NotImplementedException()
         };
         var operand = ParseExpression(GetPrecedence(BinaryOperator.Plus));
+
         return new UnaryExpression(op, operand);
     }
 
-    private BinaryOperator? GetBinaryOperator(Token token)
+    private BinaryOperator? GetBinaryOperator(Token token) => token.Type switch
     {
-        return token.Type switch
-        {
-            TokenType.Plus => BinaryOperator.Plus,
-            TokenType.Minus => BinaryOperator.Minus,
-            TokenType.Star => BinaryOperator.Multiply,
-            TokenType.Slash => BinaryOperator.Divide,
-            TokenType.Percent => BinaryOperator.Modulo,
-            TokenType.BitAnd => BinaryOperator.BitwiseAnd,
-            TokenType.BitOr => BinaryOperator.BitwiseOr,
-            TokenType.BitXor => BinaryOperator.BitwiseXor,
-            TokenType.BitLShift => BinaryOperator.BitwiseLeftShift,
-            TokenType.BitRShift => BinaryOperator.BitwiseRightShift,
-            TokenType.BitASRShift => BinaryOperator.BitwiseRightShift,
-            TokenType.LessThan => BinaryOperator.LessThan,
-            TokenType.GreaterThan => BinaryOperator.GreaterThan,
-            TokenType.Assign when Peek().HasValue && Peek().Value.Type == TokenType.Assign => BinaryOperator.Equal,
-            TokenType.LogicalAnd => BinaryOperator.LogicalAnd,
-            TokenType.LogicalOr => BinaryOperator.LogicalOr,
-            _ => null
-        };
-    }
+        TokenType.Plus => BinaryOperator.Plus,
+        TokenType.Minus => BinaryOperator.Minus,
+        TokenType.Star => BinaryOperator.Multiply,
+        TokenType.Slash => BinaryOperator.Divide,
+        TokenType.Percent => BinaryOperator.Modulo,
+        TokenType.BitAnd => BinaryOperator.BitwiseAnd,
+        TokenType.BitOr => BinaryOperator.BitwiseOr,
+        TokenType.BitXor => BinaryOperator.BitwiseXor,
+        TokenType.BitLShift => BinaryOperator.BitwiseLeftShift,
+        TokenType.BitRShift => BinaryOperator.BitwiseRightShift,
+        TokenType.BitASRShift => BinaryOperator.BitwiseRightShift,
+        TokenType.LessThan => BinaryOperator.LessThan,
+        TokenType.GreaterThan => BinaryOperator.GreaterThan,
+        TokenType.Assign when Peek().HasValue && Peek().Value.Type == TokenType.Assign => BinaryOperator.Equal,
+        TokenType.LogicalAnd => BinaryOperator.LogicalAnd,
+        TokenType.LogicalOr => BinaryOperator.LogicalOr,
+        _ => null
+    };
 
     private int GetPrecedence(BinaryOperator op) => op switch
     {
@@ -279,8 +305,6 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         BinaryOperator.Multiply or BinaryOperator.Divide or BinaryOperator.Modulo => 10,
         _ => 0
     };
-
-    // ------------------- Code Generation ----------------------
 
     private void GenerateStatement(Statement statement)
     {
@@ -302,7 +326,10 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private void GenerateReturn(ReturnStatement rs)
     {
         if (rs.Expression.HasValue)
+        {
             GenerateExpression(rs.Expression.Value);
+        }
+
         _assembly.Add("ret");
     }
 
@@ -317,9 +344,12 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         GenerateStatement(ifStmt.ThenStatement);
 
-        // Only add jump to end if there is an else block or if the then block doesn't end with return/jump
-        bool thenEndsWithReturn = ifStmt.ThenStatement is ReturnStatement ||
-                                  (ifStmt.ThenStatement is BlockStatement bs && bs.Statements.LastOrDefault() is ReturnStatement);
+        bool thenEndsWithReturn = ifStmt.ThenStatement switch
+        {
+            ReturnStatement or BlockStatement { Statements: [.., ReturnStatement] } => true,
+            _ => false
+        };
+
         if (ifStmt.ElseStatement.HasValue || !thenEndsWithReturn)
         {
             _assembly.Add($"jmp {endLabel}");
@@ -327,11 +357,14 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         _assembly.Add($"{elseLabel}:");
         if (ifStmt.ElseStatement.HasValue)
+        {
             GenerateStatement(ifStmt.ElseStatement.Value);
+        }
 
-        // Add end label only if we used it
         if (ifStmt.ElseStatement.HasValue || !thenEndsWithReturn)
+        {
             _assembly.Add($"{endLabel}:");
+        }
     }
 
     private void GenerateWhile(WhileStatement whileStmt)
@@ -341,10 +374,12 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         _assembly.Add($"{startLabel}:");
         GenerateExpression(whileStmt.Condition);
+
         _assembly.Add("cmp r1, 0");
         _assembly.Add($"je {endLabel}");
 
         GenerateStatement(whileStmt.Body);
+
         _assembly.Add($"jmp {startLabel}");
         _assembly.Add($"{endLabel}:");
     }
@@ -356,14 +391,20 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var incrementLabel = GetTempLabel();
 
         if (forStmt.Initialization.HasValue)
+        {
             GenerateStatement(forStmt.Initialization.Value);
+        }
 
         _assembly.Add($"jmp {startLabel}");
         _assembly.Add($"{incrementLabel}:");
+
         if (forStmt.Increment.HasValue)
+        {
             GenerateExpression(forStmt.Increment.Value);
+        }
 
         _assembly.Add($"{startLabel}:");
+
         if (forStmt.Condition.HasValue)
         {
             GenerateExpression(forStmt.Condition.Value);
@@ -424,9 +465,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var op = binary.Op;
         var asmOp = op.ToAssembly();
 
-        if (op is BinaryOperator.Equal or BinaryOperator.NotEqual or
-            BinaryOperator.LessThan or BinaryOperator.LessThanOrEqual or
-            BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual)
+        if (IsComparisonOperator(op))
         {
             _assembly.Add($"cmp r2, r1");
             _assembly.Add("mov r1, 0");
@@ -435,13 +474,21 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         }
 
         _assembly.Add($"{asmOp} r1, r2, r1");
+
+        bool IsComparisonOperator(BinaryOperator op) => op switch
+        {
+            BinaryOperator.Equal or BinaryOperator.NotEqual or
+            BinaryOperator.LessThan or BinaryOperator.LessThanOrEqual or
+            BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual => true,
+            _ => false
+        };
     }
 
     private void GenerateAssignment(AssignmentExpression assignment)
     {
         GenerateExpression(assignment.Value);
-        if (assignment.Target is IdentifierExpression ident &&
-            _variableOffsets.TryGetValue(ident.Name, out var offset))
+
+        if (assignment.Target is IdentifierExpression ident && _variableOffsets.TryGetValue(ident.Name, out var offset))
         {
             _assembly.Add($"store_32 [sp - {offset}], r1");
         }
@@ -450,6 +497,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private void GenerateUnary(UnaryExpression unary)
     {
         GenerateExpression(unary.Operand);
+
         switch (unary.Op)
         {
             case UnaryOperator.Minus:
@@ -473,9 +521,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private void Consume(TokenType type)
     {
         if (Peek().HasValue && Peek().Value.Type == type)
+        {
             _position++;
+        }
     }
+
     private string GetTokenValue(Token token) => _source.Substring(token.Range.Start, token.Range.End - token.Range.Start);
-    private bool IsType(string value) => Keywords.IsType(value);
     private bool IsVariable(string value) => _variables.ContainsKey(value);
 }
