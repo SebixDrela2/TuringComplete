@@ -9,13 +9,12 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private readonly string _source = source;
     private readonly IReadOnlyList<Token> _tokens = tokens;
     private readonly List<string> _assembly = [];
-    private readonly Dictionary<string, int> _labels = [];
     private readonly Dictionary<string, string> _variables = [];
     private readonly Dictionary<string, int> _variableOffsets = [];
     private int _stackOffset = 0;
     private int _labelCounter = 0;
 
-    public List<string> Parse()
+    public IReadOnlyList<string> Parse()
     {
         while (_position < _tokens.Count)
         {
@@ -32,7 +31,11 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
     private Statement? ParseStatement()
     {
         var token = Peek();
-        if (!token.HasValue) return null;
+
+        if (!token.HasValue)
+        {
+            return null;
+        }
 
         return token.Value.Type switch
         {
@@ -66,10 +69,12 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             Consume();
             var expression = ParseExpression();
             Consume(TokenType.Semicolon);
+
             return new DeclarationStatement(type, name, expression);
         }
 
         Consume(TokenType.Semicolon);
+
         return new DeclarationStatement(type, name, null);
     }
 
