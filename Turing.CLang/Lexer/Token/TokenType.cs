@@ -30,4 +30,9 @@ public enum TokenType
     LessThan,
     GreaterThan,
     Assign,
+    Plus,   
+    Minus,  
+    Slash,  
+    Star,   
+    Percent,
 }

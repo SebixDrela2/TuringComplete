@@ -33,10 +33,35 @@ public ref struct Tokenizer(ReadOnlySpan<char> content)
 
     private Token GetToken()
     {
-        var firstChar = _rest[0];
-        var delimiterIndex = _rest.IndexOfAny(_delimiterSearchValues);
         ReadOnlySpan<char> chunk;
         Range range;
+
+        // Check for multi-character operators FIRST
+        if (_rest.Length >= 2)
+        {
+            var twoChar = _rest[..2];
+
+            // Check for triple char operator (>>>)
+            if (_rest.Length >= 3 && _rest[..3] is ['>', '>', '>'])
+            {
+                chunk = _rest[..3];
+                _rest = _rest[3..];
+                range = GetRange(_content, chunk);
+                return GetMultiCharToken(chunk, range);
+            }
+
+            // Check for double char operators
+            if (twoChar is ['&', '&'] or ['|', '|'] or ['<', '<'] or ['>', '>'])
+            {
+                chunk = _rest[..2];
+                _rest = _rest[2..];
+                range = GetRange(_content, chunk);
+                return GetMultiCharToken(chunk, range);
+            }
+        }
+
+        // Now handle single character
+        var delimiterIndex = _rest.IndexOfAny(_delimiterSearchValues);
 
         if (delimiterIndex == 0)
         {
@@ -114,6 +139,11 @@ public ref struct Tokenizer(ReadOnlySpan<char> content)
             '<' => TokenType.LessThan,
             '>' => TokenType.GreaterThan,
             '=' => TokenType.Assign,
+            '+' => TokenType.Plus,
+            '-' => TokenType.Minus,
+            '/' => TokenType.Slash,
+            '*' => TokenType.Star,
+            '%' => TokenType.Percent,
             _ => TokenType.Identifier
         };
 

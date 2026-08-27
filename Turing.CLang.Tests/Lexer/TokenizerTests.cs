@@ -131,7 +131,7 @@ public class TokenizerTests
         var source = "if (x > 0) { y = 1; }";
         var tokens = Tokenize(source);
 
-        Assert.That(tokens.Count, Is.EqualTo(13));
+        Assert.That(tokens.Count, Is.EqualTo(12));
         Assert.That(tokens[0].Type, Is.EqualTo(TokenType.If));
         Assert.That(tokens[1].Type, Is.EqualTo(TokenType.OpenParen));
         Assert.That(tokens[2].Type, Is.EqualTo(TokenType.Identifier)); // x
@@ -152,7 +152,7 @@ public class TokenizerTests
         var source = "while (i < 10) { i = i + 1; }";
         var tokens = Tokenize(source);
 
-        Assert.That(tokens.Count, Is.EqualTo(15));
+        Assert.That(tokens.Count, Is.EqualTo(14));
         Assert.That(tokens[0].Type, Is.EqualTo(TokenType.While));
         Assert.That(tokens[1].Type, Is.EqualTo(TokenType.OpenParen));
         Assert.That(tokens[2].Type, Is.EqualTo(TokenType.Identifier)); // i
@@ -175,7 +175,7 @@ public class TokenizerTests
         var source = "for (i = 0; i < 10; i = i + 1) { }";
         var tokens = Tokenize(source);
 
-        Assert.That(tokens.Count, Is.EqualTo(23));
+        Assert.That(tokens.Count, Is.EqualTo(18));
         Assert.That(tokens[0].Type, Is.EqualTo(TokenType.For));
         Assert.That(tokens[1].Type, Is.EqualTo(TokenType.OpenParen));
         Assert.That(tokens[2].Type, Is.EqualTo(TokenType.Identifier)); // i
@@ -189,7 +189,7 @@ public class TokenizerTests
         Assert.That(tokens[10].Type, Is.EqualTo(TokenType.Identifier)); // i
         Assert.That(tokens[11].Type, Is.EqualTo(TokenType.Assign));
         Assert.That(tokens[12].Type, Is.EqualTo(TokenType.Identifier)); // i
-        Assert.That(tokens[13].Type, Is.EqualTo(TokenType.BitOr)); // +
+        Assert.That(tokens[13].Type, Is.EqualTo(TokenType.Plus)); // +
         Assert.That(tokens[14].Type, Is.EqualTo(TokenType.Identifier)); // 1
         Assert.That(tokens[15].Type, Is.EqualTo(TokenType.CloseParen));
         Assert.That(tokens[16].Type, Is.EqualTo(TokenType.OpenCurlyBracket));
@@ -271,7 +271,7 @@ int main()
 }";
         var tokens = Tokenize(source);
 
-        Assert.That(tokens.Count, Is.EqualTo(13));
+        Assert.That(tokens.Count, Is.EqualTo(14));
         Assert.That(tokens[0].Type, Is.EqualTo(TokenType.Identifier)); // int
         Assert.That(tokens[1].Type, Is.EqualTo(TokenType.Identifier)); // main
         Assert.That(tokens[2].Type, Is.EqualTo(TokenType.OpenParen));
@@ -372,6 +372,7 @@ int main()
         };
 
         Assert.That(tokens.Count, Is.EqualTo(expectedTypes.Length));
+
         for (int i = 0; i < tokens.Count; i++)
         {
             Assert.That(tokens[i].Type, Is.EqualTo(expectedTypes[i]));
