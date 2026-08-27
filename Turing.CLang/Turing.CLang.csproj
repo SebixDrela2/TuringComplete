@@ -7,8 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Turing.CLang\Turing.CLang.csproj" />
-  </ItemGroup>
-
 </Project>
