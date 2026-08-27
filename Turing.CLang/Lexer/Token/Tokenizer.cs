@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -9,8 +8,8 @@ internal ref struct Tokenizer(ReadOnlySpan<char> content)
 {
     private static readonly SearchValues<char> _wsSearchValues = SearchValues.Create("\n\r\t ");
 
+    private readonly ReadOnlySpan<char> _content = content;
     private ReadOnlySpan<char> _rest = content;
-    private ReadOnlySpan<char> _content = content;
 
     public IReadOnlyList<Token> Tokenize()
     {
