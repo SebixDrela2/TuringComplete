@@ -4,9 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace Turing.CLang.Lexer.Token;
 
-internal ref struct Tokenizer(ReadOnlySpan<char> content)
+public ref struct Tokenizer(ReadOnlySpan<char> content)
 {
     private static readonly SearchValues<char> _wsSearchValues = SearchValues.Create("\n\r\t ");
+    private static readonly SearchValues<char> _delimiterSearchValues = SearchValues.Create(";:[]{}(),&|^~!<>=");
 
     private readonly ReadOnlySpan<char> _content = content;
     private ReadOnlySpan<char> _rest = content;
@@ -15,8 +16,15 @@ internal ref struct Tokenizer(ReadOnlySpan<char> content)
     {
         var tokens = new List<Token>();
 
-        while (_content is not [])
+        while (_rest is not [])
         {
+            var nonWhitespaceIndex = _rest.IndexOfAnyExcept(_wsSearchValues);
+            if (nonWhitespaceIndex < 0)
+            {
+                break;
+            }
+
+            _rest = _rest[nonWhitespaceIndex..];
             tokens.Add(GetToken());
         }
 
@@ -25,10 +33,39 @@ internal ref struct Tokenizer(ReadOnlySpan<char> content)
 
     private Token GetToken()
     {
-        var chunk = GetChunk();
-        var range = GetRange(_content, chunk);
+        var firstChar = _rest[0];
+        var delimiterIndex = _rest.IndexOfAny(_delimiterSearchValues);
+        ReadOnlySpan<char> chunk;
+        Range range;
 
-        if (chunk.Length is 1)
+        if (delimiterIndex == 0)
+        {
+            chunk = _rest[..1];
+            _rest = _rest[1..];
+            range = GetRange(_content, chunk);
+            return GetSingleCharToken(chunk[0], range);
+        }
+
+        var nextDelimiterIndex = _rest.IndexOfAny(_delimiterSearchValues);
+        var nextWhitespaceIndex = _rest.IndexOfAny(_wsSearchValues);
+
+        int endIndex = _rest.Length;
+
+        if (nextDelimiterIndex >= 0)
+        {
+            endIndex = nextDelimiterIndex;
+        }
+
+        if (nextWhitespaceIndex >= 0 && nextWhitespaceIndex < endIndex)
+        {
+            endIndex = nextWhitespaceIndex;
+        }
+
+        chunk = _rest[..endIndex];
+        _rest = _rest[endIndex..];
+        range = GetRange(_content, chunk);
+
+        if (chunk.Length == 1)
         {
             return GetSingleCharToken(chunk[0], range);
         }
@@ -67,42 +104,20 @@ internal ref struct Tokenizer(ReadOnlySpan<char> content)
             '{' => TokenType.OpenCurlyBracket,
             '}' => TokenType.CloseCurlyBracket,
             ',' => TokenType.Comma,
+            '(' => TokenType.OpenParen,
+            ')' => TokenType.CloseParen,
             '&' => TokenType.BitAnd,
             '|' => TokenType.BitOr,
             '^' => TokenType.BitXor,
             '~' => TokenType.BitNot,
             '!' => TokenType.LogicalNot,
-             _ => throw new NotImplementedException($"Not valid single char. {c}")
+            '<' => TokenType.LessThan,
+            '>' => TokenType.GreaterThan,
+            '=' => TokenType.Assign,
+            _ => TokenType.Identifier
         };
 
         return new Token(type, range);
-    }
-
-    private ReadOnlySpan<char> GetChunk()
-    {
-        ReadOnlySpan<char> chunk;
-        var whitespaceIndex = _rest.IndexOfAny(_wsSearchValues);
-
-        if (whitespaceIndex < 0)
-        {
-            chunk = _rest;
-            _rest = [];
-            return chunk;
-        }
-
-        chunk = _rest[..whitespaceIndex];
-
-        var afterWhitespace = _rest[whitespaceIndex..];
-        var nonWhitespaceIndex = afterWhitespace.IndexOfAnyExcept(_wsSearchValues);
-
-        if (nonWhitespaceIndex < 0)
-        {
-            _rest = [];
-            return chunk;
-        }
-
-        _rest =  afterWhitespace[nonWhitespaceIndex..];
-        return chunk;
     }
 
     private static Range GetRange(ReadOnlySpan<char> source, ReadOnlySpan<char> slice)
@@ -121,8 +136,8 @@ internal ref struct Tokenizer(ReadOnlySpan<char> content)
         if (elementOffset < 0 || elementOffset >= source.Length)
         {
             return default;
-        }   
+        }
 
-        return new(elementOffset, elementOffset + slice.Length);
+        return new Range(elementOffset, elementOffset + slice.Length);
     }
 }
