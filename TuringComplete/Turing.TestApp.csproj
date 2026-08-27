@@ -8,6 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="main.c" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="main.c">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Turing.CLang\Turing.CLang.csproj" />
   </ItemGroup>
 
