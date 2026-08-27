@@ -2,6 +2,8 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
+  <Project Path="Turing.CLang.Tests/Turing.CLang.Tests.csproj" Id="ee0f13f1-6d66-46c5-afc5-67d5092f1557" />
+  <Project Path="Turing.CLang/Turing.CLang.csproj" Id="45294070-05f0-40ae-9476-4635fe9aaec6" />
   <Project Path="Turing.Core/Turing.Core.csproj" />
   <Project Path="Turing.Tests/Turing.Tests.csproj" />
   <Project Path="TuringComplete/Turing.TestApp.csproj" />
