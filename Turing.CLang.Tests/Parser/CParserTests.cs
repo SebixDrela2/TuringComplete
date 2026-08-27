@@ -49,7 +49,7 @@ internal class CParserTests
         var source = "int x = 10;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo("mov r1, #10"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 10"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
     }
 
@@ -59,9 +59,9 @@ internal class CParserTests
         var source = "int x = 5; int y = 10;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(4));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
-        Assert.That(result[2], Is.EqualTo("mov r1, #10"));
+        Assert.That(result[2], Is.EqualTo("mov r1, 10"));
         Assert.That(result[3], Is.EqualTo("store_32 [sp - 4], r1"));
     }
 
@@ -80,7 +80,7 @@ internal class CParserTests
         var source = "return 42;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo("mov r1, #42"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 42"));
         Assert.That(result[1], Is.EqualTo("ret"));
     }
 
@@ -90,7 +90,7 @@ internal class CParserTests
         var source = "int x = 5; return x;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(4));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
         Assert.That(result[2], Is.EqualTo("load_32 r1, [sp - 0]"));
         Assert.That(result[3], Is.EqualTo("ret"));
@@ -103,9 +103,9 @@ internal class CParserTests
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(6));
         Assert.That(result[0], Is.EqualTo("mov r1, x"));
-        Assert.That(result[1], Is.EqualTo("cmp r1, #0"));
+        Assert.That(result[1], Is.EqualTo("cmp r1, 0"));
         Assert.That(result[2], Is.EqualTo("je L0"));      // no colon
-        Assert.That(result[3], Is.EqualTo("mov r1, #1"));
+        Assert.That(result[3], Is.EqualTo("mov r1, 1"));
         Assert.That(result[4], Is.EqualTo("ret"));
         Assert.That(result[5], Is.EqualTo("L0:"));
     }
@@ -117,13 +117,13 @@ internal class CParserTests
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(10));
         Assert.That(result[0], Is.EqualTo("mov r1, x"));
-        Assert.That(result[1], Is.EqualTo("cmp r1, #0"));
+        Assert.That(result[1], Is.EqualTo("cmp r1, 0"));
         Assert.That(result[2], Is.EqualTo("je L0"));      // no colon
-        Assert.That(result[3], Is.EqualTo("mov r1, #1"));
+        Assert.That(result[3], Is.EqualTo("mov r1, 1"));
         Assert.That(result[4], Is.EqualTo("ret"));
         Assert.That(result[5], Is.EqualTo("jmp L1"));     // no colon
         Assert.That(result[6], Is.EqualTo("L0:"));
-        Assert.That(result[7], Is.EqualTo("mov r1, #2"));
+        Assert.That(result[7], Is.EqualTo("mov r1, 2"));
         Assert.That(result[8], Is.EqualTo("ret"));
         Assert.That(result[9], Is.EqualTo("L1:"));
     }
@@ -138,17 +138,17 @@ internal class CParserTests
         Assert.That(result[0], Is.EqualTo("L0:"));
         Assert.That(result[1], Is.EqualTo("mov r1, x"));
         Assert.That(result[2], Is.EqualTo("push r1"));
-        Assert.That(result[3], Is.EqualTo("mov r1, #10"));
+        Assert.That(result[3], Is.EqualTo("mov r1, 10"));
         Assert.That(result[4], Is.EqualTo("pop r2"));
         Assert.That(result[5], Is.EqualTo("cmp r2, r1"));
-        Assert.That(result[6], Is.EqualTo("mov r1, #0"));
-        Assert.That(result[7], Is.EqualTo("mov r1, #1"));
-        Assert.That(result[8], Is.EqualTo("cmp r1, #0"));
+        Assert.That(result[6], Is.EqualTo("mov r1, 0"));
+        Assert.That(result[7], Is.EqualTo("mov r1, 1"));
+        Assert.That(result[8], Is.EqualTo("cmp r1, 0"));
         Assert.That(result[9], Is.EqualTo("je L1"));      // no colon
         // body
         Assert.That(result[10], Is.EqualTo("mov r1, x"));
         Assert.That(result[11], Is.EqualTo("push r1"));
-        Assert.That(result[12], Is.EqualTo("mov r1, #1"));
+        Assert.That(result[12], Is.EqualTo("mov r1, 1"));
         Assert.That(result[13], Is.EqualTo("pop r2"));
         Assert.That(result[14], Is.EqualTo("add r1, r2, r1"));
         Assert.That(result[15], Is.EqualTo("store_32 [sp - 0], r1"));
@@ -208,7 +208,7 @@ internal class CParserTests
         var source = "{ int x = 5; return x; }";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(4));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
         Assert.That(result[2], Is.EqualTo("load_32 r1, [sp - 0]"));
         Assert.That(result[3], Is.EqualTo("ret"));
@@ -220,9 +220,9 @@ internal class CParserTests
         var source = "{ int x = 5; { int y = 10; } return x; }";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(6));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
-        Assert.That(result[2], Is.EqualTo("mov r1, #10"));
+        Assert.That(result[2], Is.EqualTo("mov r1, 10"));
         Assert.That(result[3], Is.EqualTo("store_32 [sp - 4], r1"));
         Assert.That(result[4], Is.EqualTo("load_32 r1, [sp - 0]"));
         Assert.That(result[5], Is.EqualTo("ret"));
@@ -236,7 +236,7 @@ internal class CParserTests
         var result = Parse(source);
         // First declaration: no output; then assignment: mov + store
         Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result[0], Is.EqualTo("mov r1, #42"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 42"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
     }
 
@@ -246,9 +246,9 @@ internal class CParserTests
         var source = "int x = 5 + 3;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(6));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("push r1"));
-        Assert.That(result[2], Is.EqualTo("mov r1, #3"));
+        Assert.That(result[2], Is.EqualTo("mov r1, 3"));
         Assert.That(result[3], Is.EqualTo("pop r2"));
         Assert.That(result[4], Is.EqualTo("add r1, r2, r1"));
         Assert.That(result[5], Is.EqualTo("store_32 [sp - 0], r1"));
@@ -281,8 +281,8 @@ internal class CParserTests
         var result = Parse(source);
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.Any(x => x.Contains("cmp")), Is.True);
-        Assert.That(result.Any(x => x.Contains("mov r1, #1")), Is.True);
-        Assert.That(result.Any(x => x.Contains("mov r1, #0")), Is.True);
+        Assert.That(result.Any(x => x.Contains("mov r1, 1")), Is.True);
+        Assert.That(result.Any(x => x.Contains("mov r1, 0")), Is.True);
     }
 
     [Test]
@@ -292,7 +292,7 @@ internal class CParserTests
         var result = Parse(source);
         // Should be 3 instructions: mov, neg, store
         Assert.That(result.Count, Is.EqualTo(3));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("neg r1, r1"));
         Assert.That(result[2], Is.EqualTo("store_32 [sp - 0], r1"));
     }
@@ -303,9 +303,9 @@ internal class CParserTests
         var source = "int x = !5;";
         var result = Parse(source);
         Assert.That(result, Is.Not.Empty);
-        Assert.That(result.Any(x => x.Contains("cmp r1, #0")), Is.True);
-        Assert.That(result.Any(x => x.Contains("mov r1, #1")), Is.True);
-        Assert.That(result.Any(x => x.Contains("mov r1, #0")), Is.True);
+        Assert.That(result.Any(x => x.Contains("cmp r1, 0")), Is.True);
+        Assert.That(result.Any(x => x.Contains("mov r1, 1")), Is.True);
+        Assert.That(result.Any(x => x.Contains("mov r1, 0")), Is.True);
     }
 
     [Test]
@@ -314,9 +314,9 @@ internal class CParserTests
         var source = "int x = 5; int y = 10; int z = x + y;";
         var result = Parse(source);
         Assert.That(result.Count, Is.EqualTo(10));
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
-        Assert.That(result[2], Is.EqualTo("mov r1, #10"));
+        Assert.That(result[2], Is.EqualTo("mov r1, 10"));
         Assert.That(result[3], Is.EqualTo("store_32 [sp - 4], r1"));
         Assert.That(result[4], Is.EqualTo("load_32 r1, [sp - 0]"));
         Assert.That(result[5], Is.EqualTo("push r1"));
@@ -342,12 +342,12 @@ internal class CParserTests
         // Expected: initialization (2 instr) + assignment (load, push, mov, pop, add, store) = 8? Actually test expects 13 but we get 8. Let's check actual output.
         // We'll just check the key instructions.
         Assert.That(result.Count, Is.EqualTo(8)); // actual from test run
-        Assert.That(result[0], Is.EqualTo("mov r1, #5"));
+        Assert.That(result[0], Is.EqualTo("mov r1, 5"));
         Assert.That(result[1], Is.EqualTo("store_32 [sp - 0], r1"));
         // assignment part:
         Assert.That(result[2], Is.EqualTo("load_32 r1, [sp - 0]"));
         Assert.That(result[3], Is.EqualTo("push r1"));
-        Assert.That(result[4], Is.EqualTo("mov r1, #1"));
+        Assert.That(result[4], Is.EqualTo("mov r1, 1"));
         Assert.That(result[5], Is.EqualTo("pop r2"));
         Assert.That(result[6], Is.EqualTo("add r1, r2, r1"));
         Assert.That(result[7], Is.EqualTo("store_32 [sp - 0], r1"));

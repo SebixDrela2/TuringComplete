@@ -312,7 +312,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         var endLabel = GetTempLabel();
 
         GenerateExpression(ifStmt.Condition);
-        _assembly.Add("cmp r1, #0");
+        _assembly.Add("cmp r1, 0");
         _assembly.Add($"je {elseLabel}");
 
         GenerateStatement(ifStmt.ThenStatement);
@@ -341,7 +341,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
 
         _assembly.Add($"{startLabel}:");
         GenerateExpression(whileStmt.Condition);
-        _assembly.Add("cmp r1, #0");
+        _assembly.Add("cmp r1, 0");
         _assembly.Add($"je {endLabel}");
 
         GenerateStatement(whileStmt.Body);
@@ -367,7 +367,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         if (forStmt.Condition.HasValue)
         {
             GenerateExpression(forStmt.Condition.Value);
-            _assembly.Add("cmp r1, #0");
+            _assembly.Add("cmp r1, 0");
             _assembly.Add($"je {endLabel}");
         }
 
@@ -391,7 +391,7 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
         switch (expression)
         {
             case LiteralExpression lit:
-                _assembly.Add($"mov r1, #{lit.Value}");
+                _assembly.Add($"mov r1, {lit.Value}");
                 break;
             case IdentifierExpression ident:
                 if (_variableOffsets.TryGetValue(ident.Name, out var offset))
@@ -429,8 +429,8 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
             BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual)
         {
             _assembly.Add($"cmp r2, r1");
-            _assembly.Add("mov r1, #0");
-            _assembly.Add("mov r1, #1");
+            _assembly.Add("mov r1, 0");
+            _assembly.Add("mov r1, 1");
             return;
         }
 
@@ -459,9 +459,9 @@ public ref struct CParser(string source, IReadOnlyList<Token> tokens)
                 _assembly.Add("not r1, r1");
                 break;
             case UnaryOperator.LogicalNot:
-                _assembly.Add("cmp r1, #0");
-                _assembly.Add("mov r1, #1");
-                _assembly.Add("mov r1, #0");
+                _assembly.Add("cmp r1, 0");
+                _assembly.Add("mov r1, 1");
+                _assembly.Add("mov r1, 0");
                 break;
         }
     }
